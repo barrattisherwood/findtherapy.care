@@ -1,0 +1,30 @@
+@switch (type) {
+  @case ('card') {
+    @for (item of items; track item) {
+      <div class="bg-white rounded-lg shadow p-4 space-y-3 animate-pulse">
+        <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+        <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+        <div class="h-3 bg-gray-200 rounded w-full"></div>
+      </div>
+    }
+  }
+  @case ('avatar') {
+    @for (item of items; track item) {
+      <div class="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+    }
+  }
+  @case ('button') {
+    @for (item of items; track item) {
+      <div class="h-10 bg-gray-200 rounded-lg animate-pulse" [style.width]="width"></div>
+    }
+  }
+  @default {
+    @for (item of items; track item) {
+      <div
+        class="bg-gray-200 rounded animate-pulse"
+        [style.width]="width"
+        [style.height]="height"
+      ></div>
+    }
+  }
+}

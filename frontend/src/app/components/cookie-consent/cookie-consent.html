@@ -1,0 +1,18 @@
+@if (showBanner()) {
+  <div class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-gray-200 shadow-lg">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex-1">
+        <p class="text-sm text-gray-700">
+          We use cookies to keep you logged in and improve your experience.
+          <a href="/privacy" class="text-primary-600 hover:underline ml-1">Privacy policy</a>
+        </p>
+      </div>
+      <button
+        (click)="accept()"
+        class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors shrink-0"
+      >
+        Got it
+      </button>
+    </div>
+  </div>
+}

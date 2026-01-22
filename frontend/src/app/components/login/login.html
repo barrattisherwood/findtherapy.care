@@ -1,0 +1,72 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+  <div class="max-w-md w-full space-y-8">
+    <div>
+      <h2 class="text-center text-2xl sm:text-3xl font-bold text-gray-900">
+        Welcome to findlocal.care
+      </h2>
+      <p class="mt-2 text-center text-sm sm:text-base text-gray-600">
+        Sign in to your account
+      </p>
+    </div>
+
+    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
+      <div class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            required
+            class="mt-1 block w-full px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base transition-colors"
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between">
+            <label for="password" class="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <a routerLink="/forgot-password" class="text-sm text-primary-500 hover:text-primary-600">
+              Forgot password?
+            </a>
+          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            [(ngModel)]="password"
+            required
+            class="mt-1 block w-full px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base transition-colors"
+            placeholder="••••••••"
+          />
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {{ error() }}
+        </div>
+      }
+
+      <button
+        type="submit"
+        [disabled]="loading()"
+        class="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 active:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shadow-sm"
+      >
+        {{ loading() ? 'Signing in...' : 'Sign in' }}
+      </button>
+
+      <div class="text-center text-sm">
+        <span class="text-gray-600">Don't have an account?</span>
+        <a routerLink="/register" class="ml-1 text-primary-500 hover:text-primary-600 font-medium">
+          Sign up
+        </a>
+      </div>
+    </form>
+  </div>
+</div>

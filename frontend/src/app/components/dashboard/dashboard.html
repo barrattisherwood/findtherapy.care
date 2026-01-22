@@ -1,0 +1,70 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Section -->
+    <div class="mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+        Welcome back, {{ currentUser()?.username }}!
+      </h1>
+      <p class="mt-2 text-gray-600">
+        Find care providers and manage your healthcare needs.
+      </p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Find Providers</h3>
+        <p class="text-gray-600 text-sm mb-4">Search for healthcare providers in your area.</p>
+        <button class="text-primary-600 font-medium hover:text-primary-700">
+          Search Now →
+        </button>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Saved Providers</h3>
+        <p class="text-gray-600 text-sm mb-4">View your saved care providers.</p>
+        <button class="text-accent-600 font-medium hover:text-accent-700">
+          View Saved →
+        </button>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold mb-2">Your Profile</h3>
+        <p class="text-gray-600 text-sm mb-4">Update your profile and preferences.</p>
+        <button class="text-primary-600 font-medium hover:text-primary-700">
+          Edit Profile →
+        </button>
+      </div>
+    </div>
+
+    <!-- Placeholder Content -->
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">Provider Directory Coming Soon</h3>
+      <p class="text-gray-600 max-w-md mx-auto">
+        We're building the care provider directory. Soon you'll be able to search, filter, and connect with local care providers.
+      </p>
+    </div>
+  </div>
+</div>
