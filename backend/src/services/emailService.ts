@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@findlocal.care';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@findtherapy.care';
 const APP_URL = process.env.APP_URL || 'http://localhost:4200';
 
 export const sendPasswordResetEmail = async (
@@ -34,13 +34,13 @@ export const sendPasswordResetEmail = async (
   }
 
   const mailOptions = {
-    from: `"findlocal.care" <${FROM_EMAIL}>`,
+    from: `"findtherapy.care" <${FROM_EMAIL}>`,
     to: email,
-    subject: 'Reset Your Password - findlocal.care',
+    subject: 'Reset Your Password - findtherapy.care',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Reset Your Password</h2>
-        <p>You requested to reset your password for your findlocal.care account.</p>
+        <p>You requested to reset your password for your findtherapy.care account.</p>
         <p>Click the button below to set a new password:</p>
         <div style="margin: 30px 0;">
           <a href="${resetUrl}"
@@ -54,14 +54,14 @@ export const sendPasswordResetEmail = async (
         </p>
         <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
         <p style="color: #999; font-size: 12px;">
-          findlocal.care - Find local care providers
+          findtherapy.care - Find local care providers
         </p>
       </div>
     `,
     text: `
       Reset Your Password
 
-      You requested to reset your password for your findlocal.care account.
+      You requested to reset your password for your findtherapy.care account.
 
       Click this link to set a new password: ${resetUrl}
 

@@ -1,9 +1,11 @@
-<div class="min-h-screen bg-gradient-to-br from-primary-50 to-accent-50">
-  <!-- Navbar -->
-  <nav class="bg-white shadow">
+<div class="min-h-screen">
+  <!-- Navbar - Fixed on top of hero -->
+  <nav class="absolute top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
-        <h1 class="text-2xl font-bold text-primary-600">findlocal.care</h1>
+        <a routerLink="/">
+          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10" />
+        </a>
         <div class="flex items-center gap-4">
           <a routerLink="/login" class="text-gray-700 hover:text-gray-900 font-medium">
             Login
@@ -19,79 +21,279 @@
     </div>
   </nav>
 
-  <!-- Hero -->
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-    <h2 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-      Find trusted care <br class="sm:hidden">providers near you
-    </h2>
-    <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-      Connect with local healthcare providers, caregivers, and care services. Quality care is just a search away.
-    </p>
-    <a
-      routerLink="/register"
-      class="inline-block bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-lg shadow-lg"
-    >
-      Find Care Now
-    </a>
-  </div>
+  <!-- Hero Section with Image Carousel -->
+  <section class="relative h-[90vh] min-h-[600px] overflow-hidden">
+    <!-- Background Images with Fade -->
+    <div class="absolute inset-0">
+      @for (image of heroImages; track image; let i = $index) {
+        <div
+          class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+          [style.background-image]="'url(' + image + ')'"
+          [class.opacity-100]="currentImageIndex() === i"
+          [class.opacity-0]="currentImageIndex() !== i"
+        ></div>
+      }
+      <!-- Overlay gradient -->
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60"></div>
+    </div>
 
-  <!-- Features -->
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <div class="grid md:grid-cols-3 gap-8">
-      <!-- Feature 1 -->
-      <div class="bg-white rounded-lg shadow-lg p-8">
-        <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold mb-3">Search Providers</h3>
-        <p class="text-gray-600">
-          Find healthcare providers and caregivers in your area. Filter by specialty, location, and availability.
-        </p>
+    <!-- Hero Content -->
+    <div class="relative z-10 h-full flex flex-col justify-center items-center text-center px-4 pt-16">
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 max-w-4xl leading-tight drop-shadow-lg">
+        Find therapists and counsellors near you
+      </h1>
+      <p class="text-xl sm:text-2xl text-white/90 mb-10 max-w-2xl drop-shadow-md">
+        Connect with local mental health professionals and support groups. Quality care is just a search away.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a
+          routerLink="/providers"
+          class="inline-block bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-all font-semibold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
+        >
+          Find a Provider
+        </a>
+        <a
+          routerLink="/support-groups"
+          class="inline-block bg-white/95 text-primary-700 px-8 py-4 rounded-lg hover:bg-white transition-all font-semibold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
+        >
+          Support Groups
+        </a>
       </div>
 
-      <!-- Feature 2 -->
-      <div class="bg-white rounded-lg shadow-lg p-8">
-        <div class="w-12 h-12 bg-accent-100 rounded-lg flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold mb-3">Verified Profiles</h3>
-        <p class="text-gray-600">
-          All care providers are verified with credentials and background checks for your peace of mind.
-        </p>
-      </div>
-
-      <!-- Feature 3 -->
-      <div class="bg-white rounded-lg shadow-lg p-8">
-        <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
-          <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-          </svg>
-        </div>
-        <h3 class="text-xl font-semibold mb-3">Read Reviews</h3>
-        <p class="text-gray-600">
-          See ratings and reviews from other families to help you make informed decisions.
-        </p>
+      <!-- Carousel Indicators -->
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+        @for (image of heroImages; track image; let i = $index) {
+          <button
+            (click)="goToImage(i)"
+            class="w-3 h-3 rounded-full transition-all duration-300"
+            [class]="currentImageIndex() === i ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/70'"
+            [attr.aria-label]="'Go to slide ' + (i + 1)"
+          ></button>
+        }
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- CTA -->
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-    <h3 class="text-3xl font-bold text-gray-900 mb-4">
-      Ready to find care?
-    </h3>
-    <p class="text-lg text-gray-600 mb-8">
-      Join thousands of families who have found trusted care providers through our platform.
-    </p>
-    <a
-      routerLink="/register"
-      class="inline-block bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-colors font-semibold text-lg shadow-lg"
-    >
-      Create Free Account
-    </a>
-  </div>
+  <!-- Trust Indicators -->
+  <section class="bg-white py-8 border-b">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap justify-center items-center gap-8 sm:gap-16 text-gray-500">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <span class="font-medium">Verified Providers</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <span class="font-medium">Secure & Private</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          <span class="font-medium">Trusted Reviews</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="bg-gray-50 py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          Finding the right mental health support has never been easier
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Step 1 -->
+        <div class="relative">
+          <div class="bg-white rounded-2xl shadow-lg p-8 h-full">
+            <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-6">
+              <span class="text-2xl font-bold text-primary-600">1</span>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">Search</h3>
+            <p class="text-gray-600">
+              Browse our directory of therapists, counsellors, and support groups. Filter by specialty, location, or type of care.
+            </p>
+          </div>
+          <!-- Connector line (hidden on mobile) -->
+          <div class="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-primary-200"></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative">
+          <div class="bg-white rounded-2xl shadow-lg p-8 h-full">
+            <div class="w-14 h-14 bg-secondary-100 rounded-2xl flex items-center justify-center mb-6">
+              <span class="text-2xl font-bold text-secondary-600">2</span>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">Compare</h3>
+            <p class="text-gray-600">
+              View detailed profiles, read reviews, and compare qualifications to find the perfect match for your needs.
+            </p>
+          </div>
+          <!-- Connector line (hidden on mobile) -->
+          <div class="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-primary-200"></div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative">
+          <div class="bg-white rounded-2xl shadow-lg p-8 h-full">
+            <div class="w-14 h-14 bg-accent-100 rounded-2xl flex items-center justify-center mb-6">
+              <span class="text-2xl font-bold text-accent-600">3</span>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-gray-900">Connect</h3>
+            <p class="text-gray-600">
+              Reach out directly to providers via phone, email, or their website. Start your journey to better mental health.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="bg-white py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+        <!-- Left: Text Content -->
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+            Your mental health matters
+          </h2>
+          <p class="text-lg text-gray-600 mb-8">
+            We believe everyone deserves access to quality mental health care. Our platform makes it easy to find compassionate, qualified professionals who can help you on your journey.
+          </p>
+
+          <div class="space-y-6">
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">Easy to Search</h4>
+                <p class="text-gray-600">Find providers by location, specialty, or type of therapy</p>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-12 h-12 bg-secondary-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">Verified Professionals</h4>
+                <p class="text-gray-600">All providers are credentialed and vetted for your safety</p>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="flex-shrink-0 w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-900 mb-1">Support Groups</h4>
+                <p class="text-gray-600">Find community support for various life challenges</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Stats/Image Placeholder -->
+        <div class="bg-gradient-to-br from-primary-50 to-accent-50 rounded-3xl p-8 lg:p-12">
+          <div class="grid grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
+              <div class="text-4xl font-bold text-primary-600 mb-2">100+</div>
+              <div class="text-gray-600">Providers</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
+              <div class="text-4xl font-bold text-secondary-600 mb-2">50+</div>
+              <div class="text-gray-600">Specialties</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
+              <div class="text-4xl font-bold text-accent-600 mb-2">20+</div>
+              <div class="text-gray-600">Support Groups</div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
+              <div class="text-4xl font-bold text-primary-600 mb-2">9</div>
+              <div class="text-gray-600">Provinces</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Become a Provider CTA -->
+  <section class="bg-gray-900 py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
+        Are you a therapist or counsellor?
+      </h2>
+      <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+        Join our growing community of mental health professionals. Create your profile and connect with clients looking for your services.
+      </p>
+      <a
+        routerLink="/register"
+        class="inline-block bg-primary-500 text-white px-10 py-4 rounded-lg hover:bg-primary-600 transition-all font-semibold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
+      >
+        Become a Provider
+      </a>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="bg-gradient-to-br from-primary-50 to-accent-50 py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+        Ready to find care?
+      </h2>
+      <p class="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+        Take the first step towards better mental health. Browse our directory of qualified therapists, counsellors, and support groups.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          routerLink="/providers"
+          class="inline-block bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-all font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+        >
+          Browse Providers
+        </a>
+        <a
+          routerLink="/support-groups"
+          class="inline-block bg-white text-primary-600 border-2 border-primary-600 px-8 py-4 rounded-lg hover:bg-primary-50 transition-all font-semibold text-lg hover:-translate-y-0.5"
+        >
+          Find Support Groups
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 brightness-0 invert opacity-80" />
+        </div>
+        <div class="flex gap-8 text-sm">
+          <a routerLink="/providers" class="hover:text-white transition-colors">Find Providers</a>
+          <a routerLink="/support-groups" class="hover:text-white transition-colors">Support Groups</a>
+          <a routerLink="/register" class="hover:text-white transition-colors">Become a Provider</a>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+        <p>&copy; {{ currentYear }} findtherapy.care. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 </div>

@@ -1,0 +1,41 @@
+<a [routerLink]="['/providers', provider.id]" class="block bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6">
+  <div class="flex justify-between items-start mb-3">
+    <h3 class="text-lg font-semibold text-gray-900">{{ provider.displayName }}</h3>
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+          [class.bg-primary-100]="provider.type === 'therapist'"
+          [class.text-primary-800]="provider.type === 'therapist'"
+          [class.bg-accent-100]="provider.type === 'counsellor'"
+          [class.text-accent-800]="provider.type === 'counsellor'">
+      {{ providerTypeLabel }}
+    </span>
+  </div>
+
+  <p class="text-sm text-gray-500 mb-3">{{ locationDisplay }}</p>
+
+  <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ provider.bio }}</p>
+
+  @if (provider.specialties.length > 0) {
+    <div class="flex flex-wrap gap-1 mb-4">
+      @for (specialty of provider.specialties.slice(0, 3); track specialty) {
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+          {{ specialty }}
+        </span>
+      }
+      @if (provider.specialties.length > 3) {
+        <span class="text-xs text-gray-500">+{{ provider.specialties.length - 3 }} more</span>
+      }
+    </div>
+  }
+
+  <div class="flex items-center justify-between text-sm">
+    @if (provider.hourlyRate) {
+      <span class="text-gray-700 font-medium">R{{ provider.hourlyRate }}/hour</span>
+    } @else {
+      <span class="text-gray-500">Rate not specified</span>
+    }
+
+    @if (provider.offersFreeConsultation) {
+      <span class="text-success-600 font-medium">Free consultation</span>
+    }
+  </div>
+</a>

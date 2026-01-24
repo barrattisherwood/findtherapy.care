@@ -3,25 +3,39 @@
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
       <div class="flex items-center">
-        <a routerLink="/" class="flex items-center gap-2">
-          <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-          </svg>
-          <span class="text-lg sm:text-xl font-bold text-primary-600">findlocal.care</span>
+        <a routerLink="/">
+          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10" />
         </a>
       </div>
 
-      <!-- Navigation Links -->
+      <!-- Public Navigation Links -->
+      <div class="hidden md:flex items-center gap-4">
+        <a
+          routerLink="/providers"
+          routerLinkActive="text-primary-600 font-semibold"
+          class="text-gray-700 hover:text-primary-600 transition-colors"
+        >
+          Find Providers
+        </a>
+        <a
+          routerLink="/support-groups"
+          routerLinkActive="text-primary-600 font-semibold"
+          class="text-gray-700 hover:text-primary-600 transition-colors"
+        >
+          Support Groups
+        </a>
+      </div>
+
+      <!-- Auth Navigation Links -->
       @if (isAuthenticated()) {
         <!-- Desktop Navigation -->
         <div class="hidden md:flex items-center gap-6">
           <a
-            routerLink="/dashboard"
+            routerLink="/provider/profile"
             routerLinkActive="text-primary-600 font-semibold"
-            [routerLinkActiveOptions]="{exact: false}"
             class="text-gray-700 hover:text-primary-600 transition-colors"
           >
-            Dashboard
+            My Provider Profile
           </a>
 
           <!-- User Menu -->
@@ -64,15 +78,39 @@
 
               <!-- Menu Items -->
               <a
-                routerLink="/dashboard"
+                routerLink="/providers"
                 (click)="toggleMobileMenu()"
                 routerLinkActive="bg-primary-50 text-primary-600 font-semibold"
                 class="flex items-center gap-3 py-3 px-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <span>Dashboard</span>
+                <span>Find Providers</span>
+              </a>
+
+              <a
+                routerLink="/support-groups"
+                (click)="toggleMobileMenu()"
+                routerLinkActive="bg-primary-50 text-primary-600 font-semibold"
+                class="flex items-center gap-3 py-3 px-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span>Support Groups</span>
+              </a>
+
+              <a
+                routerLink="/provider/profile"
+                (click)="toggleMobileMenu()"
+                routerLinkActive="bg-primary-50 text-primary-600 font-semibold"
+                class="flex items-center gap-3 py-3 px-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span>My Provider Profile</span>
               </a>
 
               <hr class="my-2 border-gray-200">

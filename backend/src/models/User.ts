@@ -32,6 +32,10 @@ const userSchema = new Schema<IUser>(
       required: true,
       minlength: 6,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
     profile: {
       bio: String,
       avatar: String,

@@ -1,0 +1,286 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">
+      {{ hasProfile() ? 'Edit Provider Profile' : 'Create Provider Profile' }}
+    </h1>
+
+    @if (loading()) {
+      <div class="bg-white rounded-lg shadow p-8">
+        <app-loading-skeleton type="card" [count]="1" />
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main form -->
+        <div class="lg:col-span-2">
+          <form (ngSubmit)="save()" class="bg-white rounded-lg shadow p-6 space-y-6">
+            <!-- Provider Type -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Provider Type *</label>
+              <div class="flex gap-4">
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="therapist"
+                    [checked]="type() === 'therapist'"
+                    (change)="type.set('therapist')"
+                    class="text-primary-600 focus:ring-primary-500"
+                  />
+                  <span class="ml-2">Therapist</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="counsellor"
+                    [checked]="type() === 'counsellor'"
+                    (change)="type.set('counsellor')"
+                    class="text-primary-600 focus:ring-primary-500"
+                  />
+                  <span class="ml-2">Counsellor</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Display Name -->
+            <div>
+              <label for="displayName" class="block text-sm font-medium text-gray-700 mb-1">Display Name *</label>
+              <input
+                id="displayName"
+                type="text"
+                [ngModel]="displayName()"
+                (ngModelChange)="displayName.set($event)"
+                name="displayName"
+                required
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                placeholder="Dr. Jane Smith"
+              />
+            </div>
+
+            <!-- Bio -->
+            <div>
+              <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">About You *</label>
+              <textarea
+                id="bio"
+                [ngModel]="bio()"
+                (ngModelChange)="bio.set($event)"
+                name="bio"
+                rows="5"
+                required
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                placeholder="Tell potential clients about yourself, your approach, and your experience..."
+              ></textarea>
+            </div>
+
+            <!-- Qualifications -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Qualifications</label>
+              <div class="flex flex-wrap gap-2">
+                @for (qual of availableQualifications; track qual) {
+                  <button
+                    type="button"
+                    (click)="toggleQualification(qual)"
+                    [class.bg-primary-100]="isQualificationSelected(qual)"
+                    [class.text-primary-800]="isQualificationSelected(qual)"
+                    [class.border-primary-300]="isQualificationSelected(qual)"
+                    [class.bg-white]="!isQualificationSelected(qual)"
+                    [class.text-gray-700]="!isQualificationSelected(qual)"
+                    class="px-3 py-1 text-sm rounded-full border hover:bg-gray-50 transition-colors"
+                  >
+                    {{ qual }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Specialties -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Specialties</label>
+              <div class="flex flex-wrap gap-2">
+                @for (specialty of availableSpecialties; track specialty) {
+                  <button
+                    type="button"
+                    (click)="toggleSpecialty(specialty)"
+                    [class.bg-primary-100]="isSpecialtySelected(specialty)"
+                    [class.text-primary-800]="isSpecialtySelected(specialty)"
+                    [class.border-primary-300]="isSpecialtySelected(specialty)"
+                    [class.bg-white]="!isSpecialtySelected(specialty)"
+                    [class.text-gray-700]="!isSpecialtySelected(specialty)"
+                    class="px-3 py-1 text-sm rounded-full border hover:bg-gray-50 transition-colors"
+                  >
+                    {{ specialty }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                <input
+                  id="city"
+                  type="text"
+                  [ngModel]="city()"
+                  (ngModelChange)="city.set($event)"
+                  name="city"
+                  required
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="Cape Town"
+                />
+              </div>
+              <div>
+                <label for="postcode" class="block text-sm font-medium text-gray-700 mb-1">Postcode *</label>
+                <input
+                  id="postcode"
+                  type="text"
+                  [ngModel]="postcode()"
+                  (ngModelChange)="postcode.set($event)"
+                  name="postcode"
+                  required
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="8001"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address (optional)</label>
+              <input
+                id="address"
+                type="text"
+                [ngModel]="address()"
+                (ngModelChange)="address.set($event)"
+                name="address"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                placeholder="123 Main Street, Gardens"
+              />
+            </div>
+
+            <!-- Contact -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-1">Contact Email *</label>
+                <input
+                  id="contactEmail"
+                  type="email"
+                  [ngModel]="contactEmail()"
+                  (ngModelChange)="contactEmail.set($event)"
+                  name="contactEmail"
+                  required
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="jane@example.com"
+                />
+              </div>
+              <div>
+                <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
+                <input
+                  id="contactPhone"
+                  type="tel"
+                  [ngModel]="contactPhone()"
+                  (ngModelChange)="contactPhone.set($event)"
+                  name="contactPhone"
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="+27 21 123 4567"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label for="website" class="block text-sm font-medium text-gray-700 mb-1">Website (optional)</label>
+              <input
+                id="website"
+                type="url"
+                [ngModel]="website()"
+                (ngModelChange)="website.set($event)"
+                name="website"
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                placeholder="https://www.example.com"
+              />
+            </div>
+
+            <!-- Pricing -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="hourlyRate" class="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (R)</label>
+                <input
+                  id="hourlyRate"
+                  type="number"
+                  [ngModel]="hourlyRate()"
+                  (ngModelChange)="hourlyRate.set($event)"
+                  name="hourlyRate"
+                  min="0"
+                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                  placeholder="800"
+                />
+              </div>
+              <div class="flex items-end">
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    [ngModel]="offersFreeConsultation()"
+                    (ngModelChange)="offersFreeConsultation.set($event)"
+                    name="offersFreeConsultation"
+                    class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span class="ml-2 text-sm text-gray-700">Offer free consultation</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Published toggle (only for existing profiles) -->
+            @if (hasProfile()) {
+              <div class="border-t pt-4">
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    [ngModel]="isPublished()"
+                    (ngModelChange)="isPublished.set($event)"
+                    name="isPublished"
+                    class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span class="ml-2 text-sm text-gray-700">Profile is published</span>
+                </label>
+                <p class="mt-1 text-xs text-gray-500">Uncheck to hide your profile from search results temporarily.</p>
+              </div>
+            }
+
+            <!-- Submit -->
+            <div class="border-t pt-4">
+              <button
+                type="submit"
+                [disabled]="saving()"
+                class="w-full bg-primary-600 text-white px-4 py-3 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                @if (saving()) {
+                  Saving...
+                } @else {
+                  {{ hasProfile() ? 'Update Profile' : 'Create Profile' }}
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          @if (hasProfile()) {
+            <app-subscription-status
+              [status]="subscriptionStatus()"
+              [endsAt]="subscriptionEndsAt()"
+            />
+          } @else {
+            <div class="bg-info-50 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-info-900 mb-2">Getting Started</h3>
+              <p class="text-info-700 text-sm">
+                Create your provider profile first. Once saved, you can subscribe to have your profile listed publicly.
+              </p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
