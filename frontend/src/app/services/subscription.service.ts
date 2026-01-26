@@ -1,12 +1,14 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { SubscriptionStatus } from '@findlocal/shared';
+import { SubscriptionStatus, ProviderAccessStatus } from '@findlocal/shared';
 import { environment } from '../../environments/environment';
 
 interface SubscriptionStatusResponse {
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndsAt?: Date;
+  trialEndsAt?: Date;
+  accessStatus: ProviderAccessStatus;
 }
 
 interface PayFastCheckoutResponse {
@@ -22,7 +24,24 @@ export class SubscriptionService {
 
   subscriptionStatus = signal<SubscriptionStatus>('none');
   subscriptionEndsAt = signal<Date | null>(null);
+  trialEndsAt = signal<Date | null>(null);
+  accessStatus = signal<ProviderAccessStatus>('none');
   loading = signal<boolean>(false);
+
+  // Computed: days remaining in trial
+  trialDaysRemaining = computed(() => {
+    const trialEnd = this.trialEndsAt();
+    if (!trialEnd) return 0;
+    const now = new Date();
+    const diffTime = trialEnd.getTime() - now.getTime();
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  });
+
+  // Computed: has active access (trial or subscription)
+  hasAccess = computed(() => {
+    const status = this.accessStatus();
+    return status === 'trial' || status === 'active';
+  });
 
   constructor(private http: HttpClient) {}
 
@@ -43,6 +62,8 @@ export class SubscriptionService {
       tap(response => {
         this.subscriptionStatus.set(response.subscriptionStatus);
         this.subscriptionEndsAt.set(response.subscriptionEndsAt ? new Date(response.subscriptionEndsAt) : null);
+        this.trialEndsAt.set(response.trialEndsAt ? new Date(response.trialEndsAt) : null);
+        this.accessStatus.set(response.accessStatus);
       })
     );
   }
@@ -94,5 +115,7 @@ export class SubscriptionService {
   clearStatus(): void {
     this.subscriptionStatus.set('none');
     this.subscriptionEndsAt.set(null);
+    this.trialEndsAt.set(null);
+    this.accessStatus.set('none');
   }
 }

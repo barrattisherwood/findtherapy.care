@@ -7,7 +7,7 @@ export const APP_NAME = 'findtherapy.care';
 export const TRIAL_PERIOD_DAYS = 60;
 
 // Monthly subscription price in Rands
-export const SUBSCRIPTION_PRICE_ZAR = 199;
+export const SUBSCRIPTION_PRICE_ZAR = 150;
 
 // Helper to check if trial is enabled
 export const isTrialEnabled = () => TRIAL_PERIOD_DAYS > 0;

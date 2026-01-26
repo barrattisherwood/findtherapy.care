@@ -27,6 +27,8 @@ export class ProviderProfile implements OnInit {
   myProvider = this.providerService.myProvider;
   subscriptionStatus = this.subscriptionService.subscriptionStatus;
   subscriptionEndsAt = this.subscriptionService.subscriptionEndsAt;
+  trialEndsAt = this.subscriptionService.trialEndsAt;
+  accessStatus = this.subscriptionService.accessStatus;
 
   loading = signal<boolean>(true);
   saving = signal<boolean>(false);

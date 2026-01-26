@@ -9,9 +9,10 @@ import {
   getPayFastUrl,
   mapPaymentStatus,
 } from '../services/payfastService';
-import { SubscriptionStatus } from '@findlocal/shared';
+import { SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { getProviderAccessStatus } from './providerController';
 
-const PAYFAST_SUBSCRIPTION_AMOUNT = parseFloat(process.env.PAYFAST_SUBSCRIPTION_AMOUNT || '299');
+const PAYFAST_SUBSCRIPTION_AMOUNT = SUBSCRIPTION_PRICE_ZAR;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
@@ -133,9 +134,14 @@ export const getSubscriptionStatus = async (req: AuthRequest, res: Response) => 
       return res.status(404).json({ message: 'Provider not found' });
     }
 
+    // Get access status (includes trial check)
+    const accessStatus = getProviderAccessStatus(provider);
+
     res.json({
       subscriptionStatus: provider.subscriptionStatus,
       subscriptionEndsAt: provider.subscriptionEndsAt,
+      trialEndsAt: provider.trialEndsAt,
+      accessStatus, // 'trial' | 'active' | 'expired' | 'none'
     });
   } catch (error: any) {
     console.error('Get subscription status error:', error);

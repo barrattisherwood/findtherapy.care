@@ -1,7 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SubscriptionService } from '../../services/subscription.service';
-import { SubscriptionStatus as SubscriptionStatusType } from '@findlocal/shared';
+import { SubscriptionStatus as SubscriptionStatusType, ProviderAccessStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
 @Component({
   selector: 'app-subscription-status',
@@ -14,9 +14,21 @@ export class SubscriptionStatus {
   private subscriptionService = inject(SubscriptionService);
 
   @Input() status: SubscriptionStatusType = 'none';
+  @Input() accessStatus: ProviderAccessStatus = 'none';
   @Input() endsAt: Date | null = null;
+  @Input() trialEndsAt: Date | null = null;
 
   loading = this.subscriptionService.loading;
+  subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
+
+  // Calculate days remaining in trial
+  get trialDaysRemaining(): number {
+    if (!this.trialEndsAt) return 0;
+    const now = new Date();
+    const trialEnd = new Date(this.trialEndsAt);
+    const diffTime = trialEnd.getTime() - now.getTime();
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  }
 
   subscribe(): void {
     this.subscriptionService.redirectToCheckout();
@@ -29,6 +41,14 @@ export class SubscriptionStatus {
   }
 
   get statusLabel(): string {
+    // Access status takes precedence for display
+    if (this.accessStatus === 'trial') {
+      return 'Free Trial';
+    }
+    if (this.accessStatus === 'expired') {
+      return 'Trial Expired';
+    }
+
     switch (this.status) {
       case 'active':
         return 'Active';
@@ -42,6 +62,14 @@ export class SubscriptionStatus {
   }
 
   get statusColor(): string {
+    // Access status takes precedence for styling
+    if (this.accessStatus === 'trial') {
+      return 'bg-primary-100 text-primary-700';
+    }
+    if (this.accessStatus === 'expired') {
+      return 'bg-warning-100 text-warning-700';
+    }
+
     switch (this.status) {
       case 'active':
         return 'bg-success-100 text-success-700';

@@ -269,7 +269,9 @@
           @if (hasProfile()) {
             <app-subscription-status
               [status]="subscriptionStatus()"
+              [accessStatus]="accessStatus()"
               [endsAt]="subscriptionEndsAt()"
+              [trialEndsAt]="trialEndsAt()"
             />
           } @else {
             <div class="bg-info-50 rounded-lg p-6">
