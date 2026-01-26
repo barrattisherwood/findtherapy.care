@@ -267,6 +267,23 @@
         <!-- Sidebar -->
         <div class="lg:col-span-1">
           @if (hasProfile()) {
+            <!-- Profile Statistics -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Statistics</h3>
+              <div class="flex items-center">
+                <div class="flex-shrink-0">
+                  <svg class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <p class="text-2xl font-bold text-gray-900">{{ formatViewCount() }}</p>
+                  <p class="text-sm text-gray-500">Profile Views</p>
+                </div>
+              </div>
+            </div>
+
             <app-subscription-status
               [status]="subscriptionStatus()"
               [accessStatus]="accessStatus()"

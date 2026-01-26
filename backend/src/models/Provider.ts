@@ -76,6 +76,11 @@ const providerSchema = new Schema<IProvider>(
       type: Boolean,
       default: true,
     },
+    viewCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     // Trial period (set on registration if trial enabled)
     trialEndsAt: {
       type: Date,

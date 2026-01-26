@@ -63,6 +63,7 @@ const toProviderResponse = (doc: any): ProviderType => ({
   hourlyRate: doc.hourlyRate,
   offersFreeConsultation: doc.offersFreeConsultation,
   isPublished: doc.isPublished,
+  viewCount: doc.viewCount || 0,
   stripeCustomerId: doc.stripeCustomerId,
   stripeSubscriptionId: doc.stripeSubscriptionId,
   payfastSubscriptionToken: doc.payfastSubscriptionToken,
@@ -252,14 +253,19 @@ export const getProviderById = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const now = new Date();
 
-    const provider = await Provider.findOne({
-      _id: id,
-      isPublished: true,
-      $or: [
-        { subscriptionStatus: 'active' },
-        { trialEndsAt: { $gt: now } },
-      ],
-    });
+    // Increment view count and return the updated provider
+    const provider = await Provider.findOneAndUpdate(
+      {
+        _id: id,
+        isPublished: true,
+        $or: [
+          { subscriptionStatus: 'active' },
+          { trialEndsAt: { $gt: now } },
+        ],
+      },
+      { $inc: { viewCount: 1 } },
+      { new: true }
+    );
 
     if (!provider) {
       return res.status(404).json({ message: 'Provider not found' });

@@ -24,6 +24,7 @@ export interface Provider {
   hourlyRate?: number;
   offersFreeConsultation: boolean;
   isPublished: boolean;
+  viewCount: number;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   subscriptionStatus: SubscriptionStatus;

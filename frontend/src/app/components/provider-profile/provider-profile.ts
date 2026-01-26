@@ -33,6 +33,7 @@ export class ProviderProfile implements OnInit {
   loading = signal<boolean>(true);
   saving = signal<boolean>(false);
   hasProfile = signal<boolean>(false);
+  viewCount = signal<number>(0);
 
   // Form fields
   type = signal<ProviderType>('therapist');
@@ -87,6 +88,7 @@ export class ProviderProfile implements OnInit {
         this.hourlyRate.set(p.hourlyRate);
         this.offersFreeConsultation.set(p.offersFreeConsultation);
         this.isPublished.set(p.isPublished);
+        this.viewCount.set(p.viewCount || 0);
 
         this.subscriptionService.getStatus().subscribe();
         this.loading.set(false);
@@ -174,5 +176,16 @@ export class ProviderProfile implements OnInit {
 
   isSpecialtySelected(specialty: string): boolean {
     return this.specialties().includes(specialty);
+  }
+
+  formatViewCount(): string {
+    const count = this.viewCount();
+    if (count >= 1000000) {
+      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'm';
+    }
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return count.toString();
   }
 }
