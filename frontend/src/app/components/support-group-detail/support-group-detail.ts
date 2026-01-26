@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { SupportGroupService } from '../../services/support-group.service';
 import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { SupportGroup } from '@findlocal/shared';
 
 @Component({
   selector: 'app-support-group-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar, LoadingSkeleton],
+  imports: [CommonModule, RouterLink, Navbar, Footer, LoadingSkeleton],
   templateUrl: './support-group-detail.html',
   styleUrl: './support-group-detail.scss'
 })

@@ -3,8 +3,16 @@
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
       <div class="flex items-center">
-        <a routerLink="/">
-          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10" />
+        <a routerLink="/" class="relative group">
+          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10 transition-opacity group-hover:opacity-80" />
+          <!-- Home Icon Overlay -->
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="bg-primary-600 rounded-full p-1.5 shadow-lg">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+            </div>
+          </div>
         </a>
       </div>
 
@@ -41,7 +49,7 @@
           <!-- User Menu -->
           <div class="flex items-center gap-3">
             <div class="text-sm text-right">
-              <div class="font-medium text-gray-900">{{ currentUser()?.username }}</div>
+              <div class="font-medium text-gray-900">{{ currentUser()?.email }}</div>
             </div>
             <button
               (click)="logout()"
@@ -72,8 +80,7 @@
             <div class="p-4 space-y-1">
               <!-- User Info -->
               <div class="pb-3 mb-3 border-b border-gray-200">
-                <div class="font-medium text-gray-900">{{ currentUser()?.username }}</div>
-                <div class="text-xs text-gray-500">{{ currentUser()?.email }}</div>
+                <div class="font-medium text-gray-900">{{ currentUser()?.email }}</div>
               </div>
 
               <!-- Menu Items -->

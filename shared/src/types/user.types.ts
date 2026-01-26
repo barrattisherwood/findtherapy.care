@@ -1,7 +1,6 @@
 export interface User {
   id: string;
   email: string;
-  username: string;
   isAdmin?: boolean;
   profile?: {
     bio?: string;
@@ -23,7 +22,6 @@ export interface LoginRequest {
 
 export interface RegisterRequest {
   email: string;
-  username: string;
   password: string;
 }
 

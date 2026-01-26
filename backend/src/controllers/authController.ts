@@ -15,11 +15,11 @@ const generateToken = (userId: string): string => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, username, password }: RegisterRequest = req.body;
+    const { email, password }: RegisterRequest = req.body;
 
-    if (!email || !username || !password) {
+    if (!email || !password) {
       return res.status(400).json({
-        message: 'Please provide email, username, and password'
+        message: 'Please provide email and password'
       });
     }
 
@@ -29,21 +29,16 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
-    });
-
-    if (existingUser) {
+    // Check if email is already registered
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
       return res.status(400).json({
-        message: existingUser.email === email
-          ? 'Email already registered'
-          : 'Username already taken'
+        message: 'Email already registered'
       });
     }
 
     const user = await User.create({
       email,
-      username,
       password,
     });
 
@@ -54,7 +49,6 @@ export const register = async (req: Request, res: Response) => {
       user: {
         id: user._id.toString(),
         email: user.email,
-        username: user.username,
       },
     };
 
@@ -94,7 +88,6 @@ export const login = async (req: Request, res: Response) => {
       user: {
         id: user._id.toString(),
         email: user.email,
-        username: user.username,
       },
     };
 
@@ -117,7 +110,6 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
       user: {
         id: user._id.toString(),
         email: user.email,
-        username: user.username,
         profile: user.profile,
       }
     });

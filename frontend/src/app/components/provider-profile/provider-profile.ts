@@ -6,6 +6,7 @@ import { ProviderService } from '../../services/provider.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { ToastService } from '../../services/toast';
 import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { CreateProviderRequest, ProviderType } from '@findlocal/shared';
@@ -14,7 +15,7 @@ import { PROVIDER_SPECIALTIES, PROVIDER_QUALIFICATIONS } from '@findlocal/shared
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar, SubscriptionStatus, LoadingSkeleton],
+  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.scss'
 })
@@ -34,6 +35,15 @@ export class ProviderProfile implements OnInit {
   saving = signal<boolean>(false);
   hasProfile = signal<boolean>(false);
   viewCount = signal<number>(0);
+
+  // Validation errors
+  displayNameError = signal<string>('');
+  bioError = signal<string>('');
+  cityError = signal<string>('');
+  postcodeError = signal<string>('');
+  contactEmailError = signal<string>('');
+  contactPhoneError = signal<string>('');
+  websiteError = signal<string>('');
 
   // Form fields
   type = signal<ProviderType>('therapist');
@@ -101,8 +111,8 @@ export class ProviderProfile implements OnInit {
   }
 
   save(): void {
-    if (!this.displayName() || !this.bio() || !this.city() || !this.postcode() || !this.contactEmail()) {
-      this.toast.error('Missing Fields', 'Please fill in all required fields.');
+    if (!this.validateAllFields()) {
+      this.toast.error('Validation Error', 'Please fix the errors in the form before saving.');
       return;
     }
 
@@ -176,6 +186,125 @@ export class ProviderProfile implements OnInit {
 
   isSpecialtySelected(specialty: string): boolean {
     return this.specialties().includes(specialty);
+  }
+
+  validateDisplayName(): boolean {
+    const value = this.displayName().trim();
+    if (!value) {
+      this.displayNameError.set('Display name is required');
+      return false;
+    }
+    if (value.length > 100) {
+      this.displayNameError.set('Display name must be 100 characters or less');
+      return false;
+    }
+    this.displayNameError.set('');
+    return true;
+  }
+
+  validateBio(): boolean {
+    const value = this.bio().trim();
+    if (!value) {
+      this.bioError.set('Bio is required');
+      return false;
+    }
+    if (value.length < 50) {
+      this.bioError.set(`Bio must be at least 50 characters (currently ${value.length})`);
+      return false;
+    }
+    if (value.length > 2000) {
+      this.bioError.set(`Bio must be 2000 characters or less (currently ${value.length})`);
+      return false;
+    }
+    this.bioError.set('');
+    return true;
+  }
+
+  validateCity(): boolean {
+    const value = this.city().trim();
+    if (!value) {
+      this.cityError.set('City is required');
+      return false;
+    }
+    this.cityError.set('');
+    return true;
+  }
+
+  validatePostcode(): boolean {
+    const value = this.postcode().trim();
+    if (!value) {
+      this.postcodeError.set('Postcode is required');
+      return false;
+    }
+    if (!/^\d{4}$/.test(value)) {
+      this.postcodeError.set('Postcode must be 4 digits');
+      return false;
+    }
+    this.postcodeError.set('');
+    return true;
+  }
+
+  validateContactEmail(): boolean {
+    const value = this.contactEmail().trim();
+    if (!value) {
+      this.contactEmailError.set('Contact email is required');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      this.contactEmailError.set('Please enter a valid email address');
+      return false;
+    }
+    this.contactEmailError.set('');
+    return true;
+  }
+
+  validateContactPhone(): boolean {
+    const value = this.contactPhone().trim();
+    if (!value) {
+      this.contactPhoneError.set('');
+      return true; // Optional field
+    }
+    // Allow various formats: +27 21 123 4567, 021 123 4567, 0211234567, etc.
+    const phoneRegex = /^[\+\d][\d\s\-\(\)]{8,}$/;
+    if (!phoneRegex.test(value)) {
+      this.contactPhoneError.set('Please enter a valid phone number');
+      return false;
+    }
+    this.contactPhoneError.set('');
+    return true;
+  }
+
+  validateWebsite(): boolean {
+    const value = this.website().trim();
+    if (!value) {
+      this.websiteError.set('');
+      return true; // Optional field
+    }
+    try {
+      const url = new URL(value);
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        this.websiteError.set('Website must start with http:// or https://');
+        return false;
+      }
+      this.websiteError.set('');
+      return true;
+    } catch {
+      this.websiteError.set('Please enter a valid URL (e.g., https://example.com)');
+      return false;
+    }
+  }
+
+  validateAllFields(): boolean {
+    const displayNameValid = this.validateDisplayName();
+    const bioValid = this.validateBio();
+    const cityValid = this.validateCity();
+    const postcodeValid = this.validatePostcode();
+    const emailValid = this.validateContactEmail();
+    const phoneValid = this.validateContactPhone();
+    const websiteValid = this.validateWebsite();
+
+    return displayNameValid && bioValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid;
   }
 
   formatViewCount(): string {

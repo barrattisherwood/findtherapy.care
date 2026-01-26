@@ -6,13 +6,14 @@ import { ProviderService } from '../../services/provider.service';
 import { ContactService } from '../../services/contact.service';
 import { ToastService } from '../../services/toast';
 import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Provider, ContactProviderRequest } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, Navbar, LoadingSkeleton],
+  imports: [CommonModule, FormsModule, RouterLink, Navbar, Footer, LoadingSkeleton],
   templateUrl: './provider-detail.html',
   styleUrl: './provider-detail.scss'
 })

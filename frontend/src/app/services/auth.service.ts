@@ -35,8 +35,8 @@ export class AuthService {
     }
   }
 
-  register(email: string, username: string, password: string): Observable<AuthResponse> {
-    const body: RegisterRequest = { email, username, password };
+  register(email: string, password: string): Observable<AuthResponse> {
+    const body: RegisterRequest = { email, password };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, body).pipe(
       tap(response => this.handleAuthResponse(response))

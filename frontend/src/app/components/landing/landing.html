@@ -53,10 +53,10 @@
           Find a Provider
         </a>
         <a
-          routerLink="/support-groups"
+          routerLink="/register"
           class="inline-block bg-white/95 text-primary-700 px-8 py-4 rounded-lg hover:bg-white transition-all font-semibold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
         >
-          Support Groups
+          Become a Provider
         </a>
       </div>
 
@@ -279,21 +279,5 @@
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-400 py-12">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-        <div>
-          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 brightness-0 invert opacity-80" />
-        </div>
-        <div class="flex gap-8 text-sm">
-          <a routerLink="/providers" class="hover:text-white transition-colors">Find Providers</a>
-          <a routerLink="/support-groups" class="hover:text-white transition-colors">Support Groups</a>
-          <a routerLink="/register" class="hover:text-white transition-colors">Become a Provider</a>
-        </div>
-      </div>
-      <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-        <p>&copy; {{ currentYear }} findtherapy.care. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+  <app-footer />
 </div>

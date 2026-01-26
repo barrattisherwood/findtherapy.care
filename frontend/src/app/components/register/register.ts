@@ -4,17 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
+import { Footer } from '../footer/footer';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, Footer],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
 export class Register {
   email = '';
-  username = '';
   password = '';
   confirmPassword = '';
   error = signal<string | null>(null);
@@ -28,7 +28,7 @@ export class Register {
   ) {}
 
   onSubmit(): void {
-    if (!this.email || !this.username || !this.password || !this.confirmPassword) {
+    if (!this.email || !this.password || !this.confirmPassword) {
       this.error.set('Please fill in all fields');
       return;
     }
@@ -46,7 +46,7 @@ export class Register {
     this.loading.set(true);
     this.error.set(null);
 
-    this.authService.register(this.email, this.username, this.password)
+    this.authService.register(this.email, this.password)
       .pipe(this.destroy$)
       .subscribe({
       next: () => {

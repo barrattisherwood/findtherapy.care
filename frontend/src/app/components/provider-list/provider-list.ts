@@ -5,13 +5,14 @@ import { ProviderService } from '../../services/provider.service';
 import { ProviderCard } from '../provider-card/provider-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 import { ProviderType, ProviderSearchParams } from '@findlocal/shared';
 import { PROVIDER_SPECIALTIES } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProviderCard, LoadingSkeleton, Navbar],
+  imports: [CommonModule, FormsModule, ProviderCard, LoadingSkeleton, Navbar, Footer],
   templateUrl: './provider-list.html',
   styleUrl: './provider-list.scss'
 })

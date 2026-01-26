@@ -5,13 +5,14 @@ import { SupportGroupService } from '../../services/support-group.service';
 import { SupportGroupCard } from '../support-group-card/support-group-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 import { MeetingType, SupportGroupSearchParams } from '@findlocal/shared';
 import { SUPPORT_GROUP_CATEGORIES } from '@findlocal/shared';
 
 @Component({
   selector: 'app-support-group-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, SupportGroupCard, LoadingSkeleton, Navbar],
+  imports: [CommonModule, FormsModule, SupportGroupCard, LoadingSkeleton, Navbar, Footer],
   templateUrl: './support-group-list.html',
   styleUrl: './support-group-list.scss'
 })
