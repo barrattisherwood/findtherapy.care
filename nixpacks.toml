@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ['nodejs-22_x']
+
+[phases.install]
+cmds = ['npm ci --cache /tmp/npm-cache']
+
+[phases.build]
+cmds = ['cd shared && npm ci --cache /tmp/npm-cache && npm run build && cd ../backend && npm ci --cache /tmp/npm-cache && npx tsc']
+
+[start]
+cmd = 'node backend/dist/server.js'
