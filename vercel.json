@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd shared && npm ci && npm run build && cd ../frontend && npm ci && npm run build",
+  "buildCommand": "cd shared && npm ci && npm run build && cd ../frontend && npm ci && npx ng build --configuration=production",
   "outputDirectory": "frontend/dist/frontend/browser",
   "installCommand": "npm install --workspaces=false",
   "framework": null,
