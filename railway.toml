@@ -1,9 +1,8 @@
 [build]
-builder = "NIXPACKS"
-buildCommand = "cd shared && npm ci --engine-strict=false --cache /tmp/npm-cache && npm run build && cd ../backend && npm ci --engine-strict=false --cache /tmp/npm-cache && npx tsc"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "node backend/dist/server.js"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
@@ -16,10 +15,6 @@ value = "production"
 [[envVars]]
 name = "PORT"
 value = "3000"
-
-[[envVars]]
-name = "NIXPACKS_NO_CACHE"
-value = "1"
 
 [services.backend-production]
 source = "backend"
