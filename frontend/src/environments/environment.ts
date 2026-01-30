@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.findtherapy.care/api',
+  apiUrl: 'https://findtherapycare-production.up.railway.app/api',
 };
