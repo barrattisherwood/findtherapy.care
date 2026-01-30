@@ -20,19 +20,18 @@ RUN cd backend && npm run build
 # Production stage
 FROM node:22.12-alpine
 
-WORKDIR /app
+WORKDIR /app/backend
 
-# Copy package files
-COPY package*.json ./
-COPY shared/package*.json ./shared/
-COPY backend/package*.json ./
-
-# Copy built files
-COPY --from=builder /app/shared/dist ./shared/dist
+# Copy built backend files
 COPY --from=builder /app/backend/dist ./dist
+COPY --from=builder /app/backend/package*.json ./
 
-# Install production dependencies
-RUN npm ci --omit=dev
+# Copy built shared package
+COPY --from=builder /app/shared/dist ../shared/dist
+COPY --from=builder /app/shared/package*.json ../shared/
+
+# Install production dependencies only for backend
+RUN npm install --omit=dev
 
 # Expose port
 EXPOSE 3000
