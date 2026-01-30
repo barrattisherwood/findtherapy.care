@@ -25,11 +25,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 COPY shared/package*.json ./shared/
-COPY backend/package*.json ./backend/
+COPY backend/package*.json ./
 
 # Copy built files
 COPY --from=builder /app/shared/dist ./shared/dist
-COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/dist ./dist
 
 # Install production dependencies
 RUN npm ci --omit=dev
@@ -38,4 +38,4 @@ RUN npm ci --omit=dev
 EXPOSE 3000
 
 # Start the server
-CMD ["node", "backend/dist/server.js"]
+CMD ["node", "dist/server.js"]
