@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd shared && npm ci && npm run build && cd ../backend && npm ci && npx tsc"
+buildCommand = "cd shared && npm ci --cache /tmp/npm-cache && npm run build && cd ../backend && npm ci --cache /tmp/npm-cache && npx tsc"
 
 [deploy]
 startCommand = "node backend/dist/server.js"
