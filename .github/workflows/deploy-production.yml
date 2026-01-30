@@ -94,7 +94,7 @@ jobs:
       - name: Deploy to Railway
         run: |
           cd backend
-          railway up --service backend-production
+          railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
