@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Provider } from '../models/Provider';
 import { User } from '../models/User';
+import { PaymentEvent } from '../models/PaymentEvent';
 import { AuthRequest } from '../middleware/auth';
 import {
   isPayFastConfigured,
@@ -79,6 +80,16 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
 export const handleITN = async (req: Request, res: Response) => {
   try {
     const pfData = req.body;
+    const pfPaymentId = pfData.pf_payment_id;
+
+    // Check for duplicate ITN (idempotency)
+    if (pfPaymentId) {
+      const existingEvent = await PaymentEvent.findOne({ pfPaymentId });
+      if (existingEvent) {
+        console.log('Duplicate ITN received, skipping:', pfPaymentId);
+        return res.status(200).send('OK');
+      }
+    }
 
     // Build param string for validation
     const pfParamString = Object.keys(pfData)
@@ -100,25 +111,43 @@ export const handleITN = async (req: Request, res: Response) => {
     console.log('PayFast ITN received:', { paymentId, paymentStatus, token });
 
     // Find provider by payment ID (stored in stripeCustomerId field)
+    let providerId: string | undefined;
     const provider = await Provider.findOne({ stripeCustomerId: paymentId });
     if (!provider) {
       // Try to extract provider ID from payment ID (format: providerId_timestamp)
-      const providerId = paymentId.split('_')[0];
-      const providerById = await Provider.findById(providerId);
+      const extractedId = paymentId.split('_')[0];
+      const providerById = await Provider.findById(extractedId);
 
       if (!providerById) {
         console.error('Provider not found for payment:', paymentId);
+        // Still record the event for tracking
+        if (pfPaymentId) {
+          await recordPaymentEvent(pfPaymentId, paymentId, paymentStatus, pfData.amount_gross, undefined, pfData);
+        }
         return res.status(200).send('OK'); // Still return OK to PayFast
       }
 
-      await updateProviderSubscription(providerById._id.toString(), paymentId, token, paymentStatus);
+      providerId = providerById._id.toString();
     } else {
-      await updateProviderSubscription(provider._id.toString(), paymentId, token, paymentStatus);
+      providerId = provider._id.toString();
     }
+
+    // Record payment event for idempotency
+    if (pfPaymentId) {
+      await recordPaymentEvent(pfPaymentId, paymentId, paymentStatus, pfData.amount_gross, providerId, pfData);
+    }
+
+    // Update provider subscription
+    await updateProviderSubscription(providerId, paymentId, token, paymentStatus);
 
     // PayFast expects 200 OK response
     res.status(200).send('OK');
   } catch (error: any) {
+    // Handle duplicate key error gracefully (race condition)
+    if (error.code === 11000) {
+      console.log('Duplicate ITN detected via unique constraint');
+      return res.status(200).send('OK');
+    }
     console.error('ITN error:', error);
     res.status(200).send('OK'); // Still return OK to prevent retries
   }
@@ -174,6 +203,32 @@ export const cancelSubscription = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Helper to record payment event for idempotency
+async function recordPaymentEvent(
+  pfPaymentId: string,
+  mPaymentId: string,
+  paymentStatus: string,
+  amountGross: string,
+  providerId: string | undefined,
+  rawData: Record<string, unknown>
+) {
+  try {
+    await PaymentEvent.create({
+      pfPaymentId,
+      mPaymentId,
+      paymentStatus,
+      amountGross: amountGross || '0',
+      providerId: providerId ? providerId : undefined,
+      rawData,
+    });
+  } catch (error: any) {
+    // Ignore duplicate key errors (race condition handled)
+    if (error.code !== 11000) {
+      throw error;
+    }
+  }
+}
 
 // Helper to update provider subscription
 async function updateProviderSubscription(

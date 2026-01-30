@@ -6,6 +6,8 @@ import authRoutes from './routes/authRoutes';
 import providerRoutes from './routes/providerRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import supportGroupRoutes from './routes/supportGroupRoutes';
+import { apiRateLimiter } from './middleware/rateLimiter';
+import { errorHandler } from './utils/errors';
 
 dotenv.config();
 
@@ -20,6 +22,9 @@ app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }))
 
 app.use(express.json());
 
+// Global API rate limiter
+app.use('/api', apiRateLimiter);
+
 // Health check route
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'findtherapy.care API is running' });
@@ -30,6 +35,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/support-groups', supportGroupRoutes);
+
+// Global error handler (must be after all routes)
+app.use(errorHandler);
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/findlocal';
