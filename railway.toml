@@ -15,7 +15,3 @@ value = "production"
 [[envVars]]
 name = "PORT"
 value = "3000"
-
-[services.backend-production]
-source = "backend"
-region = "us-west1"
