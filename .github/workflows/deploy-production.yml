@@ -40,7 +40,7 @@ jobs:
       - name: Build Angular app
         run: |
           cd frontend
-          npm run build -- --configuration=production
+          npm run build
         env:
           NODE_ENV: production
 
