@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd shared && npm ci --cache /tmp/npm-cache && npm run build && cd ../backend && npm ci --cache /tmp/npm-cache && npx tsc"
+buildCommand = "cd shared && npm ci --engine-strict=false --cache /tmp/npm-cache && npm run build && cd ../backend && npm ci --engine-strict=false --cache /tmp/npm-cache && npx tsc"
 
 [deploy]
 startCommand = "node backend/dist/server.js"
@@ -16,6 +16,10 @@ value = "production"
 [[envVars]]
 name = "PORT"
 value = "3000"
+
+[[envVars]]
+name = "NIXPACKS_NO_CACHE"
+value = "1"
 
 [services.backend-production]
 source = "backend"
