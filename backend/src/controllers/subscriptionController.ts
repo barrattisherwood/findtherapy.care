@@ -47,7 +47,7 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
     const paymentId = `${provider._id.toString()}_${Date.now()}`;
 
     // Store payment ID on provider for later reference
-    provider.stripeCustomerId = paymentId; // Reusing field for PayFast payment ID
+    provider.payfastPaymentId = paymentId;
     await provider.save();
 
     // Create PayFast payment data
@@ -86,7 +86,6 @@ export const handleITN = async (req: Request, res: Response) => {
     if (pfPaymentId) {
       const existingEvent = await PaymentEvent.findOne({ pfPaymentId });
       if (existingEvent) {
-        console.log('Duplicate ITN received, skipping:', pfPaymentId);
         return res.status(200).send('OK');
       }
     }
@@ -108,11 +107,9 @@ export const handleITN = async (req: Request, res: Response) => {
     const paymentStatus = pfData.payment_status;
     const token = pfData.token; // Subscription token for future charges
 
-    console.log('PayFast ITN received:', { paymentId, paymentStatus, token });
-
-    // Find provider by payment ID (stored in stripeCustomerId field)
+    // Find provider by payment ID
     let providerId: string | undefined;
-    const provider = await Provider.findOne({ stripeCustomerId: paymentId });
+    const provider = await Provider.findOne({ payfastPaymentId: paymentId });
     if (!provider) {
       // Try to extract provider ID from payment ID (format: providerId_timestamp)
       const extractedId = paymentId.split('_')[0];
@@ -145,7 +142,6 @@ export const handleITN = async (req: Request, res: Response) => {
   } catch (error: any) {
     // Handle duplicate key error gracefully (race condition)
     if (error.code === 11000) {
-      console.log('Duplicate ITN detected via unique constraint');
       return res.status(200).send('OK');
     }
     console.error('ITN error:', error);
@@ -240,12 +236,12 @@ async function updateProviderSubscription(
   const status = mapPaymentStatus(paymentStatus);
 
   const updateData: any = {
-    stripeCustomerId: paymentId, // Store payment ID
+    payfastPaymentId: paymentId,
     subscriptionStatus: status,
   };
 
   if (token) {
-    updateData.stripeSubscriptionId = token; // Store subscription token
+    updateData.payfastSubscriptionToken = token;
   }
 
   if (status === 'active') {
@@ -256,5 +252,4 @@ async function updateProviderSubscription(
   }
 
   await Provider.findByIdAndUpdate(providerId, updateData);
-  console.log('Provider subscription updated:', { providerId, status });
 }

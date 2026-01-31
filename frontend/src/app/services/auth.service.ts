@@ -53,17 +53,13 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token') ||
-           localStorage.getItem('accessToken') ||
-           localStorage.getItem('authToken');
+    return localStorage.getItem('token');
   }
 
   updateCurrentUser(user: User): void {

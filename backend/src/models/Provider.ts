@@ -86,6 +86,9 @@ const providerSchema = new Schema<IProvider>(
       type: Date,
     },
     // PayFast subscription fields
+    payfastPaymentId: {
+      type: String,
+    },
     payfastSubscriptionToken: {
       type: String,
     },
@@ -96,13 +99,6 @@ const providerSchema = new Schema<IProvider>(
     },
     subscriptionEndsAt: {
       type: Date,
-    },
-    // Legacy Stripe fields (kept for migration, can be removed later)
-    stripeCustomerId: {
-      type: String,
-    },
-    stripeSubscriptionId: {
-      type: String,
     },
   },
   {

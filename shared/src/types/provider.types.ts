@@ -25,8 +25,7 @@ export interface Provider {
   offersFreeConsultation: boolean;
   isPublished: boolean;
   viewCount: number;
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
+  payfastPaymentId?: string;
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndsAt?: Date;
   trialEndsAt?: Date;

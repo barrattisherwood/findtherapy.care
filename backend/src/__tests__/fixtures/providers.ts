@@ -17,8 +17,8 @@ export interface TestProviderOptions {
   subscriptionStatus?: 'none' | 'active' | 'past_due' | 'canceled';
   subscriptionEndsAt?: Date;
   trialEndsAt?: Date;
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
+  payfastPaymentId?: string;
+  payfastSubscriptionToken?: string;
   isPublished?: boolean;
   viewCount?: number;
 }
@@ -47,8 +47,8 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     subscriptionStatus: options.subscriptionStatus || 'none',
     subscriptionEndsAt: options.subscriptionEndsAt,
     trialEndsAt: options.trialEndsAt,
-    stripeCustomerId: options.stripeCustomerId,
-    stripeSubscriptionId: options.stripeSubscriptionId,
+    payfastPaymentId: options.payfastPaymentId,
+    payfastSubscriptionToken: options.payfastSubscriptionToken,
   };
 
   const provider = await Provider.create(providerData);
@@ -88,8 +88,8 @@ export const createProviderWithActiveSubscription = async (userId: string): Prom
     userId,
     subscriptionStatus: 'active',
     subscriptionEndsAt,
-    stripeCustomerId: 'payment_123',
-    stripeSubscriptionId: 'token_123',
+    payfastPaymentId: 'payment_123',
+    payfastSubscriptionToken: 'token_123',
   });
 };
 

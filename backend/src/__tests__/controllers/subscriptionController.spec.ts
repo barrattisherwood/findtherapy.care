@@ -122,7 +122,7 @@ describe('Subscription Controller', () => {
 
       // Check that provider was updated with payment ID
       const updatedProvider = await Provider.findById(provider._id);
-      expect(updatedProvider?.stripeCustomerId).toMatch(
+      expect(updatedProvider?.payfastPaymentId).toMatch(
         new RegExp(`^${provider._id.toString()}_\\d+$`)
       );
     });
@@ -145,7 +145,7 @@ describe('Subscription Controller', () => {
       expect(response.data.signature).toBeDefined();
     });
 
-    it('stores payment ID in stripeCustomerId field', async () => {
+    it('stores payment ID in payfastPaymentId field', async () => {
       const user = await createTestUser();
       const provider = await createTestProvider({
         userId: user._id.toString(),
@@ -156,8 +156,8 @@ describe('Subscription Controller', () => {
       await createCheckout(mockRequest as AuthRequest, mockResponse as Response);
 
       const updatedProvider = await Provider.findById(provider._id);
-      expect(updatedProvider?.stripeCustomerId).toBeDefined();
-      expect(updatedProvider?.stripeCustomerId).toContain(provider._id.toString());
+      expect(updatedProvider?.payfastPaymentId).toBeDefined();
+      expect(updatedProvider?.payfastPaymentId).toContain(provider._id.toString());
     });
   });
 
@@ -191,7 +191,7 @@ describe('Subscription Controller', () => {
       });
 
       const paymentId = `${provider._id.toString()}_${Date.now()}`;
-      provider.stripeCustomerId = paymentId;
+      provider.payfastPaymentId = paymentId;
       await provider.save();
 
       const itnData: Record<string, string> = {
@@ -222,7 +222,7 @@ describe('Subscription Controller', () => {
       });
 
       const paymentId = `${provider._id.toString()}_${Date.now()}`;
-      provider.stripeCustomerId = paymentId;
+      provider.payfastPaymentId = paymentId;
       await provider.save();
 
       const itnData: Record<string, string> = {
@@ -257,7 +257,7 @@ describe('Subscription Controller', () => {
       });
 
       const paymentId = `${provider._id.toString()}_${Date.now()}`;
-      provider.stripeCustomerId = paymentId;
+      provider.payfastPaymentId = paymentId;
       await provider.save();
 
       const subscriptionToken = 'subscription_token_abc123';
@@ -275,7 +275,7 @@ describe('Subscription Controller', () => {
       await handleITN(mockRequest as Request, mockResponse as Response);
 
       const updatedProvider = await Provider.findById(provider._id);
-      expect(updatedProvider?.stripeSubscriptionId).toBe(subscriptionToken);
+      expect(updatedProvider?.payfastSubscriptionToken).toBe(subscriptionToken);
     });
 
     it('returns 200 OK even when provider not found', async () => {
@@ -302,7 +302,7 @@ describe('Subscription Controller', () => {
         subscriptionStatus: 'none',
       });
 
-      // Payment ID contains provider ID but stripeCustomerId not set
+      // Payment ID contains provider ID but payfastPaymentId not set
       const paymentId = `${provider._id.toString()}_${Date.now()}`;
 
       const itnData: Record<string, string> = {
