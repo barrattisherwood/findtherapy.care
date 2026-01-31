@@ -1,1 +1,11 @@
 // Support group list specific styles
+
+// Remove native select arrow since we use custom SVG chevrons
+select.appearance-none {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  &::-ms-expand {
+    display: none;
+  }
+}
