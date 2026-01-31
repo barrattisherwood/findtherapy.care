@@ -448,50 +448,66 @@ async function seed() {
     await mongoose.connect(MONGODB_URI);
     console.log('Connected to MongoDB');
 
-    // Clear existing data
-    console.log('Clearing existing data...');
-    await User.deleteMany({});
-    await Provider.deleteMany({});
-    await SupportGroup.deleteMany({});
+    // Skip clearing - append seed data alongside existing records
+    console.log('Appending seed data (existing data will be preserved)...');
 
-    // Create admin user
+    // Create admin user (skip if exists)
     console.log('Creating admin user...');
-    const adminUser = await User.create({
-      email: 'admin@findtherapy.care',
-      username: 'admin',
-      password: 'admin123',
-      isAdmin: true,
-    });
-    console.log('Admin user created:', adminUser.email);
+    let adminUser = await User.findOne({ email: 'admin@findtherapy.care' });
+    if (!adminUser) {
+      adminUser = await User.create({
+        email: 'admin@findtherapy.care',
+        username: 'admin',
+        password: 'admin123',
+        isAdmin: true,
+      });
+      console.log('Admin user created:', adminUser.email);
+    } else {
+      console.log('Admin user already exists, skipping');
+    }
 
-    // Create providers (users + provider profiles)
+    // Create providers (skip existing by email)
     console.log('Creating providers...');
+    let providersCreated = 0;
     for (const data of providerSeedData) {
+      const existingUser = await User.findOne({ email: data.user.email });
+      if (existingUser) {
+        console.log(`Skipping existing provider: ${data.provider.displayName}`);
+        continue;
+      }
       const user = await User.create(data.user);
       await Provider.create({
         ...data.provider,
         userId: user._id.toString(),
         isPublished: true,
       });
+      providersCreated++;
       console.log(`Created provider: ${data.provider.displayName}`);
     }
 
-    // Create support groups
+    // Create support groups (skip existing by name)
     console.log('Creating support groups...');
+    let groupsCreated = 0;
     for (const data of supportGroupSeedData) {
+      const existingGroup = await SupportGroup.findOne({ name: data.name });
+      if (existingGroup) {
+        console.log(`Skipping existing group: ${data.name}`);
+        continue;
+      }
       await SupportGroup.create({
         ...data,
         createdBy: adminUser._id.toString(),
         isActive: true,
       });
+      groupsCreated++;
       console.log(`Created support group: ${data.name}`);
     }
 
     console.log('\n=================================');
     console.log('Database seeded successfully!');
     console.log('=================================');
-    console.log(`Created ${providerSeedData.length} providers`);
-    console.log(`Created ${supportGroupSeedData.length} support groups`);
+    console.log(`Created ${providersCreated} providers (${providerSeedData.length - providersCreated} skipped)`);
+    console.log(`Created ${groupsCreated} support groups (${supportGroupSeedData.length - groupsCreated} skipped)`);
     console.log('\nTrial period:', isTrialEnabled() ? `${TRIAL_PERIOD_DAYS} days` : 'Disabled');
     console.log('\nAdmin credentials:');
     console.log('  Email: admin@findtherapy.care');

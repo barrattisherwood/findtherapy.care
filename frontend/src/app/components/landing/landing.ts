@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-landing',
@@ -11,6 +12,9 @@ import { Footer } from '../footer/footer';
   styleUrl: './landing.scss'
 })
 export class Landing implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
+  isAuthenticated = this.authService.isLoggedIn;
+  currentUser = this.authService.currentUser;
   currentYear = new Date().getFullYear();
 
   // Hero images for the carousel - place images in assets/images/hero/
@@ -42,5 +46,9 @@ export class Landing implements OnInit, OnDestroy {
 
   goToImage(index: number): void {
     this.currentImageIndex.set(index);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

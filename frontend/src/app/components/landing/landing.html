@@ -7,15 +7,31 @@
           <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10" />
         </a>
         <div class="flex items-center gap-4">
-          <a routerLink="/login" class="text-gray-700 hover:text-gray-900 font-medium">
-            Login
-          </a>
-          <a
-            routerLink="/register"
-            class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
-          >
-            Get Started
-          </a>
+          @if (isAuthenticated()) {
+            <a routerLink="/providers" class="text-gray-700 hover:text-gray-900 font-medium">
+              Find Providers
+            </a>
+            <a routerLink="/support-groups" class="text-gray-700 hover:text-gray-900 font-medium">
+              Support Groups
+            </a>
+            <span class="text-sm text-gray-600">{{ currentUser()?.email }}</span>
+            <button
+              (click)="logout()"
+              class="text-gray-700 hover:text-gray-900 font-medium"
+            >
+              Logout
+            </button>
+          } @else {
+            <a routerLink="/login" class="text-gray-700 hover:text-gray-900 font-medium">
+              Login
+            </a>
+            <a
+              routerLink="/register"
+              class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+            >
+              Get Started
+            </a>
+          }
         </div>
       </div>
     </div>
