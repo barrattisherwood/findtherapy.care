@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupportGroupService } from '../../services/support-group.service';
+import { SeoService } from '../../services/seo.service';
 import { SupportGroupCard } from '../support-group-card/support-group-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
@@ -18,6 +19,7 @@ import { SUPPORT_GROUP_CATEGORIES } from '@findlocal/shared';
 })
 export class SupportGroupList implements OnInit {
   private supportGroupService = inject(SupportGroupService);
+  private seo = inject(SeoService);
 
   supportGroups = this.supportGroupService.supportGroups;
   loading = this.supportGroupService.loading;
@@ -33,6 +35,11 @@ export class SupportGroupList implements OnInit {
   categories = SUPPORT_GROUP_CATEGORIES;
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Support Groups',
+      description: 'Find mental health support groups across South Africa. Browse by category, city, and meeting type to connect with community support.',
+      url: '/support-groups',
+    });
     this.search();
   }
 

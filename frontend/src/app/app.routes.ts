@@ -14,18 +14,18 @@ import { SupportGroupList } from './components/support-group-list/support-group-
 import { SupportGroupDetail } from './components/support-group-detail/support-group-detail';
 
 export const routes: Routes = [
-  { path: '', component: Landing },
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
-  { path: 'forgot-password', component: ForgotPassword },
-  { path: 'reset-password', component: ResetPassword },
-  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: '', component: Landing, title: 'findtherapy.care — Find therapists and counsellors near you' },
+  { path: 'login', component: Login, title: 'Sign In — findtherapy.care' },
+  { path: 'register', component: Register, title: 'Create Account — findtherapy.care' },
+  { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password — findtherapy.care' },
+  { path: 'reset-password', component: ResetPassword, title: 'Reset Password — findtherapy.care' },
+  { path: 'dashboard', component: Dashboard, canActivate: [authGuard], title: 'Dashboard — findtherapy.care' },
   // Provider routes
-  { path: 'providers', component: ProviderList },
+  { path: 'providers', component: ProviderList, title: 'Find Providers — findtherapy.care' },
   { path: 'providers/:id', component: ProviderDetail },
-  { path: 'provider/profile', component: ProviderProfile, canActivate: [authGuard] },
+  { path: 'provider/profile', component: ProviderProfile, canActivate: [authGuard], title: 'My Profile — findtherapy.care' },
   // Support group routes
-  { path: 'support-groups', component: SupportGroupList },
+  { path: 'support-groups', component: SupportGroupList, title: 'Support Groups — findtherapy.care' },
   { path: 'support-groups/:id', component: SupportGroupDetail },
   { path: '**', redirectTo: '' }
 ];

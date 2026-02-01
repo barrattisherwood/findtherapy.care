@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProviderService } from '../../services/provider.service';
 import { ContactService } from '../../services/contact.service';
 import { ToastService } from '../../services/toast';
+import { SeoService } from '../../services/seo.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
@@ -22,6 +23,7 @@ export class ProviderDetail implements OnInit {
   private providerService = inject(ProviderService);
   private contactService = inject(ContactService);
   private toast = inject(ToastService);
+  private seo = inject(SeoService);
 
   provider = signal<Provider | null>(null);
   loading = signal<boolean>(true);
@@ -50,6 +52,13 @@ export class ProviderDetail implements OnInit {
       next: (response) => {
         this.provider.set(response.provider);
         this.loading.set(false);
+        const p = response.provider;
+        const type = p.type === 'therapist' ? 'Therapist' : 'Counsellor';
+        this.seo.update({
+          title: `${p.displayName} — ${type} in ${p.location.city}`,
+          description: `${p.displayName} is a ${type.toLowerCase()} in ${p.location.city}. Specialties: ${p.specialties.slice(0, 4).join(', ')}. View profile and get in touch.`,
+          url: `/providers/${p.id}`,
+        });
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to load provider');

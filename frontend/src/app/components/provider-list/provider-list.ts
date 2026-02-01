@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProviderService } from '../../services/provider.service';
+import { SeoService } from '../../services/seo.service';
 import { ProviderCard } from '../provider-card/provider-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
@@ -18,6 +19,7 @@ import { PROVIDER_SPECIALTIES } from '@findlocal/shared';
 })
 export class ProviderList implements OnInit {
   private providerService = inject(ProviderService);
+  private seo = inject(SeoService);
 
   providers = this.providerService.providers;
   loading = this.providerService.loading;
@@ -34,6 +36,11 @@ export class ProviderList implements OnInit {
   specialties = PROVIDER_SPECIALTIES;
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Find Providers',
+      description: 'Browse therapists and counsellors across South Africa. Filter by specialty, location, and type to find the right mental health professional for you.',
+      url: '/providers',
+    });
     this.search();
   }
 
