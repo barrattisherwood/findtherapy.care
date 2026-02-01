@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
 import { Footer } from '../footer/footer';
+import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
 @Component({
   selector: 'app-register',
@@ -19,6 +20,8 @@ export class Register {
   confirmPassword = '';
   error = signal<string | null>(null);
   loading = signal(false);
+  trialMonths = Math.round(TRIAL_PERIOD_DAYS / 30);
+  subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
 
   private destroy$ = takeUntilDestroyed();
 

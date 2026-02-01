@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { AuthService } from '../../services/auth.service';
+import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
 @Component({
   selector: 'app-landing',
@@ -16,6 +17,8 @@ export class Landing implements OnInit, OnDestroy {
   isAuthenticated = this.authService.isLoggedIn;
   currentUser = this.authService.currentUser;
   currentYear = new Date().getFullYear();
+  trialMonths = Math.round(TRIAL_PERIOD_DAYS / 30);
+  subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
 
   // Hero images for the carousel - place images in assets/images/hero/
   heroImages = [

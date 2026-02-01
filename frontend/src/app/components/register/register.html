@@ -16,7 +16,46 @@
       </p>
     </div>
 
-    <form class="mt-8 space-y-6" (ngSubmit)="onSubmit()">
+    <!-- Provider Trial Callout -->
+    <div class="bg-primary-50 border border-primary-200 rounded-xl p-5">
+      <div class="flex items-start gap-3">
+        <div class="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-primary-900 text-sm">
+            Start your free {{ trialMonths }}-month trial
+          </h3>
+          <p class="text-primary-700 text-sm mt-1">
+            List your practice free for {{ trialMonths }} months. No credit card required. Then just R{{ subscriptionPrice }}/month.
+          </p>
+          <ul class="mt-3 space-y-1.5">
+            <li class="flex items-center gap-2 text-xs text-primary-700">
+              <svg class="w-3.5 h-3.5 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Profile visible to local clients
+            </li>
+            <li class="flex items-center gap-2 text-xs text-primary-700">
+              <svg class="w-3.5 h-3.5 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Full control of your listing
+            </li>
+            <li class="flex items-center gap-2 text-xs text-primary-700">
+              <svg class="w-3.5 h-3.5 text-primary-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Cancel anytime
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <form class="space-y-6" (ngSubmit)="onSubmit()">
       <div class="space-y-4">
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">

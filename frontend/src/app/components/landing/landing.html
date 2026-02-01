@@ -250,21 +250,96 @@
     </div>
   </section>
 
-  <!-- Become a Provider CTA -->
-  <section class="bg-gray-900 py-20">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
-        Are you a therapist or counsellor?
-      </h2>
-      <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-        Join our growing community of mental health professionals. Create your profile and connect with clients looking for your services.
-      </p>
-      <a
-        routerLink="/register"
-        class="inline-block bg-primary-500 text-white px-10 py-4 rounded-lg hover:bg-primary-600 transition-all font-semibold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
-      >
-        Become a Provider
-      </a>
+  <!-- For Providers -->
+  <section class="bg-gradient-to-br from-gray-900 to-gray-800 py-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <!-- Left: Value Proposition -->
+        <div>
+          <p class="text-primary-400 font-semibold text-sm uppercase tracking-wider mb-3">For Providers</p>
+          <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
+            Grow your practice with findtherapy.care
+          </h2>
+          <p class="text-lg text-gray-300 mb-8">
+            Join South Africa's growing directory of mental health professionals. Reach clients actively looking for your expertise.
+          </p>
+
+          <div class="space-y-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <p class="text-gray-300">Visible to clients searching by location and specialty</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <p class="text-gray-300">Full profile with qualifications, bio, and contact details</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              <p class="text-gray-300">Create and manage support group listings</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-primary-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+              </svg>
+              <p class="text-gray-300">No credit card required to start</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Pricing Card -->
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div class="bg-primary-600 px-8 py-6 text-center">
+            <span class="inline-block bg-white/20 text-white text-sm font-semibold px-4 py-1.5 rounded-full mb-3">
+              Free for {{ trialMonths }} months
+            </span>
+            <div class="text-white">
+              <span class="text-5xl font-bold">R{{ subscriptionPrice }}</span>
+              <span class="text-white/80 text-lg">/month after trial</span>
+            </div>
+          </div>
+          <div class="px-8 py-8">
+            <ul class="space-y-3 mb-8">
+              <li class="flex items-center gap-3 text-gray-700">
+                <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Searchable provider profile
+              </li>
+              <li class="flex items-center gap-3 text-gray-700">
+                <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Direct client enquiries
+              </li>
+              <li class="flex items-center gap-3 text-gray-700">
+                <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Support group management
+              </li>
+              <li class="flex items-center gap-3 text-gray-700">
+                <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Cancel anytime
+              </li>
+            </ul>
+            <a
+              routerLink="/register"
+              class="block w-full text-center bg-primary-600 text-white px-8 py-4 rounded-lg hover:bg-primary-700 transition-all font-semibold text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            >
+              Get Started Free
+            </a>
+            <p class="text-center text-sm text-gray-500 mt-3">No credit card required</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
