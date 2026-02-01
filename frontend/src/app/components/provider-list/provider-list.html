@@ -4,9 +4,18 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header + Filters -->
     <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden mb-8">
-      <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-4">
-        <h1 class="text-xl font-bold text-white tracking-tight">Find a Provider</h1>
-        <p class="text-sm text-white/75">Browse therapists and counsellors in your area</p>
+      <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-4 flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-tight">Find a Provider</h1>
+          <p class="text-sm text-white/75">Browse therapists and counsellors in your area</p>
+        </div>
+        <span class="text-sm text-white/80 font-medium whitespace-nowrap ml-4">
+          @if (loading()) {
+            Searching...
+          } @else {
+            {{ totalProviders() }} found
+          }
+        </span>
       </div>
 
       <div class="p-5 sm:p-6">
@@ -110,15 +119,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Results count -->
-    <p class="text-sm text-gray-600 mb-4">
-      @if (loading()) {
-        Searching...
-      } @else {
-        {{ totalProviders() }} provider{{ totalProviders() === 1 ? '' : 's' }} found
-      }
-    </p>
 
     <!-- Provider grid -->
     @if (loading()) {

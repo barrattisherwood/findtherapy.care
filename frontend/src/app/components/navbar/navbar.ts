@@ -1,4 +1,4 @@
-import { Component, inject, signal, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -15,6 +15,10 @@ export class Navbar {
 
   currentUser = this.authService.currentUser;
   isAuthenticated = this.authService.isLoggedIn;
+  userInitial = computed(() => {
+    const email = this.currentUser()?.email;
+    return email ? email.charAt(0).toUpperCase() : '?';
+  });
   showMobileMenu = false;
 
   @HostListener('document:click', ['$event'])
