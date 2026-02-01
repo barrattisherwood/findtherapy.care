@@ -3,31 +3,64 @@
   <nav class="absolute top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
-        <a routerLink="/">
-          <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10" />
-        </a>
-        <div class="flex items-center gap-4">
-          @if (isAuthenticated()) {
-            <a routerLink="/providers" class="text-gray-700 hover:text-gray-900 font-medium">
+        <!-- LEFT GROUP: Logo + Nav Links -->
+        <div class="flex items-center gap-8">
+          <a routerLink="/">
+            <img src="assets/images/logo.png" alt="findtherapy.care" class="h-8 sm:h-10" />
+          </a>
+          <div class="hidden sm:flex items-center gap-1">
+            <a
+              routerLink="/providers"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+            >
               Find Providers
             </a>
-            <a routerLink="/support-groups" class="text-gray-700 hover:text-gray-900 font-medium">
+            <a
+              routerLink="/support-groups"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+            >
               Support Groups
             </a>
-            <span class="text-sm text-gray-600">{{ currentUser()?.email }}</span>
+          </div>
+        </div>
+
+        <!-- RIGHT GROUP -->
+        <div class="flex items-center gap-3">
+          @if (isAuthenticated()) {
+            <a
+              routerLink="/provider/profile"
+              class="hidden sm:inline-flex px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+            >
+              My Profile
+            </a>
+            <div class="hidden sm:block h-6 w-px bg-gray-200"></div>
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                {{ userInitial() }}
+              </div>
+              <span class="hidden sm:inline text-sm text-gray-600 max-w-[160px] truncate">
+                {{ currentUser()?.email }}
+              </span>
+            </div>
             <button
               (click)="logout()"
-              class="text-gray-700 hover:text-gray-900 font-medium"
+              class="ml-1 p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              title="Sign out"
             >
-              Logout
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
             </button>
           } @else {
-            <a routerLink="/login" class="text-gray-700 hover:text-gray-900 font-medium">
+            <a
+              routerLink="/login"
+              class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-primary-700 hover:bg-primary-50 transition-colors"
+            >
               Login
             </a>
             <a
               routerLink="/register"
-              class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
             >
               Get Started
             </a>
