@@ -20,6 +20,12 @@ export class Navbar {
     return email ? email.charAt(0).toUpperCase() : '?';
   });
   showMobileMenu = false;
+  isScrolled = signal(false);
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.isScrolled.set(window.scrollY > 10);
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {

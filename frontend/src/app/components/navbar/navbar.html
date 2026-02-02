@@ -1,6 +1,12 @@
-<nav class="bg-white shadow-sm border-b border-gray-200">
+<nav class="sticky top-0 z-50 bg-white transition-all duration-300"
+     [class.shadow-md]="isScrolled()"
+     [class.shadow-sm]="!isScrolled()"
+     [class.border-b]="!isScrolled()"
+     [class.border-gray-200]="!isScrolled()">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+    <div class="flex justify-between items-center transition-all duration-300"
+         [class.h-16]="!isScrolled()"
+         [class.h-14]="isScrolled()">
 
       <!-- LEFT GROUP: Logo + Page Navigation -->
       <div class="flex items-center gap-8">
