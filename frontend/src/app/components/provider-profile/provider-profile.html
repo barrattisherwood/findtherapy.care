@@ -1,23 +1,28 @@
 <app-navbar />
 
-<div class="min-h-screen bg-gray-50">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <h1 class="text-3xl font-bold text-gray-900 mb-8">
+<div class="min-h-screen bg-gray-50 pb-12">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
       {{ hasProfile() ? 'Edit Provider Profile' : 'Create Provider Profile' }}
     </h1>
+    <p class="text-gray-600 mb-8">Complete your professional profile to connect with clients</p>
 
     @if (loading()) {
-      <div class="bg-white rounded-lg shadow p-8">
+      <div class="bg-white rounded-xl shadow-sm p-8">
         <app-loading-skeleton type="card" [count]="1" />
       </div>
     } @else {
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main form -->
         <div class="lg:col-span-2">
-          <form (ngSubmit)="save()" class="bg-white rounded-lg shadow p-6 space-y-6">
-            <!-- Provider Type -->
+          <form (ngSubmit)="save()" class="bg-white rounded-xl shadow-sm p-8 space-y-8">
+            <!-- Basic Information Section -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Provider Type *</label>
+              <h2 class="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
+
+              <!-- Provider Type -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Provider Type *</label>
               <div class="flex gap-4">
                 <label class="flex items-center">
                   <input
@@ -42,11 +47,11 @@
                   <span class="ml-2">Counsellor</span>
                 </label>
               </div>
-            </div>
+              </div>
 
-            <!-- Display Name -->
-            <div>
-              <label for="displayName" class="block text-sm font-medium text-gray-700 mb-1">Display Name *</label>
+              <!-- Display Name -->
+              <div class="mb-6">
+                <label for="displayName" class="block text-sm font-medium text-gray-700 mb-2">Display Name *</label>
               <input
                 id="displayName"
                 type="text"
@@ -63,11 +68,11 @@
                 <p class="mt-1 text-sm text-red-600">{{ displayNameError() }}</p>
               }
               <p class="mt-1 text-xs text-gray-500">Maximum 100 characters</p>
-            </div>
+              </div>
 
-            <!-- Bio -->
-            <div>
-              <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">About You *</label>
+              <!-- Bio -->
+              <div>
+                <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">About You *</label>
               <textarea
                 id="bio"
                 [ngModel]="bio()"
@@ -86,11 +91,16 @@
               <p class="mt-1 text-xs text-gray-500">
                 {{ bio().length }} / 2000 characters (minimum 50)
               </p>
+              </div>
             </div>
 
-            <!-- Qualifications -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Qualifications</label>
+            <!-- Professional Details Section -->
+            <div class="border-t pt-8">
+              <h2 class="text-xl font-semibold text-gray-900 mb-6">Professional Details</h2>
+
+              <!-- Qualifications -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Qualifications</label>
               <div class="flex flex-wrap gap-2">
                 @for (qual of availableQualifications; track qual) {
                   <button
@@ -107,11 +117,11 @@
                   </button>
                 }
               </div>
-            </div>
+              </div>
 
-            <!-- Specialties -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Specialties</label>
+              <!-- Specialties -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Specialties</label>
               <div class="flex flex-wrap gap-2">
                 @for (specialty of availableSpecialties; track specialty) {
                   <button
@@ -128,12 +138,16 @@
                   </button>
                 }
               </div>
+              </div>
             </div>
 
-            <!-- Location -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+            <!-- Location & Contact Section -->
+            <div class="border-t pt-8">
+              <h2 class="text-xl font-semibold text-gray-900 mb-6">Location & Contact</h2>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City *</label>
                 <input
                   id="city"
                   type="text"
@@ -149,9 +163,9 @@
                 @if (cityError()) {
                   <p class="mt-1 text-sm text-red-600">{{ cityError() }}</p>
                 }
-              </div>
-              <div>
-                <label for="postcode" class="block text-sm font-medium text-gray-700 mb-1">Postcode *</label>
+                </div>
+                <div>
+                  <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
                 <input
                   id="postcode"
                   type="text"
@@ -168,11 +182,11 @@
                 @if (postcodeError()) {
                   <p class="mt-1 text-sm text-red-600">{{ postcodeError() }}</p>
                 }
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address (optional)</label>
+              <div class="mb-6">
+                <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address (optional)</label>
               <input
                 id="address"
                 type="text"
@@ -182,12 +196,11 @@
                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                 placeholder="123 Main Street, Gardens"
               />
-            </div>
+              </div>
 
-            <!-- Contact -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-1">Contact Email *</label>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-2">Contact Email *</label>
                 <input
                   id="contactEmail"
                   type="email"
@@ -203,9 +216,9 @@
                 @if (contactEmailError()) {
                   <p class="mt-1 text-sm text-red-600">{{ contactEmailError() }}</p>
                 }
-              </div>
-              <div>
-                <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-1">Phone (optional)</label>
+                </div>
+                <div>
+                  <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-2">Phone (optional)</label>
                 <input
                   id="contactPhone"
                   type="tel"
@@ -220,11 +233,11 @@
                 @if (contactPhoneError()) {
                   <p class="mt-1 text-sm text-red-600">{{ contactPhoneError() }}</p>
                 }
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label for="website" class="block text-sm font-medium text-gray-700 mb-1">Website (optional)</label>
+              <div>
+                <label for="website" class="block text-sm font-medium text-gray-700 mb-2">Website (optional)</label>
               <input
                 id="website"
                 type="url"
@@ -239,12 +252,16 @@
               @if (websiteError()) {
                 <p class="mt-1 text-sm text-red-600">{{ websiteError() }}</p>
               }
+              </div>
             </div>
 
-            <!-- Pricing -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label for="hourlyRate" class="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (R)</label>
+            <!-- Pricing Section -->
+            <div class="border-t pt-8">
+              <h2 class="text-xl font-semibold text-gray-900 mb-6">Pricing</h2>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <div>
+                  <label for="hourlyRate" class="block text-sm font-medium text-gray-700 mb-2">Hourly Rate (R)</label>
                 <input
                   id="hourlyRate"
                   type="number"
@@ -255,18 +272,19 @@
                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
                   placeholder="800"
                 />
-              </div>
-              <div class="flex items-end">
-                <label class="flex items-center">
-                  <input
-                    type="checkbox"
-                    [ngModel]="offersFreeConsultation()"
-                    (ngModelChange)="offersFreeConsultation.set($event)"
-                    name="offersFreeConsultation"
-                    class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  <span class="ml-2 text-sm text-gray-700">Offer free consultation</span>
-                </label>
+                </div>
+                <div class="flex items-end">
+                  <label class="flex items-center">
+                    <input
+                      type="checkbox"
+                      [ngModel]="offersFreeConsultation()"
+                      (ngModelChange)="offersFreeConsultation.set($event)"
+                      name="offersFreeConsultation"
+                      class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                    />
+                    <span class="ml-2 text-sm text-gray-700">Offer free consultation</span>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -305,11 +323,11 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="lg:col-span-1">
+        <div class="lg:col-span-1 space-y-6">
           @if (hasProfile()) {
             <!-- Profile Statistics -->
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">Profile Statistics</h3>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-6">Profile Statistics</h3>
               <div class="flex items-center">
                 <div class="flex-shrink-0">
                   <svg class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -331,11 +349,20 @@
               [trialEndsAt]="trialEndsAt()"
             />
           } @else {
-            <div class="bg-info-50 rounded-lg p-6">
-              <h3 class="text-lg font-semibold text-info-900 mb-2">Getting Started</h3>
-              <p class="text-info-700 text-sm">
-                Create your provider profile first. Once saved, you can subscribe to have your profile listed publicly.
-              </p>
+            <div class="bg-primary-50 border border-primary-200 rounded-xl p-6">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                  <svg class="w-6 h-6 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-base font-semibold text-primary-900 mb-2">Getting Started</h3>
+                  <p class="text-primary-800 text-sm leading-relaxed">
+                    Create your provider profile first. Once saved, you can subscribe to have your profile listed publicly.
+                  </p>
+                </div>
+              </div>
             </div>
           }
         </div>
