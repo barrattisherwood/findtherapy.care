@@ -71,7 +71,7 @@
   </nav>
 
   <!-- Hero Section with Image Carousel -->
-  <section class="relative h-[90vh] min-h-[600px] overflow-hidden">
+  <section class="relative h-[90vh] min-h-[500px] sm:min-h-[600px] overflow-hidden">
     <!-- Background Images with Fade -->
     <div class="absolute inset-0">
       @for (image of heroImages; track image; let i = $index) {
@@ -124,9 +124,9 @@
   </section>
 
   <!-- Trust Indicators -->
-  <section class="bg-white py-8 border-b">
+  <section class="bg-white py-5 sm:py-8 border-b">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-wrap justify-center items-center gap-8 sm:gap-16 text-gray-500">
+      <div class="flex flex-wrap justify-center items-center gap-4 sm:gap-16 text-gray-500">
         <div class="flex items-center gap-2">
           <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -150,23 +150,23 @@
   </section>
 
   <!-- How It Works -->
-  <section class="bg-gray-50 py-20">
+  <section class="bg-gray-50 py-12 sm:py-20">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+      <div class="text-center mb-8 sm:mb-16">
+        <h2 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">How It Works</h2>
         <p class="text-lg text-gray-600 max-w-2xl mx-auto">
           Finding the right mental health support has never been easier
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8">
+      <div class="grid md:grid-cols-3 gap-4 sm:gap-8">
         <!-- Step 1 -->
         <div class="relative">
-          <div class="bg-white rounded-2xl shadow-lg p-8 h-full">
-            <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mb-6">
-              <span class="text-2xl font-bold text-primary-600">1</span>
+          <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 h-full">
+            <div class="w-10 h-10 sm:w-14 sm:h-14 bg-primary-100 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-6">
+              <span class="text-lg sm:text-2xl font-bold text-primary-600">1</span>
             </div>
-            <h3 class="text-xl font-semibold mb-3 text-gray-900">Search</h3>
+            <h3 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">Search</h3>
             <p class="text-gray-600">
               Browse our directory of therapists, counsellors, and support groups. Filter by specialty, location, or type of care.
             </p>
@@ -177,11 +177,11 @@
 
         <!-- Step 2 -->
         <div class="relative">
-          <div class="bg-white rounded-2xl shadow-lg p-8 h-full">
-            <div class="w-14 h-14 bg-secondary-100 rounded-2xl flex items-center justify-center mb-6">
-              <span class="text-2xl font-bold text-secondary-600">2</span>
+          <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 h-full">
+            <div class="w-10 h-10 sm:w-14 sm:h-14 bg-secondary-100 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-6">
+              <span class="text-lg sm:text-2xl font-bold text-secondary-600">2</span>
             </div>
-            <h3 class="text-xl font-semibold mb-3 text-gray-900">Compare</h3>
+            <h3 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">Compare</h3>
             <p class="text-gray-600">
               View detailed profiles, read reviews, and compare qualifications to find the perfect match for your needs.
             </p>
@@ -192,11 +192,11 @@
 
         <!-- Step 3 -->
         <div class="relative">
-          <div class="bg-white rounded-2xl shadow-lg p-8 h-full">
-            <div class="w-14 h-14 bg-accent-100 rounded-2xl flex items-center justify-center mb-6">
-              <span class="text-2xl font-bold text-accent-600">3</span>
+          <div class="bg-white rounded-2xl shadow-lg p-5 sm:p-8 h-full">
+            <div class="w-10 h-10 sm:w-14 sm:h-14 bg-accent-100 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-6">
+              <span class="text-lg sm:text-2xl font-bold text-accent-600">3</span>
             </div>
-            <h3 class="text-xl font-semibold mb-3 text-gray-900">Connect</h3>
+            <h3 class="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-gray-900">Connect</h3>
             <p class="text-gray-600">
               Reach out directly to providers via phone, email, or their website. Start your journey to better mental health.
             </p>
@@ -207,9 +207,9 @@
   </section>
 
   <!-- Features Section -->
-  <section class="bg-white py-20">
+  <section class="bg-white py-12 sm:py-20">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid lg:grid-cols-2 gap-16 items-center">
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
         <!-- Left: Text Content -->
         <div>
           <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
@@ -259,22 +259,22 @@
         </div>
 
         <!-- Right: Stats/Image Placeholder -->
-        <div class="bg-gradient-to-br from-primary-50 to-accent-50 rounded-3xl p-8 lg:p-12">
-          <div class="grid grid-cols-2 gap-6">
-            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
-              <div class="text-4xl font-bold text-primary-600 mb-2">100+</div>
+        <div class="bg-gradient-to-br from-primary-50 to-accent-50 rounded-3xl p-6 sm:p-8 lg:p-12">
+          <div class="grid grid-cols-2 gap-4 sm:gap-6">
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm text-center">
+              <div class="text-3xl sm:text-4xl font-bold text-primary-600 mb-1 sm:mb-2">100+</div>
               <div class="text-gray-600">Providers</div>
             </div>
-            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
-              <div class="text-4xl font-bold text-secondary-600 mb-2">50+</div>
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm text-center">
+              <div class="text-3xl sm:text-4xl font-bold text-secondary-600 mb-1 sm:mb-2">50+</div>
               <div class="text-gray-600">Specialties</div>
             </div>
-            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
-              <div class="text-4xl font-bold text-accent-600 mb-2">20+</div>
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm text-center">
+              <div class="text-3xl sm:text-4xl font-bold text-accent-600 mb-1 sm:mb-2">20+</div>
               <div class="text-gray-600">Support Groups</div>
             </div>
-            <div class="bg-white rounded-2xl p-6 shadow-sm text-center">
-              <div class="text-4xl font-bold text-primary-600 mb-2">9</div>
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm text-center">
+              <div class="text-3xl sm:text-4xl font-bold text-primary-600 mb-1 sm:mb-2">9</div>
               <div class="text-gray-600">Provinces</div>
             </div>
           </div>
@@ -284,9 +284,9 @@
   </section>
 
   <!-- For Providers -->
-  <section class="bg-gradient-to-br from-gray-900 to-gray-800 py-20">
+  <section class="bg-gradient-to-br from-gray-900 to-gray-800 py-12 sm:py-20">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         <!-- Left: Value Proposition -->
         <div>
           <p class="text-primary-400 font-semibold text-sm uppercase tracking-wider mb-3">For Providers</p>
@@ -327,7 +327,7 @@
 
         <!-- Right: Pricing Card -->
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-          <div class="bg-primary-600 px-8 py-6 text-center">
+          <div class="bg-primary-600 px-6 py-5 sm:px-8 sm:py-6 text-center">
             <span class="inline-block bg-white/20 text-white text-sm font-semibold px-4 py-1.5 rounded-full mb-3">
               Free for {{ trialMonths }} months
             </span>
@@ -336,8 +336,8 @@
               <span class="text-white/80 text-lg">/month after trial</span>
             </div>
           </div>
-          <div class="px-8 py-8">
-            <ul class="space-y-3 mb-8">
+          <div class="px-6 py-6 sm:px-8 sm:py-8">
+            <ul class="space-y-3 mb-6 sm:mb-8">
               <li class="flex items-center gap-3 text-gray-700">
                 <svg class="w-5 h-5 text-primary-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -377,12 +377,12 @@
   </section>
 
   <!-- Final CTA -->
-  <section class="bg-gradient-to-br from-primary-50 to-accent-50 py-20">
+  <section class="bg-gradient-to-br from-primary-50 to-accent-50 py-12 sm:py-20">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+      <h2 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
         Ready to find care?
       </h2>
-      <p class="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+      <p class="text-base sm:text-lg text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto">
         Take the first step towards better mental health. Browse our directory of qualified therapists, counsellors, and support groups.
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
