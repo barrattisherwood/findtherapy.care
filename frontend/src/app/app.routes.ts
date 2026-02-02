@@ -6,7 +6,6 @@ import { Login } from './components/login/login';
 import { Register } from './components/register/register';
 import { ForgotPassword } from './components/forgot-password/forgot-password';
 import { ResetPassword } from './components/reset-password/reset-password';
-import { Dashboard } from './components/dashboard/dashboard';
 import { ProviderList } from './components/provider-list/provider-list';
 import { ProviderDetail } from './components/provider-detail/provider-detail';
 import { ProviderProfile } from './components/provider-profile/provider-profile';
@@ -19,7 +18,6 @@ export const routes: Routes = [
   { path: 'register', component: Register, title: 'Create Account — findtherapy.care' },
   { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password — findtherapy.care' },
   { path: 'reset-password', component: ResetPassword, title: 'Reset Password — findtherapy.care' },
-  { path: 'dashboard', component: Dashboard, canActivate: [authGuard], title: 'Dashboard — findtherapy.care' },
   // Provider routes
   { path: 'providers', component: ProviderList, title: 'Find Providers — findtherapy.care' },
   { path: 'providers/:id', component: ProviderDetail },

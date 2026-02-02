@@ -53,7 +53,7 @@ export class Register {
       .pipe(this.destroy$)
       .subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/provider/profile']);
       },
       error: (err) => {
         this.loading.set(false);
