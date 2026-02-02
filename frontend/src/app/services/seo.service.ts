@@ -4,7 +4,7 @@ import { Meta, Title } from '@angular/platform-browser';
 
 const SITE_NAME = 'findtherapy.care';
 const DEFAULT_DESCRIPTION = 'Find therapists, counsellors, and support groups near you in South Africa. Browse verified mental health professionals by specialty, location, and availability.';
-const DEFAULT_IMAGE = 'https://findtherapy.care/assets/images/og-image.png';
+const DEFAULT_IMAGE = 'https://findtherapy.care/assets/images/og-image.jpg';
 const BASE_URL = 'https://findtherapy.care';
 
 export interface SeoConfig {

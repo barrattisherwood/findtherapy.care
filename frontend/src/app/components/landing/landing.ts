@@ -1,25 +1,18 @@
-import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
-import { AuthService } from '../../services/auth.service';
+import { Navbar } from '../navbar/navbar';
 import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink, Footer],
+  imports: [CommonModule, RouterLink, Footer, Navbar],
   templateUrl: './landing.html',
   styleUrl: './landing.scss'
 })
 export class Landing implements OnInit, OnDestroy {
-  private authService = inject(AuthService);
-  isAuthenticated = this.authService.isLoggedIn;
-  currentUser = this.authService.currentUser;
-  userInitial = computed(() => {
-    const email = this.currentUser()?.email;
-    return email ? email.charAt(0).toUpperCase() : '?';
-  });
   currentYear = new Date().getFullYear();
   trialMonths = Math.round(TRIAL_PERIOD_DAYS / 30);
   subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
@@ -53,9 +46,5 @@ export class Landing implements OnInit, OnDestroy {
 
   goToImage(index: number): void {
     this.currentImageIndex.set(index);
-  }
-
-  logout(): void {
-    this.authService.logout();
   }
 }
