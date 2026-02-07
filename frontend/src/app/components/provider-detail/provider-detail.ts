@@ -9,7 +9,7 @@ import { SeoService } from '../../services/seo.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
-import { Provider, ContactProviderRequest } from '@findlocal/shared';
+import { Provider, ContactProviderRequest, ProviderType } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-detail',
@@ -53,7 +53,7 @@ export class ProviderDetail implements OnInit {
         this.provider.set(response.provider);
         this.loading.set(false);
         const p = response.provider;
-        const type = p.type === 'therapist' ? 'Therapist' : 'Counsellor';
+        const type = this.getTypeLabel(p.type);
         this.seo.update({
           title: `${p.displayName} — ${type} in ${p.location.city}`,
           description: `${p.displayName} is a ${type.toLowerCase()} in ${p.location.city}. Specialties: ${p.specialties.slice(0, 4).join(', ')}. View profile and get in touch.`,
@@ -67,8 +67,18 @@ export class ProviderDetail implements OnInit {
     });
   }
 
+  getTypeLabel(type: ProviderType): string {
+    const labels: Record<ProviderType, string> = {
+      'psychologist': 'Psychologist',
+      'counsellor': 'Counsellor',
+      'social-worker': 'Social Worker'
+    };
+    return labels[type] || type;
+  }
+
   get providerTypeLabel(): string {
-    return this.provider()?.type === 'therapist' ? 'Therapist' : 'Counsellor';
+    const p = this.provider();
+    return p ? this.getTypeLabel(p.type) : '';
   }
 
   get locationDisplay(): string {

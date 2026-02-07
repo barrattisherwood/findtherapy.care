@@ -62,32 +62,90 @@
           }
 
           <!-- Qualifications -->
-          @if (provider()!.qualifications.length > 0) {
+          @if (provider()!.degrees && provider()!.degrees.length > 0) {
             <section class="mb-8">
               <h2 class="text-lg font-semibold text-gray-900 mb-3">Qualifications</h2>
-              <ul class="list-disc list-inside text-gray-700 space-y-1">
-                @for (qual of provider()!.qualifications; track qual) {
-                  <li>{{ qual }}</li>
+              <div class="flex flex-wrap gap-2">
+                @for (degree of provider()!.degrees; track degree) {
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-50 text-primary-700">
+                    {{ degree }}
+                  </span>
                 }
-              </ul>
+              </div>
+            </section>
+          }
+
+          <!-- Professional Registration -->
+          @if (provider()!.registrations && provider()!.registrations.length > 0) {
+            <section class="mb-8">
+              <h2 class="text-lg font-semibold text-gray-900 mb-3">Professional Registration</h2>
+              <div class="flex flex-wrap gap-2">
+                @for (reg of provider()!.registrations; track reg) {
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary-50 text-secondary-700">
+                    {{ reg }}
+                  </span>
+                }
+              </div>
+            </section>
+          }
+
+          <!-- Additional Certifications -->
+          @if (provider()!.certifications && provider()!.certifications.length > 0) {
+            <section class="mb-8">
+              <h2 class="text-lg font-semibold text-gray-900 mb-3">Additional Training & Certifications</h2>
+              <div class="space-y-3">
+                @for (cert of provider()!.certifications; track $index) {
+                  <div class="border-l-4 border-accent-500 pl-4 py-2">
+                    <p class="text-sm font-medium text-gray-900">{{ cert.certificationName }}</p>
+                    <p class="text-xs text-gray-600">
+                      {{ cert.institution }}
+                      @if (cert.yearCompleted) {
+                        <span> • {{ cert.yearCompleted }}</span>
+                      }
+                    </p>
+                  </div>
+                }
+              </div>
             </section>
           }
 
           <!-- Pricing -->
           <section class="mb-8">
-            <h2 class="text-lg font-semibold text-gray-900 mb-3">Pricing</h2>
-            <div class="flex items-center gap-4">
-              @if (provider()!.hourlyRate) {
-                <span class="text-2xl font-bold text-gray-900">R{{ provider()!.hourlyRate }}/hour</span>
-              } @else {
-                <span class="text-gray-500">Rate not specified</span>
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Pricing</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              @if (provider()!.pricing.individualCounsellingRate) {
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p class="text-xs text-gray-600 mb-1">Individual Counselling</p>
+                  <p class="text-xl font-bold text-gray-900">R{{ provider()!.pricing.individualCounsellingRate }}/session</p>
+                </div>
               }
-              @if (provider()!.offersFreeConsultation) {
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-100 text-success-800">
-                  Free consultation available
-                </span>
+              @if (provider()!.pricing.couplesCounsellingRate) {
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p class="text-xs text-gray-600 mb-1">Couples Counselling</p>
+                  <p class="text-xl font-bold text-gray-900">R{{ provider()!.pricing.couplesCounsellingRate }}/session</p>
+                </div>
+              }
+              @if (provider()!.pricing.familyCounsellingRate) {
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p class="text-xs text-gray-600 mb-1">Family Counselling</p>
+                  <p class="text-xl font-bold text-gray-900">R{{ provider()!.pricing.familyCounsellingRate }}/session</p>
+                </div>
+              }
+              @if (provider()!.pricing.onlineCounsellingRate) {
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <p class="text-xs text-gray-600 mb-1">Online Counselling</p>
+                  <p class="text-xl font-bold text-gray-900">R{{ provider()!.pricing.onlineCounsellingRate }}/session</p>
+                </div>
               }
             </div>
+            @if (provider()!.pricing.offersIntroductoryConsultation) {
+              <p class="text-sm text-success-600 font-medium flex items-center">
+                <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                Offers introductory consultation
+              </p>
+            }
           </section>
 
           <!-- Contact -->

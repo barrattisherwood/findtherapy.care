@@ -2,10 +2,12 @@
   <div class="flex justify-between items-start mb-3">
     <h3 class="text-lg font-semibold text-gray-900">{{ provider.displayName }}</h3>
     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          [class.bg-primary-100]="provider.type === 'therapist'"
-          [class.text-primary-800]="provider.type === 'therapist'"
+          [class.bg-primary-100]="provider.type === 'psychologist'"
+          [class.text-primary-800]="provider.type === 'psychologist'"
           [class.bg-accent-100]="provider.type === 'counsellor'"
-          [class.text-accent-800]="provider.type === 'counsellor'">
+          [class.text-accent-800]="provider.type === 'counsellor'"
+          [class.bg-secondary-100]="provider.type === 'social-worker'"
+          [class.text-secondary-800]="provider.type === 'social-worker'">
       {{ providerTypeLabel }}
     </span>
   </div>
@@ -28,14 +30,14 @@
   }
 
   <div class="flex items-center justify-between text-sm">
-    @if (provider.hourlyRate) {
-      <span class="text-gray-700 font-medium">R{{ provider.hourlyRate }}/hour</span>
+    @if (getLowestRate()) {
+      <span class="text-gray-900 font-semibold">From R{{ getLowestRate() }}/session</span>
     } @else {
-      <span class="text-gray-500">Rate not specified</span>
+      <span class="text-gray-500">Contact for rates</span>
     }
 
-    @if (provider.offersFreeConsultation) {
-      <span class="text-success-600 font-medium">Free consultation</span>
+    @if (provider.pricing.offersIntroductoryConsultation) {
+      <span class="text-success-600 font-medium text-xs">Intro consultation</span>
     }
   </div>
 </a>
