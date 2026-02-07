@@ -11,9 +11,15 @@ import { ProviderDetail } from './components/provider-detail/provider-detail';
 import { ProviderProfile } from './components/provider-profile/provider-profile';
 import { SupportGroupList } from './components/support-group-list/support-group-list';
 import { SupportGroupDetail } from './components/support-group-detail/support-group-detail';
+import { CityLanding } from './components/city-landing/city-landing';
 
 export const routes: Routes = [
   { path: '', component: Landing, title: 'findtherapy.care — Find therapists and counsellors near you' },
+  // City landing pages
+  { path: 'johannesburg', component: CityLanding, title: 'Therapists in Johannesburg — findtherapy.care' },
+  { path: 'cape-town', component: CityLanding, title: 'Therapists in Cape Town — findtherapy.care' },
+  { path: 'durban', component: CityLanding, title: 'Therapists in Durban — findtherapy.care' },
+  { path: 'pretoria', component: CityLanding, title: 'Therapists in Pretoria — findtherapy.care' },
   { path: 'login', component: Login, title: 'Sign In — findtherapy.care' },
   { path: 'register', component: Register, title: 'Create Account — findtherapy.care' },
   { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password — findtherapy.care' },

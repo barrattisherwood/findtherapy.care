@@ -79,3 +79,6 @@ export const SUPPORT_GROUP_CATEGORIES = [
 ] as const;
 
 export type SupportGroupCategory = typeof SUPPORT_GROUP_CATEGORIES[number];
+
+// City configurations for regional landing pages
+export * from './cities.js';

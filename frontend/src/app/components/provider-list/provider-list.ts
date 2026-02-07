@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, Input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProviderService } from '../../services/provider.service';
@@ -18,6 +18,10 @@ import { PROVIDER_SPECIALTIES } from '@findlocal/shared';
   styleUrl: './provider-list.scss'
 })
 export class ProviderList implements OnInit {
+  @Input() cityFilter: string | undefined;
+  @Input() embedded: boolean = false;
+  @Input() showFilters: boolean = true;
+
   private providerService = inject(ProviderService);
   private seo = inject(SeoService);
 
@@ -36,11 +40,20 @@ export class ProviderList implements OnInit {
   specialties = PROVIDER_SPECIALTIES;
 
   ngOnInit(): void {
-    this.seo.update({
-      title: 'Find Providers',
-      description: 'Browse therapists and counsellors across South Africa. Filter by specialty, location, and type to find the right mental health professional for you.',
-      url: '/providers',
-    });
+    // Only update SEO if not embedded
+    if (!this.embedded) {
+      this.seo.update({
+        title: 'Find Providers',
+        description: 'Browse therapists and counsellors across South Africa. Filter by specialty, location, and type to find the right mental health professional for you.',
+        url: '/providers',
+      });
+    }
+
+    // Pre-populate city filter if provided via Input
+    if (this.cityFilter) {
+      this.selectedCity.set(this.cityFilter);
+    }
+
     this.search();
   }
 
