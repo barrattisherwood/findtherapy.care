@@ -12,33 +12,72 @@ export const SUBSCRIPTION_PRICE_ZAR = 150;
 // Helper to check if trial is enabled
 export const isTrialEnabled = () => TRIAL_PERIOD_DAYS > 0;
 
-// Provider specialties
+// Provider degrees (academic qualifications)
+export const PROVIDER_DEGREES = [
+  'BA',
+  'BSc',
+  'BSoSci (Hons)',
+  'BPsych (Hons)',
+  'MA',
+  'MSocSci',
+  'MHSc',
+  'MEdPsych',
+  'MSc',
+  'Masters in Psychology (Int.)',
+  'BA (Hons) Social Work',
+  'BSoSci (Hons) Social',
+  'MA Social Work',
+  'MSW',
+] as const;
+
+// Professional registrations
+export const PROVIDER_REGISTRATIONS = [
+  'HPCSA',
+  'SACSSP',
+  'ASCHP',
+  'CCSA',
+  'Counselling-SA',
+  'SAAC',
+] as const;
+
+// Provider specialties (expanded list)
 export const PROVIDER_SPECIALTIES = [
-  'Anxiety',
-  'Depression',
-  'Trauma & PTSD',
-  'Grief & Loss',
-  'Relationship Issues',
-  'Couples Therapy',
-  'Family Therapy',
+  'Abortion & Miscarriage',
+  'Abuse',
   'Addiction & Recovery',
-  'Eating Disorders',
-  'OCD',
   'ADHD',
+  'Anger',
+  'Anxiety & Stress',
   'Autism Spectrum',
-  'Stress Management',
-  'Self-Esteem',
-  'Life Transitions',
-  'Career Counselling',
-  'Anger Management',
-  'Parenting',
-  'Child & Adolescent',
-  'LGBTQ+',
+  'Bullying',
+  'Burnout & Chronic Fatigue',
+  'Child & Adolescent counselling',
+  'Chronic illness/pain',
+  'Codependency',
+  'Depression',
+  'Divorce',
+  'Eating disorders & Body Image',
+  'Family counselling',
+  'First Responder issues',
+  'Grief & Loss',
+  'Job loss / Unemployment',
+  'LGBTQ issues',
+  'Gender identity & Sexual orientation',
+  'Marriage / Couples counselling',
+  'Paranoia & Phobias',
+  'Relationship issues',
+  'Self-criticism & self-doubt',
+  'Self-harm',
+  'Self-esteem & confidence',
+  'Sleep issues',
+  'Suicide & Suicidal ideation',
+  'Trauma, PTSD & Complex PTSD',
+  'Workplace issues & Employee wellness',
 ] as const;
 
 export type ProviderSpecialty = typeof PROVIDER_SPECIALTIES[number];
 
-// Provider qualifications
+// DEPRECATED - kept for backward compatibility during migration
 export const PROVIDER_QUALIFICATIONS = [
   'HPCSA Registered',
   'SACSSP Registered',

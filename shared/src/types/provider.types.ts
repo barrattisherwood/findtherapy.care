@@ -1,5 +1,21 @@
 // Provider Types
-export type ProviderType = 'therapist' | 'counsellor';
+export type ProviderType = 'psychologist' | 'counsellor' | 'social-worker';
+
+// Certification for additional training/certifications
+export interface Certification {
+  certificationName: string;
+  institution: string;
+  yearCompleted: number | null;
+}
+
+// Pricing structure for different service types
+export interface ProviderPricing {
+  individualCounsellingRate?: number;
+  couplesCounsellingRate?: number;
+  familyCounsellingRate?: number;
+  onlineCounsellingRate?: number;
+  offersIntroductoryConsultation: boolean;
+}
 
 export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'canceled';
 
@@ -15,14 +31,20 @@ export interface Provider {
   type: ProviderType;
   displayName: string;
   bio: string;
-  qualifications: string[];
+
+  // NEW FIELDS - Professional credentials
+  degrees: string[];
+  registrations: string[];
+  certifications: Certification[];
+
+  // NEW FIELD - Pricing
+  pricing: ProviderPricing;
+
   specialties: string[];
   location: ProviderLocation;
   contactEmail: string;
   contactPhone?: string;
   website?: string;
-  hourlyRate?: number;
-  offersFreeConsultation: boolean;
   isPublished: boolean;
   viewCount: number;
   payfastPaymentId?: string;
@@ -32,6 +54,11 @@ export interface Provider {
   payfastSubscriptionToken?: string;
   createdAt: Date;
   updatedAt: Date;
+
+  // DEPRECATED FIELDS (kept for migration period)
+  qualifications?: string[];
+  hourlyRate?: number;
+  offersFreeConsultation?: boolean;
 }
 
 // Helper type for checking if provider has active access (trial or subscription)
@@ -41,14 +68,15 @@ export interface CreateProviderRequest {
   type: ProviderType;
   displayName: string;
   bio: string;
-  qualifications: string[];
+  degrees: string[];
+  registrations: string[];
+  certifications: Certification[];
   specialties: string[];
+  pricing: ProviderPricing;
   location: ProviderLocation;
   contactEmail: string;
   contactPhone?: string;
   website?: string;
-  hourlyRate?: number;
-  offersFreeConsultation?: boolean;
 }
 
 export interface UpdateProviderRequest extends Partial<CreateProviderRequest> {
