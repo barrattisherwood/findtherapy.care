@@ -54,14 +54,18 @@ const toProviderResponse = (doc: any): ProviderType => ({
   type: doc.type,
   displayName: doc.displayName,
   bio: doc.bio,
-  qualifications: doc.qualifications,
-  specialties: doc.specialties,
+  // NEW FIELDS
+  degrees: doc.degrees || [],
+  registrations: doc.registrations || [],
+  certifications: doc.certifications || [],
+  pricing: doc.pricing || {
+    offersIntroductoryConsultation: false,
+  },
+  specialties: doc.specialties || [],
   location: doc.location,
   contactEmail: doc.contactEmail,
   contactPhone: doc.contactPhone,
   website: doc.website,
-  hourlyRate: doc.hourlyRate,
-  offersFreeConsultation: doc.offersFreeConsultation,
   isPublished: doc.isPublished,
   viewCount: doc.viewCount || 0,
   payfastPaymentId: doc.payfastPaymentId,
@@ -71,6 +75,10 @@ const toProviderResponse = (doc: any): ProviderType => ({
   trialEndsAt: doc.trialEndsAt,
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
+  // DEPRECATED FIELDS
+  qualifications: doc.qualifications,
+  hourlyRate: doc.hourlyRate,
+  offersFreeConsultation: doc.offersFreeConsultation,
 });
 
 // Create provider profile
@@ -90,6 +98,32 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Please provide all required fields' });
     }
 
+    // Validate certifications
+    if (data.certifications && data.certifications.length > 0) {
+      for (const cert of data.certifications) {
+        if (!cert.certificationName?.trim() || !cert.institution?.trim()) {
+          return res.status(400).json({ message: 'Each certification must have a name and institution' });
+        }
+        if (cert.yearCompleted && (cert.yearCompleted < 1900 || cert.yearCompleted > new Date().getFullYear() + 1)) {
+          return res.status(400).json({ message: 'Invalid year for certification' });
+        }
+      }
+    }
+
+    // Validate pricing - at least one rate should be specified
+    if (data.pricing) {
+      const hasAnyRate = [
+        data.pricing.individualCounsellingRate,
+        data.pricing.couplesCounsellingRate,
+        data.pricing.familyCounsellingRate,
+        data.pricing.onlineCounsellingRate,
+      ].some(rate => typeof rate === 'number' && rate > 0);
+
+      if (!hasAnyRate) {
+        return res.status(400).json({ message: 'Please specify at least one service rate' });
+      }
+    }
+
     // Set trial end date if trial is enabled
     const trialEndsAt = getTrialEndDate();
 
@@ -98,14 +132,15 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       type: data.type,
       displayName: data.displayName,
       bio: data.bio,
-      qualifications: data.qualifications || [],
+      degrees: data.degrees || [],
+      registrations: data.registrations || [],
+      certifications: data.certifications || [],
+      pricing: data.pricing || { offersIntroductoryConsultation: false },
       specialties: data.specialties || [],
       location: data.location,
       contactEmail: data.contactEmail,
       contactPhone: data.contactPhone,
       website: data.website,
-      hourlyRate: data.hourlyRate,
-      offersFreeConsultation: data.offersFreeConsultation || false,
       isPublished: true,
       subscriptionStatus: 'none',
       trialEndsAt,
@@ -146,18 +181,45 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'Provider profile not found' });
     }
 
+    // Validate certifications if provided
+    if (data.certifications && data.certifications.length > 0) {
+      for (const cert of data.certifications) {
+        if (!cert.certificationName?.trim() || !cert.institution?.trim()) {
+          return res.status(400).json({ message: 'Each certification must have a name and institution' });
+        }
+        if (cert.yearCompleted && (cert.yearCompleted < 1900 || cert.yearCompleted > new Date().getFullYear() + 1)) {
+          return res.status(400).json({ message: 'Invalid year for certification' });
+        }
+      }
+    }
+
+    // Validate pricing if provided
+    if (data.pricing) {
+      const hasAnyRate = [
+        data.pricing.individualCounsellingRate,
+        data.pricing.couplesCounsellingRate,
+        data.pricing.familyCounsellingRate,
+        data.pricing.onlineCounsellingRate,
+      ].some(rate => typeof rate === 'number' && rate > 0);
+
+      if (!hasAnyRate) {
+        return res.status(400).json({ message: 'Please specify at least one service rate' });
+      }
+    }
+
     // Update fields
     if (data.type !== undefined) provider.type = data.type;
     if (data.displayName !== undefined) provider.displayName = data.displayName;
     if (data.bio !== undefined) provider.bio = data.bio;
-    if (data.qualifications !== undefined) provider.qualifications = data.qualifications;
+    if (data.degrees !== undefined) provider.degrees = data.degrees;
+    if (data.registrations !== undefined) provider.registrations = data.registrations;
+    if (data.certifications !== undefined) provider.certifications = data.certifications;
+    if (data.pricing !== undefined) provider.pricing = data.pricing;
     if (data.specialties !== undefined) provider.specialties = data.specialties;
     if (data.location !== undefined) provider.location = data.location;
     if (data.contactEmail !== undefined) provider.contactEmail = data.contactEmail;
     if (data.contactPhone !== undefined) provider.contactPhone = data.contactPhone;
     if (data.website !== undefined) provider.website = data.website;
-    if (data.hourlyRate !== undefined) provider.hourlyRate = data.hourlyRate;
-    if (data.offersFreeConsultation !== undefined) provider.offersFreeConsultation = data.offersFreeConsultation;
     if (data.isPublished !== undefined) provider.isPublished = data.isPublished;
 
     await provider.save();

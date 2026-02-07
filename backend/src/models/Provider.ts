@@ -15,7 +15,7 @@ const providerSchema = new Schema<IProvider>(
     },
     type: {
       type: String,
-      enum: ['therapist', 'counsellor'] as ProviderType[],
+      enum: ['psychologist', 'counsellor', 'social-worker'] as ProviderType[],
       required: true,
     },
     displayName: {
@@ -29,11 +29,61 @@ const providerSchema = new Schema<IProvider>(
       required: true,
       maxlength: 2000,
     },
-    qualifications: [{
+    // NEW FIELDS - Professional credentials
+    degrees: [{
       type: String,
       trim: true,
     }],
+    registrations: [{
+      type: String,
+      trim: true,
+    }],
+    certifications: [{
+      certificationName: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      institution: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      yearCompleted: {
+        type: Number,
+        min: 1900,
+        max: () => new Date().getFullYear() + 1,
+      },
+    }],
+    // NEW FIELD - Pricing
+    pricing: {
+      individualCounsellingRate: {
+        type: Number,
+        min: 0,
+      },
+      couplesCounsellingRate: {
+        type: Number,
+        min: 0,
+      },
+      familyCounsellingRate: {
+        type: Number,
+        min: 0,
+      },
+      onlineCounsellingRate: {
+        type: Number,
+        min: 0,
+      },
+      offersIntroductoryConsultation: {
+        type: Boolean,
+        default: false,
+      },
+    },
     specialties: [{
+      type: String,
+      trim: true,
+    }],
+    // DEPRECATED FIELDS (kept for migration period)
+    qualifications: [{
       type: String,
       trim: true,
     }],
@@ -64,14 +114,6 @@ const providerSchema = new Schema<IProvider>(
       type: String,
       trim: true,
     },
-    hourlyRate: {
-      type: Number,
-      min: 0,
-    },
-    offersFreeConsultation: {
-      type: Boolean,
-      default: false,
-    },
     isPublished: {
       type: Boolean,
       default: true,
@@ -99,6 +141,14 @@ const providerSchema = new Schema<IProvider>(
     },
     subscriptionEndsAt: {
       type: Date,
+    },
+    // DEPRECATED PRICING FIELDS (kept for migration period)
+    hourlyRate: {
+      type: Number,
+      min: 0,
+    },
+    offersFreeConsultation: {
+      type: Boolean,
     },
   },
   {
