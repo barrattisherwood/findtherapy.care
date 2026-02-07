@@ -28,12 +28,12 @@
                   <input
                     type="radio"
                     name="type"
-                    value="therapist"
-                    [checked]="type() === 'therapist'"
-                    (change)="type.set('therapist')"
+                    value="psychologist"
+                    [checked]="type() === 'psychologist'"
+                    (change)="type.set('psychologist')"
                     class="text-primary-600 focus:ring-primary-500"
                   />
-                  <span class="ml-2">Therapist</span>
+                  <span class="ml-2">Psychologist</span>
                 </label>
                 <label class="flex items-center">
                   <input
@@ -45,6 +45,17 @@
                     class="text-primary-600 focus:ring-primary-500"
                   />
                   <span class="ml-2">Counsellor</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="radio"
+                    name="type"
+                    value="social-worker"
+                    [checked]="type() === 'social-worker'"
+                    (change)="type.set('social-worker')"
+                    class="text-primary-600 focus:ring-primary-500"
+                  />
+                  <span class="ml-2">Social Worker</span>
                 </label>
               </div>
               </div>
@@ -98,25 +109,113 @@
             <div class="border-t pt-8">
               <h2 class="text-xl font-semibold text-gray-900 mb-6">Professional Details</h2>
 
-              <!-- Qualifications -->
+              <!-- Degrees -->
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-3">Qualifications</label>
               <div class="flex flex-wrap gap-2">
-                @for (qual of availableQualifications; track qual) {
+                @for (degree of availableDegrees; track degree) {
                   <button
                     type="button"
-                    (click)="toggleQualification(qual)"
-                    [class.bg-primary-100]="isQualificationSelected(qual)"
-                    [class.text-primary-800]="isQualificationSelected(qual)"
-                    [class.border-primary-300]="isQualificationSelected(qual)"
-                    [class.bg-white]="!isQualificationSelected(qual)"
-                    [class.text-gray-700]="!isQualificationSelected(qual)"
+                    (click)="toggleDegree(degree)"
+                    [class.bg-primary-100]="isDegreeSelected(degree)"
+                    [class.text-primary-800]="isDegreeSelected(degree)"
+                    [class.border-primary-300]="isDegreeSelected(degree)"
+                    [class.bg-white]="!isDegreeSelected(degree)"
+                    [class.text-gray-700]="!isDegreeSelected(degree)"
                     class="px-3 py-1 text-sm rounded-full border hover:bg-gray-50 transition-colors"
                   >
-                    {{ qual }}
+                    {{ degree }}
                   </button>
                 }
               </div>
+              </div>
+
+              <!-- Professional Registration -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Professional Registration</label>
+              <div class="flex flex-wrap gap-2">
+                @for (reg of availableRegistrations; track reg) {
+                  <button
+                    type="button"
+                    (click)="toggleRegistration(reg)"
+                    [class.bg-secondary-100]="isRegistrationSelected(reg)"
+                    [class.text-secondary-800]="isRegistrationSelected(reg)"
+                    [class.border-secondary-300]="isRegistrationSelected(reg)"
+                    [class.bg-white]="!isRegistrationSelected(reg)"
+                    [class.text-gray-700]="!isRegistrationSelected(reg)"
+                    class="px-3 py-1 text-sm rounded-full border hover:bg-gray-50 transition-colors"
+                  >
+                    {{ reg }}
+                  </button>
+                }
+              </div>
+              </div>
+
+              <!-- Additional Certifications -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Additional Certifications/Training (optional)</label>
+
+                @for (cert of certifications(); track $index; let i = $index) {
+                  <div class="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                      <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Certification/Training Name *</label>
+                        <input
+                          type="text"
+                          [ngModel]="cert.certificationName"
+                          (ngModelChange)="updateCertification(i, 'certificationName', $event)"
+                          placeholder="e.g., EMDR Level 1"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Institution/Provider *</label>
+                        <input
+                          type="text"
+                          [ngModel]="cert.institution"
+                          (ngModelChange)="updateCertification(i, 'institution', $event)"
+                          placeholder="e.g., EMDR Association of SA"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                      <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Year Completed</label>
+                        <input
+                          type="number"
+                          [ngModel]="cert.yearCompleted"
+                          (ngModelChange)="updateCertification(i, 'yearCompleted', $event ? +$event : null)"
+                          placeholder="e.g., 2023"
+                          [min]="1900"
+                          [max]="currentYear + 1"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                      <div class="flex items-end">
+                        <button
+                          type="button"
+                          (click)="removeCertification(i)"
+                          class="text-red-600 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <button
+                  type="button"
+                  (click)="addCertification()"
+                  class="w-full border-2 border-dashed border-gray-300 rounded-lg px-4 py-3 text-gray-600 hover:border-primary-400 hover:text-primary-600 transition-colors font-medium"
+                >
+                  + Add Certification
+                </button>
+
+                @if (certificationsError()) {
+                  <p class="mt-2 text-sm text-red-600">{{ certificationsError() }}</p>
+                }
               </div>
 
               <!-- Specialties -->
@@ -257,35 +356,81 @@
 
             <!-- Pricing Section -->
             <div class="border-t pt-8">
-              <h2 class="text-xl font-semibold text-gray-900 mb-6">Pricing</h2>
+              <h2 class="text-xl font-semibold text-gray-900 mb-6">Pricing *</h2>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label for="hourlyRate" class="block text-sm font-medium text-gray-700 mb-2">Hourly Rate (R)</label>
-                <input
-                  id="hourlyRate"
-                  type="number"
-                  [ngModel]="hourlyRate()"
-                  (ngModelChange)="hourlyRate.set($event)"
-                  name="hourlyRate"
-                  min="0"
-                  class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                  placeholder="800"
-                />
+                  <label for="individualRate" class="block text-sm font-medium text-gray-700 mb-2">Individual Counselling Rate (R/session)</label>
+                  <input
+                    id="individualRate"
+                    type="number"
+                    [ngModel]="pricing().individualCounsellingRate"
+                    (ngModelChange)="updatePricing('individualCounsellingRate', $event ? +$event : undefined); validatePricing()"
+                    name="individualRate"
+                    min="0"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="e.g., 800"
+                  />
                 </div>
-                <div class="flex items-end">
-                  <label class="flex items-center">
-                    <input
-                      type="checkbox"
-                      [ngModel]="offersFreeConsultation()"
-                      (ngModelChange)="offersFreeConsultation.set($event)"
-                      name="offersFreeConsultation"
-                      class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                    />
-                    <span class="ml-2 text-sm text-gray-700">Offer free consultation</span>
-                  </label>
+
+                <div>
+                  <label for="couplesRate" class="block text-sm font-medium text-gray-700 mb-2">Couples Counselling Rate (R/session)</label>
+                  <input
+                    id="couplesRate"
+                    type="number"
+                    [ngModel]="pricing().couplesCounsellingRate"
+                    (ngModelChange)="updatePricing('couplesCounsellingRate', $event ? +$event : undefined); validatePricing()"
+                    name="couplesRate"
+                    min="0"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="e.g., 1200"
+                  />
+                </div>
+
+                <div>
+                  <label for="familyRate" class="block text-sm font-medium text-gray-700 mb-2">Family Counselling Rate (R/session)</label>
+                  <input
+                    id="familyRate"
+                    type="number"
+                    [ngModel]="pricing().familyCounsellingRate"
+                    (ngModelChange)="updatePricing('familyCounsellingRate', $event ? +$event : undefined); validatePricing()"
+                    name="familyRate"
+                    min="0"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="e.g., 1500"
+                  />
+                </div>
+
+                <div>
+                  <label for="onlineRate" class="block text-sm font-medium text-gray-700 mb-2">Online Counselling Rate (R/session)</label>
+                  <input
+                    id="onlineRate"
+                    type="number"
+                    [ngModel]="pricing().onlineCounsellingRate"
+                    (ngModelChange)="updatePricing('onlineCounsellingRate', $event ? +$event : undefined); validatePricing()"
+                    name="onlineRate"
+                    min="0"
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                    placeholder="e.g., 700"
+                  />
                 </div>
               </div>
+
+              <label class="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [ngModel]="pricing().offersIntroductoryConsultation"
+                  (ngModelChange)="updatePricing('offersIntroductoryConsultation', $event)"
+                  name="offersIntroductoryConsultation"
+                  class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span class="ml-2 text-sm text-gray-700">Offer free/half-priced introductory consultation</span>
+              </label>
+
+              @if (pricingError()) {
+                <p class="mt-2 text-sm text-red-600">{{ pricingError() }}</p>
+              }
+              <p class="mt-2 text-xs text-gray-500">Please specify at least one service rate</p>
             </div>
 
             <!-- Published toggle (only for existing profiles) -->

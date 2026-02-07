@@ -9,8 +9,8 @@ import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
-import { CreateProviderRequest, ProviderType } from '@findlocal/shared';
-import { PROVIDER_SPECIALTIES, PROVIDER_QUALIFICATIONS } from '@findlocal/shared';
+import { CreateProviderRequest, ProviderType, Certification, ProviderPricing } from '@findlocal/shared';
+import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROVIDER_REGISTRATIONS } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-profile',
@@ -44,12 +44,19 @@ export class ProviderProfile implements OnInit {
   contactEmailError = signal<string>('');
   contactPhoneError = signal<string>('');
   websiteError = signal<string>('');
+  certificationsError = signal<string>('');
+  pricingError = signal<string>('');
 
   // Form fields
-  type = signal<ProviderType>('therapist');
+  type = signal<ProviderType>('psychologist');
   displayName = signal<string>('');
   bio = signal<string>('');
-  qualifications = signal<string[]>([]);
+  degrees = signal<string[]>([]);
+  registrations = signal<string[]>([]);
+  certifications = signal<Certification[]>([]);
+  pricing = signal<ProviderPricing>({
+    offersIntroductoryConsultation: false
+  });
   specialties = signal<string[]>([]);
   city = signal<string>('');
   postcode = signal<string>('');
@@ -57,12 +64,13 @@ export class ProviderProfile implements OnInit {
   contactEmail = signal<string>('');
   contactPhone = signal<string>('');
   website = signal<string>('');
-  hourlyRate = signal<number | undefined>(undefined);
-  offersFreeConsultation = signal<boolean>(false);
   isPublished = signal<boolean>(true);
 
   availableSpecialties = PROVIDER_SPECIALTIES;
-  availableQualifications = PROVIDER_QUALIFICATIONS;
+  availableDegrees = PROVIDER_DEGREES;
+  availableRegistrations = PROVIDER_REGISTRATIONS;
+
+  currentYear = new Date().getFullYear();
 
   ngOnInit(): void {
     this.loadProfile();
@@ -87,16 +95,17 @@ export class ProviderProfile implements OnInit {
         this.type.set(p.type);
         this.displayName.set(p.displayName);
         this.bio.set(p.bio);
-        this.qualifications.set([...p.qualifications]);
-        this.specialties.set([...p.specialties]);
+        this.degrees.set([...(p.degrees || [])]);
+        this.registrations.set([...(p.registrations || [])]);
+        this.certifications.set([...(p.certifications || [])]);
+        this.pricing.set(p.pricing || { offersIntroductoryConsultation: false });
+        this.specialties.set([...(p.specialties || [])]);
         this.city.set(p.location.city);
         this.postcode.set(p.location.postcode);
         this.address.set(p.location.address || '');
         this.contactEmail.set(p.contactEmail);
         this.contactPhone.set(p.contactPhone || '');
         this.website.set(p.website || '');
-        this.hourlyRate.set(p.hourlyRate);
-        this.offersFreeConsultation.set(p.offersFreeConsultation);
         this.isPublished.set(p.isPublished);
         this.viewCount.set(p.viewCount || 0);
 
@@ -122,7 +131,10 @@ export class ProviderProfile implements OnInit {
       type: this.type(),
       displayName: this.displayName(),
       bio: this.bio(),
-      qualifications: this.qualifications(),
+      degrees: this.degrees(),
+      registrations: this.registrations(),
+      certifications: this.certifications(),
+      pricing: this.pricing(),
       specialties: this.specialties(),
       location: {
         city: this.city(),
@@ -132,8 +144,6 @@ export class ProviderProfile implements OnInit {
       contactEmail: this.contactEmail(),
       contactPhone: this.contactPhone() || undefined,
       website: this.website() || undefined,
-      hourlyRate: this.hourlyRate(),
-      offersFreeConsultation: this.offersFreeConsultation(),
     };
 
     if (this.hasProfile()) {
@@ -162,15 +172,62 @@ export class ProviderProfile implements OnInit {
     }
   }
 
-  toggleQualification(qual: string): void {
-    const current = this.qualifications();
-    if (current.includes(qual)) {
-      this.qualifications.set(current.filter(q => q !== qual));
+  // Degree management
+  toggleDegree(degree: string): void {
+    const current = this.degrees();
+    if (current.includes(degree)) {
+      this.degrees.set(current.filter(d => d !== degree));
     } else {
-      this.qualifications.set([...current, qual]);
+      this.degrees.set([...current, degree]);
     }
   }
 
+  isDegreeSelected(degree: string): boolean {
+    return this.degrees().includes(degree);
+  }
+
+  // Registration management
+  toggleRegistration(reg: string): void {
+    const current = this.registrations();
+    if (current.includes(reg)) {
+      this.registrations.set(current.filter(r => r !== reg));
+    } else {
+      this.registrations.set([...current, reg]);
+    }
+  }
+
+  isRegistrationSelected(reg: string): boolean {
+    return this.registrations().includes(reg);
+  }
+
+  // Certification management
+  addCertification(): void {
+    const current = this.certifications();
+    this.certifications.set([
+      ...current,
+      { certificationName: '', institution: '', yearCompleted: null }
+    ]);
+  }
+
+  removeCertification(index: number): void {
+    const current = this.certifications();
+    this.certifications.set(current.filter((_, i) => i !== index));
+    this.validateCertifications();
+  }
+
+  updateCertification(index: number, field: keyof Certification, value: any): void {
+    const current = this.certifications();
+    const updated = [...current];
+    updated[index] = { ...updated[index], [field]: value };
+    this.certifications.set(updated);
+  }
+
+  // Pricing management
+  updatePricing(field: keyof ProviderPricing, value: any): void {
+    this.pricing.set({ ...this.pricing(), [field]: value });
+  }
+
+  // Specialty management
   toggleSpecialty(specialty: string): void {
     const current = this.specialties();
     if (current.includes(specialty)) {
@@ -178,10 +235,6 @@ export class ProviderProfile implements OnInit {
     } else {
       this.specialties.set([...current, specialty]);
     }
-  }
-
-  isQualificationSelected(qual: string): boolean {
-    return this.qualifications().includes(qual);
   }
 
   isSpecialtySelected(specialty: string): boolean {
@@ -295,6 +348,54 @@ export class ProviderProfile implements OnInit {
     }
   }
 
+  validateCertifications(): boolean {
+    const certs = this.certifications();
+
+    // Empty array is valid
+    if (certs.length === 0) {
+      this.certificationsError.set('');
+      return true;
+    }
+
+    // Check each certification
+    for (let i = 0; i < certs.length; i++) {
+      const cert = certs[i];
+      if (!cert.certificationName?.trim()) {
+        this.certificationsError.set('All certifications must have a name');
+        return false;
+      }
+      if (!cert.institution?.trim()) {
+        this.certificationsError.set('All certifications must have an institution');
+        return false;
+      }
+      if (cert.yearCompleted && (cert.yearCompleted < 1900 || cert.yearCompleted > this.currentYear + 1)) {
+        this.certificationsError.set('Invalid year for certification');
+        return false;
+      }
+    }
+
+    this.certificationsError.set('');
+    return true;
+  }
+
+  validatePricing(): boolean {
+    const p = this.pricing();
+    const hasAnyRate = [
+      p.individualCounsellingRate,
+      p.couplesCounsellingRate,
+      p.familyCounsellingRate,
+      p.onlineCounsellingRate,
+    ].some(rate => typeof rate === 'number' && rate > 0);
+
+    if (!hasAnyRate) {
+      this.pricingError.set('Please specify at least one service rate');
+      return false;
+    }
+
+    this.pricingError.set('');
+    return true;
+  }
+
   validateAllFields(): boolean {
     const displayNameValid = this.validateDisplayName();
     const bioValid = this.validateBio();
@@ -303,8 +404,10 @@ export class ProviderProfile implements OnInit {
     const emailValid = this.validateContactEmail();
     const phoneValid = this.validateContactPhone();
     const websiteValid = this.validateWebsite();
+    const certificationsValid = this.validateCertifications();
+    const pricingValid = this.validatePricing();
 
-    return displayNameValid && bioValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid;
+    return displayNameValid && bioValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid && certificationsValid && pricingValid;
   }
 
   formatViewCount(): string {
