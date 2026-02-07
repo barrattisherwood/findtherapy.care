@@ -26,15 +26,28 @@ const providerSeedData = [
       password: 'password123',
     },
     provider: {
-      type: 'therapist' as const,
+      type: 'psychologist' as const,
       displayName: 'Dr. Sarah Nkosi',
       bio: `I am a clinical psychologist with over 15 years of experience helping individuals navigate life's challenges. My approach is warm, empathetic, and evidence-based, drawing primarily from Cognitive Behavioural Therapy (CBT) and mindfulness practices.
 
 I believe that everyone has the capacity for growth and healing. My role is to provide a safe, non-judgmental space where you can explore your thoughts and feelings, develop new coping strategies, and work towards meaningful change.
 
 I have particular expertise in treating anxiety disorders, depression, and trauma. I also work extensively with professionals experiencing burnout and work-related stress.`,
-      qualifications: ['HPCSA Registered', 'PhD Psychology', 'CBT Trained', 'EMDR Trained'],
-      specialties: ['Anxiety', 'Depression', 'Trauma & PTSD', 'Stress Management'],
+      degrees: ['MA', 'MSc'],
+      registrations: ['HPCSA'],
+      certifications: [
+        {
+          certificationName: 'Cognitive Behavioural Therapy (CBT)',
+          institution: 'South African Institute of Cognitive Therapy',
+          yearCompleted: 2012,
+        },
+        {
+          certificationName: 'EMDR Level 2',
+          institution: 'EMDR Association of South Africa',
+          yearCompleted: 2015,
+        },
+      ],
+      specialties: ['Anxiety & Stress', 'Depression', 'Trauma, PTSD & Complex PTSD', 'Burnout & Chronic Fatigue'],
       location: {
         address: '45 Oxford Road, Rosebank',
         city: 'Johannesburg',
@@ -43,8 +56,11 @@ I have particular expertise in treating anxiety disorders, depression, and traum
       contactEmail: 'dr.sarah.nkosi@findtherapy.care',
       contactPhone: '+27 11 447 5890',
       website: 'https://drsarahnkosi.co.za',
-      hourlyRate: 1500,
-      offersFreeConsultation: true,
+      pricing: {
+        individualCounsellingRate: 1500,
+        onlineCounsellingRate: 1300,
+        offersIntroductoryConsultation: true,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -63,8 +79,16 @@ I have particular expertise in treating anxiety disorders, depression, and traum
 My approach is collaborative and solution-focused. I believe that you are the expert on your own life, and my job is to help you find your own answers and develop the skills you need to create the relationships you want.
 
 I have extensive experience working with blended families, couples facing infidelity, and parents navigating the challenges of raising teenagers.`,
-      qualifications: ['SACSSP Registered', 'MA Psychology', 'Certified Counsellor'],
-      specialties: ['Relationship Issues', 'Couples Therapy', 'Family Therapy', 'Parenting'],
+      degrees: ['MA'],
+      registrations: ['SACSSP', 'CCSA'],
+      certifications: [
+        {
+          certificationName: 'Solution-Focused Brief Therapy',
+          institution: 'South African Family Practice Institute',
+          yearCompleted: 2018,
+        },
+      ],
+      specialties: ['Relationship issues', 'Marriage / Couples counselling', 'Family counselling'],
       location: {
         address: '12 Kloof Street, Gardens',
         city: 'Cape Town',
@@ -72,8 +96,12 @@ I have extensive experience working with blended families, couples facing infide
       },
       contactEmail: 'michael.van.der.merwe@findtherapy.care',
       contactPhone: '+27 21 424 5678',
-      hourlyRate: 950,
-      offersFreeConsultation: true,
+      pricing: {
+        individualCounsellingRate: 950,
+        couplesCounsellingRate: 1400,
+        familyCounsellingRate: 1600,
+        offersIntroductoryConsultation: true,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -85,15 +113,28 @@ I have extensive experience working with blended families, couples facing infide
       password: 'password123',
     },
     provider: {
-      type: 'therapist' as const,
+      type: 'psychologist' as const,
       displayName: 'Thandiwe Dlamini',
       bio: `I am a clinical psychologist specialising in trauma therapy and PTSD treatment. Having worked extensively with survivors of violence and abuse, I understand the profound impact that trauma can have on every aspect of a person's life.
 
 I use evidence-based approaches including EMDR (Eye Movement Desensitisation and Reprocessing) and trauma-focused CBT to help clients process traumatic experiences and reclaim their lives. I also incorporate culturally sensitive practices that honour each client's background and beliefs.
 
 My practice is a safe haven where healing can begin. I am committed to walking alongside you on your journey to recovery.`,
-      qualifications: ['HPCSA Registered', 'MA Psychology', 'EMDR Trained', 'CBT Trained'],
-      specialties: ['Trauma & PTSD', 'Grief & Loss', 'Anxiety', 'Depression'],
+      degrees: ['MA'],
+      registrations: ['HPCSA'],
+      certifications: [
+        {
+          certificationName: 'EMDR Level 1 & 2',
+          institution: 'EMDR Association of South Africa',
+          yearCompleted: 2017,
+        },
+        {
+          certificationName: 'Trauma-Focused CBT',
+          institution: 'University of KwaZulu-Natal',
+          yearCompleted: 2019,
+        },
+      ],
+      specialties: ['Trauma, PTSD & Complex PTSD', 'Grief & Loss', 'Anxiety & Stress', 'Depression'],
       location: {
         address: '78 Peter Mokaba Road, Morningside',
         city: 'Durban',
@@ -102,8 +143,11 @@ My practice is a safe haven where healing can begin. I am committed to walking a
       contactEmail: 'thandiwe.dlamini@findtherapy.care',
       contactPhone: '+27 31 312 4567',
       website: 'https://thandiwedlamini.co.za',
-      hourlyRate: 1200,
-      offersFreeConsultation: false,
+      pricing: {
+        individualCounsellingRate: 1200,
+        onlineCounsellingRate: 1000,
+        offersIntroductoryConsultation: false,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -115,15 +159,28 @@ My practice is a safe haven where healing can begin. I am committed to walking a
       password: 'password123',
     },
     provider: {
-      type: 'counsellor' as const,
+      type: 'social-worker' as const,
       displayName: 'Johan Pretorius',
-      bio: `I am a registered counsellor with a focus on addiction recovery and substance abuse treatment. Having worked in rehabilitation centres for over a decade, I understand the complexities of addiction and the courage it takes to seek help.
+      bio: `I am a registered social worker with a focus on addiction recovery and substance abuse treatment. Having worked in rehabilitation centres for over a decade, I understand the complexities of addiction and the courage it takes to seek help.
 
 My approach combines motivational interviewing, CBT, and 12-step facilitation. I believe in treating the whole person, not just the addiction, and I work with clients to address underlying issues and build a sustainable recovery.
 
 Whether you're taking your first steps towards sobriety or working to maintain long-term recovery, I'm here to support you with compassion and without judgment.`,
-      qualifications: ['SACSSP Registered', 'BA Social Work', 'Certified Counsellor'],
-      specialties: ['Addiction & Recovery', 'Stress Management', 'Self-Esteem', 'Anger Management'],
+      degrees: ['BA (Hons) Social Work'],
+      registrations: ['SACSSP'],
+      certifications: [
+        {
+          certificationName: 'Motivational Interviewing',
+          institution: 'South African Addiction Medicine Society',
+          yearCompleted: 2016,
+        },
+        {
+          certificationName: '12-Step Facilitation Therapy',
+          institution: 'Recovery Training Institute',
+          yearCompleted: 2018,
+        },
+      ],
+      specialties: ['Addiction & Recovery', 'Anger', 'Self-esteem & confidence'],
       location: {
         address: '234 Lynnwood Road, Brooklyn',
         city: 'Pretoria',
@@ -131,8 +188,11 @@ Whether you're taking your first steps towards sobriety or working to maintain l
       },
       contactEmail: 'johan.pretorius@findtherapy.care',
       contactPhone: '+27 12 460 7890',
-      hourlyRate: 850,
-      offersFreeConsultation: true,
+      pricing: {
+        individualCounsellingRate: 850,
+        onlineCounsellingRate: 750,
+        offersIntroductoryConsultation: true,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -144,15 +204,28 @@ Whether you're taking your first steps towards sobriety or working to maintain l
       password: 'password123',
     },
     provider: {
-      type: 'therapist' as const,
+      type: 'psychologist' as const,
       displayName: 'Dr. Priya Pillay',
       bio: `I am a clinical psychologist specialising in child and adolescent mental health. I work with young people aged 5-18 and their families to address a wide range of emotional and behavioural challenges.
 
 My therapy room is a creative, welcoming space where children and teens can express themselves through play, art, and conversation. I use age-appropriate techniques to help young people understand their feelings, develop coping skills, and build resilience.
 
 I also offer parent guidance sessions to help families support their children's mental health at home. I believe that when we invest in the mental wellbeing of young people, we're investing in a healthier future for all.`,
-      qualifications: ['HPCSA Registered', 'PhD Psychology', 'CBT Trained'],
-      specialties: ['Child & Adolescent', 'Anxiety', 'ADHD', 'Autism Spectrum'],
+      degrees: ['MA', 'MSc'],
+      registrations: ['HPCSA'],
+      certifications: [
+        {
+          certificationName: 'Play Therapy',
+          institution: 'The Play Therapy Institute of South Africa',
+          yearCompleted: 2014,
+        },
+        {
+          certificationName: 'CBT for Children and Adolescents',
+          institution: 'Beck Institute',
+          yearCompleted: 2016,
+        },
+      ],
+      specialties: ['Child & Adolescent counselling', 'Anxiety & Stress', 'ADHD', 'Autism Spectrum'],
       location: {
         address: '56 Florida Road, Morningside',
         city: 'Durban',
@@ -161,8 +234,12 @@ I also offer parent guidance sessions to help families support their children's 
       contactEmail: 'priya.pillay@findtherapy.care',
       contactPhone: '+27 31 303 2345',
       website: 'https://drpriyapillay.co.za',
-      hourlyRate: 1400,
-      offersFreeConsultation: true,
+      pricing: {
+        individualCounsellingRate: 1400,
+        familyCounsellingRate: 1700,
+        onlineCounsellingRate: 1200,
+        offersIntroductoryConsultation: true,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -174,15 +251,23 @@ I also offer parent guidance sessions to help families support their children's 
       password: 'password123',
     },
     provider: {
-      type: 'counsellor' as const,
+      type: 'social-worker' as const,
       displayName: 'Nomsa Khumalo',
-      bio: `I am a counsellor passionate about supporting the LGBTQ+ community. As a queer woman myself, I understand the unique challenges faced by LGBTQ+ individuals, including coming out, identity exploration, discrimination, and family acceptance issues.
+      bio: `I am a social worker passionate about supporting the LGBTQ+ community. As a queer woman myself, I understand the unique challenges faced by LGBTQ+ individuals, including coming out, identity exploration, discrimination, and family acceptance issues.
 
 My practice is an affirming space where you can be your authentic self without fear of judgment. I work with clients on a range of issues including anxiety, depression, relationship challenges, and life transitions.
 
 I also offer support for partners and family members of LGBTQ+ individuals who are navigating their own journey of understanding and acceptance.`,
-      qualifications: ['SACSSP Registered', 'MA Social Work', 'Certified Counsellor'],
-      specialties: ['LGBTQ+', 'Self-Esteem', 'Relationship Issues', 'Life Transitions'],
+      degrees: ['MA Social Work'],
+      registrations: ['SACSSP'],
+      certifications: [
+        {
+          certificationName: 'LGBTQ+ Affirmative Therapy',
+          institution: 'Out Wellbeing Centre',
+          yearCompleted: 2019,
+        },
+      ],
+      specialties: ['LGBTQ issues', 'Gender identity & Sexual orientation', 'Self-esteem & confidence', 'Relationship issues'],
       location: {
         address: '89 Long Street',
         city: 'Cape Town',
@@ -190,8 +275,12 @@ I also offer support for partners and family members of LGBTQ+ individuals who a
       },
       contactEmail: 'nomsa.khumalo@findtherapy.care',
       contactPhone: '+27 21 422 8901',
-      hourlyRate: 800,
-      offersFreeConsultation: true,
+      pricing: {
+        individualCounsellingRate: 800,
+        couplesCounsellingRate: 1100,
+        onlineCounsellingRate: 700,
+        offersIntroductoryConsultation: true,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -203,15 +292,28 @@ I also offer support for partners and family members of LGBTQ+ individuals who a
       password: 'password123',
     },
     provider: {
-      type: 'therapist' as const,
+      type: 'psychologist' as const,
       displayName: 'Dr. David Goldstein',
       bio: `I am a clinical psychologist with expertise in eating disorders and body image issues. For over 20 years, I have helped individuals recover from anorexia, bulimia, binge eating disorder, and other disordered eating patterns.
 
 My approach integrates CBT, DBT, and family-based treatment. I work closely with dietitians, doctors, and psychiatrists to provide comprehensive care. I believe that recovery is possible for everyone, and I'm committed to supporting you every step of the way.
 
 I also offer support groups and workshops on body positivity and intuitive eating.`,
-      qualifications: ['HPCSA Registered', 'PhD Psychology', 'CBT Trained', 'DBT Trained'],
-      specialties: ['Eating Disorders', 'Self-Esteem', 'Anxiety', 'OCD'],
+      degrees: ['MA', 'MSc'],
+      registrations: ['HPCSA'],
+      certifications: [
+        {
+          certificationName: 'Dialectical Behavior Therapy (DBT)',
+          institution: 'Linehan Institute',
+          yearCompleted: 2010,
+        },
+        {
+          certificationName: 'Family-Based Treatment for Eating Disorders',
+          institution: 'Maudsley Centre',
+          yearCompleted: 2012,
+        },
+      ],
+      specialties: ['Eating disorders & Body Image', 'Self-esteem & confidence', 'Anxiety & Stress', 'Paranoia & Phobias'],
       location: {
         address: '123 Jan Smuts Avenue, Parkwood',
         city: 'Johannesburg',
@@ -220,8 +322,11 @@ I also offer support groups and workshops on body positivity and intuitive eatin
       contactEmail: 'david.goldstein@findtherapy.care',
       contactPhone: '+27 11 880 3456',
       website: 'https://drdavidgoldstein.co.za',
-      hourlyRate: 1600,
-      offersFreeConsultation: false,
+      pricing: {
+        individualCounsellingRate: 1600,
+        familyCounsellingRate: 2000,
+        offersIntroductoryConsultation: false,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
@@ -240,8 +345,16 @@ I also offer support groups and workshops on body positivity and intuitive eatin
 My approach combines practical career planning with emotional support. I help clients identify their strengths, explore their options, and develop actionable plans to achieve their professional goals while maintaining their wellbeing.
 
 I have particular expertise in supporting women in leadership and professionals experiencing burnout or workplace stress.`,
-      qualifications: ['SACSSP Registered', 'MA Psychology', 'Certified Counsellor'],
-      specialties: ['Career Counselling', 'Stress Management', 'Life Transitions', 'Self-Esteem'],
+      degrees: ['MA'],
+      registrations: ['SACSSP', 'Counselling-SA'],
+      certifications: [
+        {
+          certificationName: 'Career Development Facilitation',
+          institution: 'Career Development SA',
+          yearCompleted: 2017,
+        },
+      ],
+      specialties: ['Workplace issues & Employee wellness', 'Anxiety & Stress', 'Self-esteem & confidence', 'Burnout & Chronic Fatigue'],
       location: {
         address: '67 Sandton Drive, Sandton',
         city: 'Johannesburg',
@@ -249,8 +362,11 @@ I have particular expertise in supporting women in leadership and professionals 
       },
       contactEmail: 'lindiwe.mthembu@findtherapy.care',
       contactPhone: '+27 11 783 4567',
-      hourlyRate: 1100,
-      offersFreeConsultation: true,
+      pricing: {
+        individualCounsellingRate: 1100,
+        onlineCounsellingRate: 950,
+        offersIntroductoryConsultation: true,
+      },
       subscriptionStatus: 'none' as const,
       trialEndsAt: getTrialEndDate(),
     },
