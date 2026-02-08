@@ -30,7 +30,7 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
   const providerData = {
     _id: providerId,
     userId,
-    type: options.type || 'therapist',
+    type: options.type || 'psychologist',
     displayName: options.displayName || 'Test Provider',
     bio: options.bio || 'A test provider bio that is at least 50 characters long for validation purposes.',
     qualifications: ['PhD Psychology'],

@@ -1,8 +1,9 @@
 name: Deploy to Production
 
 on:
-  push:
-    branches: [main]
+  # Disabled auto-deploy until hosting is configured
+  # push:
+  #   branches: [main]
   workflow_dispatch:
     inputs:
       environment:
