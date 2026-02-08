@@ -82,11 +82,6 @@ const providerSchema = new Schema<IProvider>(
       type: String,
       trim: true,
     }],
-    // DEPRECATED FIELDS (kept for migration period)
-    qualifications: [{
-      type: String,
-      trim: true,
-    }],
     location: {
       address: String,
       city: {
@@ -141,14 +136,6 @@ const providerSchema = new Schema<IProvider>(
     },
     subscriptionEndsAt: {
       type: Date,
-    },
-    // DEPRECATED PRICING FIELDS (kept for migration period)
-    hourlyRate: {
-      type: Number,
-      min: 0,
-    },
-    offersFreeConsultation: {
-      type: Boolean,
     },
   },
   {

@@ -75,10 +75,6 @@ const toProviderResponse = (doc: any): ProviderType => ({
   trialEndsAt: doc.trialEndsAt,
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
-  // DEPRECATED FIELDS
-  qualifications: doc.qualifications,
-  hourlyRate: doc.hourlyRate,
-  offersFreeConsultation: doc.offersFreeConsultation,
 });
 
 // Create provider profile
@@ -285,10 +281,10 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
       query.specialties = params.specialty;
     }
     if (params.maxRate !== undefined) {
-      query.hourlyRate = { $lte: params.maxRate };
+      query['pricing.individualCounsellingRate'] = { $lte: params.maxRate };
     }
     if (params.freeConsultation) {
-      query.offersFreeConsultation = true;
+      query['pricing.offersIntroductoryConsultation'] = true;
     }
 
     const [providers, total] = await Promise.all([

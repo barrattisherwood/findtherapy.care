@@ -54,11 +54,6 @@ export interface Provider {
   payfastSubscriptionToken?: string;
   createdAt: Date;
   updatedAt: Date;
-
-  // DEPRECATED FIELDS (kept for migration period)
-  qualifications?: string[];
-  hourlyRate?: number;
-  offersFreeConsultation?: boolean;
 }
 
 // Helper type for checking if provider has active access (trial or subscription)

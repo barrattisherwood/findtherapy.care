@@ -77,22 +77,6 @@ export const PROVIDER_SPECIALTIES = [
 
 export type ProviderSpecialty = typeof PROVIDER_SPECIALTIES[number];
 
-// DEPRECATED - kept for backward compatibility during migration
-export const PROVIDER_QUALIFICATIONS = [
-  'HPCSA Registered',
-  'SACSSP Registered',
-  'BPsych',
-  'MA Psychology',
-  'MSc Psychology',
-  'PhD Psychology',
-  'BA Social Work',
-  'MA Social Work',
-  'Certified Counsellor',
-  'EMDR Trained',
-  'CBT Trained',
-  'DBT Trained',
-] as const;
-
 // Support group categories
 export const SUPPORT_GROUP_CATEGORIES = [
   'Addiction Recovery',

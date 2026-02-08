@@ -33,8 +33,14 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     type: options.type || 'psychologist',
     displayName: options.displayName || 'Test Provider',
     bio: options.bio || 'A test provider bio that is at least 50 characters long for validation purposes.',
-    qualifications: ['PhD Psychology'],
-    specialties: ['anxiety', 'depression'],
+    degrees: ['PhD Psychology'],
+    registrations: ['HPCSA'],
+    certifications: [],
+    specialties: ['Anxiety & Stress', 'Depression'],
+    pricing: {
+      individualCounsellingRate: 800,
+      offersIntroductoryConsultation: false,
+    },
     location: options.location || {
       city: 'Cape Town',
       postcode: '8001',
