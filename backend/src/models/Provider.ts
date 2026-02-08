@@ -52,7 +52,7 @@ const providerSchema = new Schema<IProvider>(
       yearCompleted: {
         type: Number,
         min: 1900,
-        max: () => new Date().getFullYear() + 1,
+        max: new Date().getFullYear() + 1,
       },
     }],
     // NEW FIELD - Pricing
