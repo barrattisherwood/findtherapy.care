@@ -76,7 +76,12 @@ export const generateSignature = (data: Record<string, string>, passphrase?: str
     pfOutput += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
   }
 
-  return crypto.createHash('md5').update(pfOutput).digest('hex');
+  // Debug logging
+  console.log('[PayFast] Signature string:', pfOutput);
+  const signature = crypto.createHash('md5').update(pfOutput).digest('hex');
+  console.log('[PayFast] Generated signature:', signature);
+
+  return signature;
 };
 
 // Create subscription payment data
