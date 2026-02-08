@@ -6,7 +6,6 @@ import authRoutes from './routes/authRoutes';
 import providerRoutes from './routes/providerRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import supportGroupRoutes from './routes/supportGroupRoutes';
-import migrationRoutes from './routes/migrationRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
 
@@ -46,7 +45,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/support-groups', supportGroupRoutes);
-app.use('/api/migrations', migrationRoutes); // Temporary - remove after migration
 
 // Global error handler (must be after all routes)
 app.use(errorHandler);
