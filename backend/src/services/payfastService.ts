@@ -72,9 +72,9 @@ export const generateSignature = (data: Record<string, string>, passphrase?: str
   // Remove last ampersand
   pfOutput = pfOutput.slice(0, -1);
 
-  // Add passphrase if provided (append as value, not as key=value)
+  // Add passphrase if provided (append raw, without URL encoding)
   if (passphrase) {
-    pfOutput += `&${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
+    pfOutput += `&${passphrase.trim()}`;
   }
 
   // Debug logging
