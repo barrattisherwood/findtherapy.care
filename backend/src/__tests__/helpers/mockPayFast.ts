@@ -67,8 +67,9 @@ export const generateTestSignature = (
   }
   pfOutput = pfOutput.slice(0, -1);
 
+  // Append passphrase directly without URL encoding (matches payfastService implementation)
   if (passphrase) {
-    pfOutput += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`;
+    pfOutput += `&${passphrase}`;
   }
 
   return crypto.createHash('md5').update(pfOutput).digest('hex');
