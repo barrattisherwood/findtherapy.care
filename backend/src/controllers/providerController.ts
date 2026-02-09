@@ -70,6 +70,8 @@ const toProviderResponse = (doc: any): ProviderType => ({
   website: doc.website,
   isPublished: doc.isPublished,
   viewCount: doc.viewCount || 0,
+  profileImage: doc.profileImage,
+  profileImagePublicId: doc.profileImagePublicId,
   payfastPaymentId: doc.payfastPaymentId,
   payfastSubscriptionToken: doc.payfastSubscriptionToken,
   subscriptionStatus: doc.subscriptionStatus,
