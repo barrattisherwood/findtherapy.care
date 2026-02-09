@@ -1,0 +1,234 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">
+        {{ isEditMode ? 'Edit Support Group' : 'Create Support Group' }}
+      </h1>
+      <p class="mt-2 text-gray-600">
+        {{ isEditMode ? 'Update the support group information' : 'Add a new support group to help people find community support' }}
+      </p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Error/Success messages -->
+        @if (errorMessage) {
+          <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-800">{{ errorMessage }}</p>
+          </div>
+        }
+        @if (successMessage) {
+          <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-sm text-green-800">{{ successMessage }}</p>
+          </div>
+        }
+
+        <!-- Name -->
+        <div class="mb-6">
+          <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+            Name <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="e.g., Anxiety Support Group - Cape Town"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Name is required (min 3 characters)</p>
+          }
+        </div>
+
+        <!-- Description -->
+        <div class="mb-6">
+          <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
+            Description <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            placeholder="Describe the support group, what it offers, and who it's for..."
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          ></textarea>
+          @if (form.get('description')?.invalid && form.get('description')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Description is required (min 20 characters)</p>
+          }
+        </div>
+
+        <!-- Category -->
+        <div class="mb-6">
+          <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">
+            Category <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="category"
+            formControlName="category"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          >
+            <option value="">Select a category</option>
+            @for (category of categories; track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+          @if (form.get('category')?.invalid && form.get('category')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Category is required</p>
+          }
+        </div>
+
+        <!-- Meeting Type -->
+        <div class="mb-6">
+          <label for="meetingType" class="block text-sm font-semibold text-gray-700 mb-2">
+            Meeting Type <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="meetingType"
+            formControlName="meetingType"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          >
+            <option value="">Select meeting type</option>
+            <option value="in-person">In Person</option>
+            <option value="online">Online</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+          @if (form.get('meetingType')?.invalid && form.get('meetingType')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Meeting type is required</p>
+          }
+        </div>
+
+        <!-- City -->
+        <div class="mb-6">
+          <label for="city" class="block text-sm font-semibold text-gray-700 mb-2">
+            City <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="city"
+            formControlName="city"
+            placeholder="e.g., Cape Town"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+          @if (form.get('city')?.invalid && form.get('city')?.touched) {
+            <p class="mt-1 text-sm text-red-600">City is required</p>
+          }
+        </div>
+
+        <!-- Address (optional) -->
+        <div class="mb-6">
+          <label for="address" class="block text-sm font-semibold text-gray-700 mb-2">
+            Address (optional)
+          </label>
+          <input
+            type="text"
+            id="address"
+            formControlName="address"
+            placeholder="e.g., 123 Main Road, Gardens"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+        </div>
+
+        <!-- Meeting Schedule (optional) -->
+        <div class="mb-6">
+          <label for="meetingSchedule" class="block text-sm font-semibold text-gray-700 mb-2">
+            Meeting Schedule (optional)
+          </label>
+          <input
+            type="text"
+            id="meetingSchedule"
+            formControlName="meetingSchedule"
+            placeholder="e.g., Thursdays at 6:00 PM"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+        </div>
+
+        <!-- Contact Email (optional) -->
+        <div class="mb-6">
+          <label for="contactEmail" class="block text-sm font-semibold text-gray-700 mb-2">
+            Contact Email (optional)
+          </label>
+          <input
+            type="email"
+            id="contactEmail"
+            formControlName="contactEmail"
+            placeholder="contact@example.com"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+          @if (form.get('contactEmail')?.invalid && form.get('contactEmail')?.touched) {
+            <p class="mt-1 text-sm text-red-600">Please enter a valid email address</p>
+          }
+        </div>
+
+        <!-- Contact Phone (optional) -->
+        <div class="mb-6">
+          <label for="contactPhone" class="block text-sm font-semibold text-gray-700 mb-2">
+            Contact Phone (optional)
+          </label>
+          <input
+            type="tel"
+            id="contactPhone"
+            formControlName="contactPhone"
+            placeholder="+27 12 345 6789"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+        </div>
+
+        <!-- Website (optional) -->
+        <div class="mb-6">
+          <label for="website" class="block text-sm font-semibold text-gray-700 mb-2">
+            Website (optional)
+          </label>
+          <input
+            type="url"
+            id="website"
+            formControlName="website"
+            placeholder="https://example.com"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+        </div>
+
+        <!-- Is Active (for edit mode) -->
+        @if (isEditMode) {
+          <div class="mb-6">
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                formControlName="isActive"
+                class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+              />
+              <span class="ml-2 text-sm font-semibold text-gray-700">Active (visible to public)</span>
+            </label>
+          </div>
+        }
+
+        <!-- Action buttons -->
+        <div class="flex gap-4 pt-4">
+          <button
+            type="submit"
+            [disabled]="loading() || form.invalid"
+            class="flex-1 bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            @if (loading()) {
+              <span>Saving...</span>
+            } @else {
+              <span>{{ isEditMode ? 'Update' : 'Create' }} Support Group</span>
+            }
+          </button>
+          <button
+            type="button"
+            (click)="cancel()"
+            class="px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<app-footer />

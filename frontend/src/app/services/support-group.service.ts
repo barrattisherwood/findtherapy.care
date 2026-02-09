@@ -5,6 +5,8 @@ import {
   SupportGroup,
   SupportGroupSearchParams,
   SupportGroupListResponse,
+  CreateSupportGroupRequest,
+  UpdateSupportGroupRequest,
 } from '@findlocal/shared';
 import { environment } from '../../environments/environment';
 
@@ -47,5 +49,29 @@ export class SupportGroupService {
   // Get support group by ID (public)
   getById(id: string): Observable<{ supportGroup: SupportGroup }> {
     return this.http.get<{ supportGroup: SupportGroup }>(`${this.apiUrl}/${id}`);
+  }
+
+  // Create support group (admin only)
+  create(data: CreateSupportGroupRequest): Observable<{ supportGroup: SupportGroup }> {
+    this.loading.set(true);
+    return this.http.post<{ supportGroup: SupportGroup }>(this.apiUrl, data).pipe(
+      tap(() => this.loading.set(false))
+    );
+  }
+
+  // Update support group (admin only)
+  update(id: string, data: UpdateSupportGroupRequest): Observable<{ supportGroup: SupportGroup }> {
+    this.loading.set(true);
+    return this.http.put<{ supportGroup: SupportGroup }>(`${this.apiUrl}/${id}`, data).pipe(
+      tap(() => this.loading.set(false))
+    );
+  }
+
+  // Delete support group (admin only)
+  delete(id: string): Observable<{ message: string }> {
+    this.loading.set(true);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.loading.set(false))
+    );
   }
 }

@@ -10,7 +10,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "seed": "ts-node src/scripts/seed.ts",
-    "migrate": "ts-node src/scripts/migrate-provider-types.ts"
+    "migrate": "ts-node src/scripts/migrate-provider-types.ts",
+    "admin": "ts-node src/scripts/set-admin.ts"
   },
   "dependencies": {
     "@findlocal/shared": "file:../shared",

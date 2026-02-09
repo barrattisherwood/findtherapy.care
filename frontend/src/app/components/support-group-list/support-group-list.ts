@@ -1,7 +1,9 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { SupportGroupService } from '../../services/support-group.service';
+import { AuthService } from '../../services/auth.service';
 import { SeoService } from '../../services/seo.service';
 import { SupportGroupCard } from '../support-group-card/support-group-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
@@ -13,12 +15,13 @@ import { SUPPORT_GROUP_CATEGORIES } from '@findlocal/shared';
 @Component({
   selector: 'app-support-group-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, SupportGroupCard, LoadingSkeleton, Navbar, Footer],
+  imports: [CommonModule, FormsModule, RouterLink, SupportGroupCard, LoadingSkeleton, Navbar, Footer],
   templateUrl: './support-group-list.html',
   styleUrl: './support-group-list.scss'
 })
 export class SupportGroupList implements OnInit {
   private supportGroupService = inject(SupportGroupService);
+  private authService = inject(AuthService);
   private seo = inject(SeoService);
 
   supportGroups = this.supportGroupService.supportGroups;
@@ -26,6 +29,9 @@ export class SupportGroupList implements OnInit {
   totalSupportGroups = this.supportGroupService.totalSupportGroups;
   currentPage = this.supportGroupService.currentPage;
   totalPages = this.supportGroupService.totalPages;
+
+  // Check if current user is admin
+  isAdmin = computed(() => this.authService.currentUser()?.isAdmin === true);
 
   // Filter values
   selectedCategory = signal<string>('');
@@ -87,6 +93,11 @@ export class SupportGroupList implements OnInit {
 
   onMeetingTypeChange(value: string): void {
     this.selectedMeetingType.set(value as MeetingType | '');
+    this.search();
+  }
+
+  onGroupDeleted(): void {
+    // Refresh the list after deletion
     this.search();
   }
 }
