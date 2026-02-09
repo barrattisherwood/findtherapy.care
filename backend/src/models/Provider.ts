@@ -118,6 +118,15 @@ const providerSchema = new Schema<IProvider>(
       default: 0,
       min: 0,
     },
+    // Profile image (Cloudinary URL)
+    profileImage: {
+      type: String,
+      trim: true,
+    },
+    profileImagePublicId: {
+      type: String,
+      trim: true,
+    },
     // Trial period (set on registration if trial enabled)
     trialEndsAt: {
       type: Date,

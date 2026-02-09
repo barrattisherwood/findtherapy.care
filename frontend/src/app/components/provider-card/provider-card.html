@@ -1,18 +1,38 @@
 <a [routerLink]="['/providers', provider.id]" class="block bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6">
-  <div class="flex justify-between items-start mb-3">
-    <h3 class="text-lg font-semibold text-gray-900">{{ provider.displayName }}</h3>
-    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-          [class.bg-primary-100]="provider.type === 'psychologist'"
-          [class.text-primary-800]="provider.type === 'psychologist'"
-          [class.bg-accent-100]="provider.type === 'counsellor'"
-          [class.text-accent-800]="provider.type === 'counsellor'"
-          [class.bg-secondary-100]="provider.type === 'social-worker'"
-          [class.text-secondary-800]="provider.type === 'social-worker'">
-      {{ providerTypeLabel }}
-    </span>
-  </div>
+  <div class="flex gap-4 mb-4">
+    <!-- Profile Image -->
+    @if (provider.profileImage) {
+      <img
+        [src]="provider.profileImage + '?w=200&h=200&c=fill&g=face&q=auto&f=auto'"
+        [alt]="provider.displayName"
+        class="w-20 h-20 rounded-full object-cover flex-shrink-0"
+      />
+    } @else {
+      <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+        <svg class="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      </div>
+    }
 
-  <p class="text-sm text-gray-500 mb-3">{{ locationDisplay }}</p>
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="text-lg font-semibold text-gray-900 truncate">{{ provider.displayName }}</h3>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ml-2 flex-shrink-0"
+              [class.bg-primary-100]="provider.type === 'psychologist'"
+              [class.text-primary-800]="provider.type === 'psychologist'"
+              [class.bg-accent-100]="provider.type === 'counsellor'"
+              [class.text-accent-800]="provider.type === 'counsellor'"
+              [class.bg-secondary-100]="provider.type === 'social-worker'"
+              [class.text-secondary-800]="provider.type === 'social-worker'">
+          {{ providerTypeLabel }}
+        </span>
+      </div>
+
+      <p class="text-sm text-gray-500 mb-2">{{ locationDisplay }}</p>
+    </div>
+  </div>
 
   <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ provider.bio }}</p>
 

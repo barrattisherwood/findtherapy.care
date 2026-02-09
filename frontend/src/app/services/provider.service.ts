@@ -86,4 +86,42 @@ export class ProviderService {
   clearMyProvider(): void {
     this.myProvider.set(null);
   }
+
+  // Upload profile image
+  uploadProfileImage(file: File): Observable<{ message: string; imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    return this.http.post<{ message: string; imageUrl: string }>(
+      `${this.apiUrl}/me/image`,
+      formData
+    ).pipe(
+      tap(response => {
+        // Update the current provider's image URL
+        const currentProvider = this.myProvider();
+        if (currentProvider) {
+          this.myProvider.set({
+            ...currentProvider,
+            profileImage: response.imageUrl
+          });
+        }
+      })
+    );
+  }
+
+  // Delete profile image
+  deleteProfileImage(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/me/image`).pipe(
+      tap(() => {
+        // Remove image URL from current provider
+        const currentProvider = this.myProvider();
+        if (currentProvider) {
+          this.myProvider.set({
+            ...currentProvider,
+            profileImage: undefined
+          });
+        }
+      })
+    );
+  }
 }

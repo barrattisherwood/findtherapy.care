@@ -16,6 +16,19 @@
         <!-- Main form -->
         <div class="lg:col-span-2">
           <form (ngSubmit)="save()" class="bg-white rounded-xl shadow-sm p-8 space-y-8">
+            <!-- Profile Image Section -->
+            <div class="pb-8 border-b border-gray-200">
+              <h2 class="text-xl font-semibold text-gray-900 mb-2">Profile Image</h2>
+              <p class="text-sm text-gray-600 mb-6">Upload a professional headshot to help clients recognize you</p>
+
+              <app-image-upload
+                [currentImageUrl]="myProvider()?.profileImage"
+                [uploading]="uploadingImage()"
+                (imageSelected)="onImageSelected($event)"
+                (imageRemoved)="onImageRemoved()"
+              />
+            </div>
+
             <!-- Basic Information Section -->
             <div>
               <h2 class="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>

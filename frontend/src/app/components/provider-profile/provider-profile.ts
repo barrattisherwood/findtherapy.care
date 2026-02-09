@@ -9,13 +9,14 @@ import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
+import { ImageUpload } from '../image-upload/image-upload';
 import { CreateProviderRequest, ProviderType, Certification, ProviderPricing } from '@findlocal/shared';
 import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROVIDER_REGISTRATIONS } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton],
+  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.scss'
 })
@@ -35,6 +36,7 @@ export class ProviderProfile implements OnInit {
   saving = signal<boolean>(false);
   hasProfile = signal<boolean>(false);
   viewCount = signal<number>(0);
+  uploadingImage = signal<boolean>(false);
 
   // Validation errors
   displayNameError = signal<string>('');
@@ -170,6 +172,50 @@ export class ProviderProfile implements OnInit {
         }
       });
     }
+  }
+
+  // Image upload
+  onImageSelected(file: File): void {
+    if (!this.hasProfile()) {
+      this.toast.error('Error', 'Please create your profile before uploading an image.');
+      return;
+    }
+
+    this.uploadingImage.set(true);
+
+    this.providerService.uploadProfileImage(file).subscribe({
+      next: () => {
+        this.toast.success('Success', 'Profile image uploaded successfully.');
+        this.uploadingImage.set(false);
+      },
+      error: (err) => {
+        this.toast.error('Error', err.error?.message || 'Failed to upload image.');
+        this.uploadingImage.set(false);
+      }
+    });
+  }
+
+  onImageRemoved(): void {
+    if (!this.myProvider()?.profileImage) {
+      return;
+    }
+
+    if (!confirm('Are you sure you want to remove your profile image?')) {
+      return;
+    }
+
+    this.uploadingImage.set(true);
+
+    this.providerService.deleteProfileImage().subscribe({
+      next: () => {
+        this.toast.success('Success', 'Profile image removed successfully.');
+        this.uploadingImage.set(false);
+      },
+      error: (err) => {
+        this.toast.error('Error', err.error?.message || 'Failed to remove image.');
+        this.uploadingImage.set(false);
+      }
+    });
   }
 
   // Degree management

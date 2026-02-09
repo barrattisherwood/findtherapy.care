@@ -10,6 +10,8 @@ import {
   TRIAL_PERIOD_DAYS,
   isTrialEnabled,
 } from '@findlocal/shared';
+import { uploadImage, deleteImage, isCloudinaryConfigured } from '../services/cloudinaryService';
+import multer from 'multer';
 
 // Helper to calculate trial end date
 const getTrialEndDate = (): Date | undefined => {
@@ -332,5 +334,111 @@ export const getProviderById = async (req: AuthRequest, res: Response) => {
   } catch (error: any) {
     console.error('Get provider by ID error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Configure multer for in-memory storage
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB max
+  },
+  fileFilter: (_req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  },
+});
+
+// Middleware to handle single image upload
+export const uploadImageMiddleware = upload.single('image');
+
+// Upload profile image (authenticated users only)
+export const uploadProfileImage = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!isCloudinaryConfigured()) {
+      return res.status(500).json({ message: 'Image upload is not configured' });
+    }
+
+    const userId = req.userId!;
+
+    // Get user's provider profile
+    const provider = await Provider.findOne({ userId });
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider profile not found' });
+    }
+
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    // Delete old image from Cloudinary if exists
+    if (provider.profileImagePublicId) {
+      try {
+        await deleteImage(provider.profileImagePublicId);
+      } catch (error) {
+        console.error('Failed to delete old image:', error);
+        // Continue anyway
+      }
+    }
+
+    // Upload new image to Cloudinary
+    const result = await uploadImage(
+      req.file.buffer,
+      'providers',
+      `provider_${provider._id.toString()}`
+    );
+
+    // Update provider with new image URL
+    provider.profileImage = result.url;
+    provider.profileImagePublicId = result.publicId;
+    await provider.save();
+
+    res.json({
+      message: 'Profile image uploaded successfully',
+      imageUrl: result.url,
+    });
+  } catch (error: any) {
+    console.error('Upload profile image error:', error);
+    res.status(500).json({ message: error.message || 'Failed to upload image' });
+  }
+};
+
+// Delete profile image (authenticated users only)
+export const deleteProfileImage = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!isCloudinaryConfigured()) {
+      return res.status(500).json({ message: 'Image service is not configured' });
+    }
+
+    const userId = req.userId!;
+
+    // Get user's provider profile
+    const provider = await Provider.findOne({ userId });
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider profile not found' });
+    }
+
+    if (!provider.profileImagePublicId) {
+      return res.status(404).json({ message: 'No profile image to delete' });
+    }
+
+    // Delete from Cloudinary
+    await deleteImage(provider.profileImagePublicId);
+
+    // Remove from database
+    provider.profileImage = undefined;
+    provider.profileImagePublicId = undefined;
+    await provider.save();
+
+    res.json({ message: 'Profile image deleted successfully' });
+  } catch (error: any) {
+    console.error('Delete profile image error:', error);
+    res.status(500).json({ message: error.message || 'Failed to delete image' });
   }
 };

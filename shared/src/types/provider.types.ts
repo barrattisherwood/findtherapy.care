@@ -47,6 +47,8 @@ export interface Provider {
   website?: string;
   isPublished: boolean;
   viewCount: number;
+  profileImage?: string;
+  profileImagePublicId?: string;
   payfastPaymentId?: string;
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndsAt?: Date;
