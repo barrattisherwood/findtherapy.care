@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { NavbarComponent } from '../navbar/navbar';
-import { FooterComponent } from '../footer/footer';
+import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 
 @Component({
   selector: 'app-terms',
   standalone: true,
-  imports: [NavbarComponent, FooterComponent],
+  imports: [Navbar, Footer],
   templateUrl: './terms.html',
 })
 export class TermsComponent {

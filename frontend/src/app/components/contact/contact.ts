@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { NavbarComponent } from '../navbar/navbar';
-import { FooterComponent } from '../footer/footer';
+import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
 
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [NavbarComponent, FooterComponent, FormsModule, RouterModule],
+  imports: [Navbar, Footer, FormsModule, RouterModule],
   templateUrl: './contact.html',
 })
 export class ContactComponent {
