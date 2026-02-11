@@ -15,8 +15,9 @@ import { getProviderAccessStatus } from './providerController';
 
 const PAYFAST_SUBSCRIPTION_AMOUNT = SUBSCRIPTION_PRICE_ZAR;
 // FRONTEND_URL may be comma-separated (for CORS); take only the first for redirects
-const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:4200').split(',')[0].trim();
-const BACKEND_URL = (process.env.BACKEND_URL || 'http://localhost:3000').split(',')[0].trim();
+// Strip trailing slashes to prevent double slashes in URLs
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:4200').split(',')[0].trim().replace(/\/+$/, '');
+const BACKEND_URL = (process.env.BACKEND_URL || 'http://localhost:3000').split(',')[0].trim().replace(/\/+$/, '');
 
 // Get PayFast checkout data (returns form data for redirect)
 export const createCheckout = async (req: AuthRequest, res: Response) => {
