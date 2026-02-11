@@ -100,9 +100,13 @@ export const createSubscriptionPaymentData = (
     return null;
   }
 
-  // Calculate billing date - use today's day of month, capped at 28 (PayFast requirement)
+  // Calculate billing date in Y-m-d format (PayFast requirement)
+  // Start billing from today
   const today = new Date();
-  const dayOfMonth = Math.min(today.getDate(), 28);
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const billingDate = `${year}-${month}-${day}`;
 
   const data: PayFastPaymentData = {
     merchant_id: PAYFAST_MERCHANT_ID!,
@@ -117,7 +121,7 @@ export const createSubscriptionPaymentData = (
     item_name: 'findtherapy.care Provider Subscription',
     item_description: 'Monthly subscription for provider listing',
     subscription_type: '1',
-    billing_date: dayOfMonth.toString(),
+    billing_date: billingDate,
     recurring_amount: amount.toFixed(2),
     frequency: '3', // Monthly
     cycles: '0', // Indefinite
