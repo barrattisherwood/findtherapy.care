@@ -8,24 +8,24 @@
 
   <!-- Trial Active -->
   @if (accessStatus === 'trial') {
-    <div class="mb-4">
-      <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-4">
-        <div class="flex items-start">
-          <svg class="h-5 w-5 text-primary-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="mb-6">
+      <div class="bg-primary-50 border border-primary-200 rounded-lg p-5 mb-5">
+        <div class="flex items-start gap-3">
+          <svg class="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <div>
-            <p class="text-primary-800 font-medium">
+          <div class="flex-1">
+            <p class="text-primary-800 font-medium mb-2">
               {{ trialDaysRemaining }} days remaining in your free trial
             </p>
-            <p class="text-primary-700 text-sm mt-1">
+            <p class="text-primary-700 text-sm leading-relaxed">
               Your profile is visible in search results. Subscribe before your trial ends to keep it visible.
             </p>
           </div>
         </div>
       </div>
       @if (trialEndsAt) {
-        <p class="text-sm text-gray-500 mb-4">
+        <p class="text-sm text-gray-500 mb-5">
           Trial ends on {{ trialEndsAt | date:'mediumDate' }}
         </p>
       }
@@ -51,17 +51,17 @@
 
   <!-- Trial Expired -->
   @else if (accessStatus === 'expired') {
-    <div class="mb-4">
-      <div class="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-4">
-        <div class="flex items-start">
-          <svg class="h-5 w-5 text-warning-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="mb-6">
+      <div class="bg-warning-50 border border-warning-200 rounded-lg p-5 mb-5">
+        <div class="flex items-start gap-3">
+          <svg class="h-5 w-5 text-warning-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <div>
-            <p class="text-warning-800 font-medium">
+          <div class="flex-1">
+            <p class="text-warning-800 font-medium mb-2">
               Your free trial has expired
             </p>
-            <p class="text-warning-700 text-sm mt-1">
+            <p class="text-warning-700 text-sm leading-relaxed">
               Your profile is no longer visible in search results. Subscribe to make it visible again.
             </p>
           </div>
@@ -115,24 +115,24 @@
 
   <!-- Active Subscription -->
   @else if (status === 'active') {
-    <div class="mb-4">
-      <div class="bg-success-50 border border-success-200 rounded-lg p-4 mb-4">
-        <div class="flex items-start">
-          <svg class="h-5 w-5 text-success-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="mb-6">
+      <div class="bg-success-50 border border-success-200 rounded-lg p-5 mb-5">
+        <div class="flex items-start gap-3">
+          <svg class="h-5 w-5 text-success-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <div>
-            <p class="text-success-800 font-medium">
+          <div class="flex-1">
+            <p class="text-success-800 font-medium mb-2">
               Your subscription is active
             </p>
-            <p class="text-success-700 text-sm mt-1">
+            <p class="text-success-700 text-sm leading-relaxed">
               Your profile is visible in search results.
             </p>
           </div>
         </div>
       </div>
       @if (endsAt) {
-        <p class="text-sm text-gray-500 mb-4">
+        <p class="text-sm text-gray-500 mb-5">
           Renews on {{ endsAt | date:'mediumDate' }}
         </p>
       }
@@ -152,17 +152,17 @@
 
   <!-- Past Due -->
   @else if (status === 'past_due') {
-    <div class="mb-4">
-      <div class="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-4">
-        <div class="flex items-start">
-          <svg class="h-5 w-5 text-warning-600 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="mb-6">
+      <div class="bg-warning-50 border border-warning-200 rounded-lg p-5 mb-5">
+        <div class="flex items-start gap-3">
+          <svg class="h-5 w-5 text-warning-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <div>
-            <p class="text-warning-800 font-medium">
+          <div class="flex-1">
+            <p class="text-warning-800 font-medium mb-2">
               Payment past due
             </p>
-            <p class="text-warning-700 text-sm mt-1">
+            <p class="text-warning-700 text-sm leading-relaxed">
               Please update your payment method to keep your profile visible.
             </p>
           </div>
