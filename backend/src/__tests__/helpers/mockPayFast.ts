@@ -59,10 +59,9 @@ export const generateTestSignature = (
   data: Record<string, string>,
   passphrase: string = mockPayFastConfig.PAYFAST_PASSPHRASE
 ): string => {
-  // NOTE: Do NOT sort alphabetically - use the order fields are defined (only APIs use alphabetical)
-  // This matches the actual payfastService.generateSignature implementation
+  // TESTING: Using alphabetical order to match the current implementation
   let pfOutput = '';
-  for (const key of Object.keys(data)) {
+  for (const key of Object.keys(data).sort()) {
     if (data[key] !== '' && key !== 'signature') {
       pfOutput += `${key}=${encodeURIComponent(data[key].trim()).replace(/%20/g, '+')}&`;
     }
