@@ -111,7 +111,7 @@ export const createSubscriptionPaymentData = (
     m_payment_id: paymentId,
     amount: amount.toFixed(2),
     item_name: 'findtherapy.care Provider Subscription',
-    item_description: 'Monthly subscription for provider listing',
+    // item_description: 'Monthly subscription for provider listing', // TESTING: Removed to debug signature mismatch
     subscription_type: '1',
     recurring_amount: amount.toFixed(2),
     frequency: '3', // Monthly
