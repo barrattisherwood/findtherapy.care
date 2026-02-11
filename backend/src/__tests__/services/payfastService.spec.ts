@@ -85,7 +85,9 @@ describe('PayFast Service', () => {
       expect(signatureWithPass).toMatch(/^[a-f0-9]{32}$/);
     });
 
-    it('sorts keys alphabetically', () => {
+    it('uses field definition order (NOT alphabetical)', () => {
+      // NOTE: PayFast confirmed alphabetical sorting is ONLY for APIs, not payment forms
+      // Payment forms must use the order fields are defined
       const data1 = {
         z_field: 'last',
         a_field: 'first',
@@ -101,8 +103,8 @@ describe('PayFast Service', () => {
       const signature1 = payfastService.generateSignature(data1);
       const signature2 = payfastService.generateSignature(data2);
 
-      // Same data in different order should produce same signature
-      expect(signature1).toBe(signature2);
+      // Different field order should produce DIFFERENT signatures
+      expect(signature1).not.toBe(signature2);
     });
 
     it('excludes empty values from signature', () => {
