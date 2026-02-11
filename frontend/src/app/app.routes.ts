@@ -13,6 +13,9 @@ import { SupportGroupList } from './components/support-group-list/support-group-
 import { SupportGroupDetail } from './components/support-group-detail/support-group-detail';
 import { SupportGroupForm } from './components/support-group-form/support-group-form';
 import { CityLanding } from './components/city-landing/city-landing';
+import { PrivacyComponent } from './components/privacy/privacy';
+import { TermsComponent } from './components/terms/terms';
+import { ContactComponent } from './components/contact/contact';
 
 export const routes: Routes = [
   { path: '', component: Landing, title: 'findtherapy.care — Find therapists and counsellors near you' },
@@ -34,5 +37,9 @@ export const routes: Routes = [
   { path: 'support-groups/new', component: SupportGroupForm, canActivate: [authGuard], title: 'Create Support Group — findtherapy.care' },
   { path: 'support-groups/:id/edit', component: SupportGroupForm, canActivate: [authGuard], title: 'Edit Support Group — findtherapy.care' },
   { path: 'support-groups/:id', component: SupportGroupDetail },
+  // Legal pages
+  { path: 'privacy', component: PrivacyComponent, title: 'Privacy Policy — findtherapy.care' },
+  { path: 'terms', component: TermsComponent, title: 'Terms of Service — findtherapy.care' },
+  { path: 'contact', component: ContactComponent, title: 'Contact Us — findtherapy.care' },
   { path: '**', redirectTo: '' }
 ];
