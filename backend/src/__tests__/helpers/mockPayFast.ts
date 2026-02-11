@@ -23,6 +23,8 @@ export interface MockITNDataOptions {
   pf_payment_id?: string;
   payment_status?: string;
   item_name?: string;
+  item_description?: string;
+  billing_date?: string;
   amount_gross?: string;
   amount_fee?: string;
   amount_net?: string;
@@ -40,6 +42,14 @@ export const createMockITNData = (overrides: MockITNDataOptions = {}): Record<st
     amount_fee: overrides.amount_fee || '-5.00',
     amount_net: overrides.amount_net || '145.00',
   };
+
+  if (overrides.item_description) {
+    data.item_description = overrides.item_description;
+  }
+
+  if (overrides.billing_date) {
+    data.billing_date = overrides.billing_date;
+  }
 
   if (overrides.token) {
     data.token = overrides.token;
