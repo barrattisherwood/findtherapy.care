@@ -1,0 +1,128 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header with Time Range Selector -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Admin Dashboard</h1>
+      <div class="flex gap-2">
+        @for (option of timeRangeOptions; track option.value) {
+          <button
+            (click)="onTimeRangeChange(option.value)"
+            [class.bg-primary-600]="selectedDays() === option.value"
+            [class.text-white]="selectedDays() === option.value"
+            [class.bg-white]="selectedDays() !== option.value"
+            [class.text-gray-700]="selectedDays() !== option.value"
+            class="px-4 py-2 rounded-lg border border-gray-200 font-medium text-sm transition-colors"
+          >
+            {{ option.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Loading/Error States -->
+    @if (loading()) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <p class="mt-4 text-gray-600">Loading metrics...</p>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+        {{ errorMessage() }}
+      </div>
+    } @else if (metrics()) {
+      <!-- Metrics Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- User Metrics Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4">Users</h3>
+          <p class="text-3xl font-bold text-gray-900 mb-2">
+            {{ formatNumber(metrics()!.users.totalUsers) }}
+          </p>
+          <p class="text-sm text-gray-600 mb-3">
+            {{ formatNumber(metrics()!.users.newUsers) }} new this period
+          </p>
+          <div [class.text-green-600]="metrics()!.users.growthPercentage > 0"
+               [class.text-red-600]="metrics()!.users.growthPercentage < 0"
+               class="text-sm font-medium">
+            {{ formatPercentage(metrics()!.users.growthPercentage) }} growth
+          </div>
+        </div>
+
+        <!-- Provider Metrics Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4">Providers</h3>
+          <p class="text-3xl font-bold text-gray-900 mb-2">
+            {{ formatNumber(metrics()!.providers.totalProviders) }}
+          </p>
+          <div class="space-y-1 text-sm text-gray-600">
+            <p>{{ formatNumber(metrics()!.providers.activeSubscriptions) }} active subscriptions</p>
+            <p>{{ formatNumber(metrics()!.providers.trialsActive) }} trials active</p>
+            <p class="text-primary-600 font-medium">
+              {{ metrics()!.providers.trialConversionRate.toFixed(1) }}% conversion rate
+            </p>
+          </div>
+        </div>
+
+        <!-- Revenue Metrics Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4">Revenue</h3>
+          <p class="text-3xl font-bold text-gray-900 mb-2">
+            {{ formatCurrency(metrics()!.revenue.monthlyRecurringRevenue) }}
+          </p>
+          <p class="text-sm text-gray-600 mb-1">MRR</p>
+          <p class="text-sm text-gray-600">
+            {{ formatCurrency(metrics()!.revenue.totalRevenueCollected) }} collected
+          </p>
+        </div>
+
+        <!-- Support Groups Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 class="text-sm font-semibold text-gray-500 uppercase mb-4">Support Groups</h3>
+          <p class="text-3xl font-bold text-gray-900 mb-2">
+            {{ formatNumber(metrics()!.supportGroups.totalGroups) }}
+          </p>
+          <p class="text-sm text-gray-600">
+            {{ formatNumber(metrics()!.supportGroups.activeGroups) }} active
+          </p>
+        </div>
+      </div>
+
+      <!-- Breakdown Sections -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Provider Type Breakdown -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Provider Types</h3>
+          <div class="space-y-3">
+            @for (type of objectKeys(metrics()!.providers.providerTypeBreakdown); track type) {
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700 capitalize">{{ type.replace('-', ' ') }}</span>
+                <span class="text-sm font-semibold text-gray-900">
+                  {{ formatNumber(metrics()!.providers.providerTypeBreakdown[type]) }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Top Support Group Categories -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Categories</h3>
+          <div class="space-y-3">
+            @for (category of objectKeys(metrics()!.supportGroups.categoryBreakdown).slice(0, 5); track category) {
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700">{{ category }}</span>
+                <span class="text-sm font-semibold text-gray-900">
+                  {{ formatNumber(metrics()!.supportGroups.categoryBreakdown[category]) }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<app-footer />
