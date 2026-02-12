@@ -1,0 +1,50 @@
+// Terms of Service specific styles
+
+.prose {
+  h2 {
+    @apply scroll-mt-20;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  ul {
+    @apply space-y-2;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+    
+    &:hover {
+      @apply text-primary-700;
+    }
+  }
+}
+
+// Smooth scroll behavior for the entire page
+html {
+  scroll-behavior: smooth;
+}
+
+// Enhanced readability for long-form content
+.terms-content {
+  @apply text-base leading-7;
+  
+  @media (min-width: 768px) {
+    @apply text-lg leading-8;
+  }
+}
+
+// Table of contents styling (if needed in future)
+.toc {
+  @apply sticky top-20 bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
+  
+  ul {
+    @apply space-y-2;
+  }
+  
+  a {
+    @apply text-gray-600 hover:text-primary-600 transition-colors;
+  }
+}
