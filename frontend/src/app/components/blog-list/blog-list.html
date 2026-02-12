@@ -1,0 +1,213 @@
+<div class="min-h-screen bg-gray-50">
+  <app-navbar />
+
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Mental Health Blog</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Expert insights, practical tips, and inspiring stories about mental health and wellness
+        </p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="mt-8 max-w-xl mx-auto">
+        <form (ngSubmit)="onSearchSubmit()" class="flex">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            placeholder="Search articles..."
+            class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          />
+          <button
+            type="submit"
+            class="px-6 py-3 bg-primary-600 text-white font-medium rounded-r-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
+          >
+            Search
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700">Categories:</span>
+          <button
+            (click)="onCategoryChange(null)"
+            [class]="selectedCategory() === null ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-3 py-1 rounded-full text-sm font-medium transition-colors"
+          >
+            All
+          </button>
+          <button
+            *ngFor="let category of categories()"
+            (click)="onCategoryChange(category)"
+            [class]="selectedCategory() === category ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-3 py-1 rounded-full text-sm font-medium transition-colors capitalize"
+          >
+            {{ category }}
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700">Tags:</span>
+          <button
+            *ngFor="let tag of tags().slice(0, 8)"
+            (click)="onTagChange(selectedTag() === tag ? null : tag)"
+            [class]="selectedTag() === tag ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-2 py-1 rounded text-xs font-medium transition-colors"
+          >
+            #{{ tag }}
+          </button>
+        </div>
+
+        <button
+          *ngIf="selectedCategory() || selectedTag() || searchQuery()"
+          (click)="clearFilters()"
+          class="text-sm text-primary-600 hover:text-primary-800 font-medium"
+        >
+          Clear all filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <p class="mt-4 text-gray-600">Loading articles...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage()" class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <svg class="h-12 w-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+      </svg>
+      <h3 class="text-lg font-medium text-red-900 mb-2">Error loading articles</h3>
+      <p class="text-red-700">{{ errorMessage() }}</p>
+    </div>
+
+    <!-- Featured Posts (only on first page with no filters) -->
+    <div *ngIf="!loading() && currentPage() === 1 && !selectedCategory() && !selectedTag() && !searchQuery() && featuredPosts().length > 0" class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Articles</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div *ngFor="let post of featuredPosts(); let i = index" [class]="i === 0 ? 'md:col-span-2' : ''">
+          <article class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+            <div *ngIf="post.featuredImage" [class]="i === 0 ? 'h-64' : 'h-48'" class="w-full bg-gray-200 overflow-hidden">
+              <img [src]="post.featuredImage" [alt]="post.title" class="w-full h-full object-cover">
+            </div>
+            <div class="p-6">
+              <div class="flex flex-wrap gap-2 mb-3">
+                <span *ngFor="let category of post.categories.slice(0, 2)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                  {{ category }}
+                </span>
+              </div>
+              <h3 [class]="i === 0 ? 'text-2xl' : 'text-lg'" class="font-bold text-gray-900 mb-2 line-clamp-2">
+                <a [routerLink]="['/blog', post.slug]" class="hover:text-primary-600 transition-colors">
+                  {{ post.title }}
+                </a>
+              </h3>
+              <p class="text-gray-600 mb-4 line-clamp-3">{{ post.excerpt }}</p>
+              <div class="flex items-center justify-between text-sm text-gray-500">
+                <div class="flex items-center space-x-4">
+                  <span>{{ formatDate(post.publishedAt!) }}</span>
+                  <span>{{ formatReadingTime(post.readingTime) }}</span>
+                </div>
+                <span>{{ post.views.toLocaleString() }} views</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regular Posts Grid -->
+    <div *ngIf="!loading() && posts().length > 0">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <article *ngFor="let post of posts()" class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+          <div *ngIf="post.featuredImage" class="h-48 w-full bg-gray-200 overflow-hidden">
+            <img [src]="post.featuredImage" [alt]="post.title" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-3">
+              <span *ngFor="let category of post.categories.slice(0, 2)" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                {{ category }}
+              </span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
+              <a [routerLink]="['/blog', post.slug]" class="hover:text-primary-600 transition-colors">
+                {{ post.title }}
+              </a>
+            </h3>
+            <p class="text-gray-600 mb-4 line-clamp-3">{{ post.excerpt }}</p>
+            <div class="flex items-center justify-between text-sm text-gray-500">
+              <div class="flex items-center space-x-4">
+                <span>{{ formatDate(post.publishedAt!) }}</span>
+                <span>{{ formatReadingTime(post.readingTime) }}</span>
+              </div>
+              <span>{{ post.views.toLocaleString() }} views</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="totalPages() > 1" class="flex items-center justify-center">
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+          <button
+            [disabled]="currentPage() === 1"
+            (click)="onPageChange(currentPage() - 1)"
+            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+          
+          <button
+            *ngFor="let page of getPageNumbers()"
+            (click)="onPageChange(page)"
+            [class]="page === currentPage() 
+              ? 'relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600'
+              : 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50'"
+          >
+            {{ page }}
+          </button>
+          
+          <button
+            [disabled]="currentPage() === totalPages()"
+            (click)="onPageChange(currentPage() + 1)"
+            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && posts().length === 0" class="text-center py-12">
+      <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="text-xl font-medium text-gray-900 mb-2">No articles found</h3>
+      <p class="text-gray-600 mb-6">
+        {{ selectedCategory() || selectedTag() || searchQuery() ? 'Try adjusting your filters or search terms.' : 'Check back soon for new mental health insights and resources.' }}
+      </p>
+      <button
+        *ngIf="selectedCategory() || selectedTag() || searchQuery()"
+        (click)="clearFilters()"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
+      >
+        Clear filters
+      </button>
+    </div>
+  </div>
+
+  <app-footer />
+</div>

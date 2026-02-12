@@ -7,6 +7,7 @@ import providerRoutes from './routes/providerRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
 import supportGroupRoutes from './routes/supportGroupRoutes';
 import adminRoutes from './routes/adminRoutes';
+import blogRoutes from './routes/blogRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
 
@@ -47,6 +48,7 @@ app.use('/api/providers', providerRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/support-groups', supportGroupRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/blog', blogRoutes);
 
 // Global error handler (must be after all routes)
 app.use(errorHandler);

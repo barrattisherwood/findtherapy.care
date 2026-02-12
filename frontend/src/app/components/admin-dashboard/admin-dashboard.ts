@@ -1,22 +1,27 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
+import { BlogService } from '../../services/blog.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
-import { DashboardMetrics } from '@findlocal/shared';
+import { DashboardMetrics, BlogMetrics } from '@findlocal/shared';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, Navbar, Footer],
+  imports: [CommonModule, RouterLink, Navbar, Footer],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss'
 })
 export class AdminDashboard implements OnInit {
   private adminService = inject(AdminService);
+  private blogService = inject(BlogService);
 
   metrics = signal<DashboardMetrics | null>(null);
+  blogMetrics = signal<BlogMetrics | null>(null);
   loading = this.adminService.loading;
+  blogLoading = this.blogService.loading;
   errorMessage = signal('');
   selectedDays = signal(30);
 
@@ -28,6 +33,7 @@ export class AdminDashboard implements OnInit {
 
   ngOnInit(): void {
     this.loadMetrics();
+    this.loadBlogMetrics();
   }
 
   loadMetrics(): void {
@@ -36,6 +42,15 @@ export class AdminDashboard implements OnInit {
       next: (data) => this.metrics.set(data),
       error: (error) => {
         this.errorMessage.set(error.error?.message || 'Failed to load dashboard metrics');
+      }
+    });
+  }
+
+  loadBlogMetrics(): void {
+    this.blogService.getBlogMetrics().subscribe({
+      next: (data) => this.blogMetrics.set(data),
+      error: (error) => {
+        console.error('Failed to load blog metrics:', error);
       }
     });
   }

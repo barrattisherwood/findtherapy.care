@@ -1,0 +1,55 @@
+// Blog admin specific styles
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Enhanced hover effects for post rows
+.post-row {
+  @apply transition-colors duration-150;
+  
+  &:hover {
+    @apply bg-gray-50;
+    
+    .post-actions {
+      @apply opacity-100;
+    }
+  }
+}
+
+.post-actions {
+  @apply opacity-0 transition-opacity duration-150;
+}
+
+// Status badge animations
+.status-badge {
+  @apply transition-all duration-200;
+  
+  &:hover {
+    @apply transform scale-105;
+  }
+}
+
+// Loading animation
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -15,8 +15,12 @@ import { SupportGroupDetail } from './components/support-group-detail/support-gr
 import { SupportGroupForm } from './components/support-group-form/support-group-form';
 import { CityLanding } from './components/city-landing/city-landing';
 import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
+import { BlogAdmin } from './components/blog-admin/blog-admin';
+import { BlogEditor } from './components/blog-editor/blog-editor';
+import { BlogList } from './components/blog-list/blog-list';
 import { PrivacyComponent } from './components/privacy/privacy';
 import { TermsComponent } from './components/terms/terms';
+import { TermsOfService } from './components/terms-of-service/terms-of-service';
 import { ContactComponent } from './components/contact/contact';
 
 export const routes: Routes = [
@@ -39,11 +43,17 @@ export const routes: Routes = [
   { path: 'support-groups/new', component: SupportGroupForm, canActivate: [authGuard], title: 'Create Support Group — findtherapy.care' },
   { path: 'support-groups/:id/edit', component: SupportGroupForm, canActivate: [authGuard], title: 'Edit Support Group — findtherapy.care' },
   { path: 'support-groups/:id', component: SupportGroupDetail },
+  // Blog routes
+  { path: 'blog', component: BlogList, title: 'Mental Health Blog — findtherapy.care' },
   // Admin routes
   { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
+  { path: 'admin/blog', component: BlogAdmin, canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
+  { path: 'admin/blog/new', component: BlogEditor, canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
+  { path: 'admin/blog/edit/:id', component: BlogEditor, canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },
   // Legal pages
   { path: 'privacy', component: PrivacyComponent, title: 'Privacy Policy — findtherapy.care' },
   { path: 'terms', component: TermsComponent, title: 'Terms of Service — findtherapy.care' },
+  { path: 'terms-of-service', component: TermsOfService, title: 'Terms of Service — findtherapy.care' },
   { path: 'contact', component: ContactComponent, title: 'Contact Us — findtherapy.care' },
   { path: '**', redirectTo: '' }
 ];

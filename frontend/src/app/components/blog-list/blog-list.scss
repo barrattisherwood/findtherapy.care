@@ -1,0 +1,26 @@
+// Blog list specific styles
+.blog-list {
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .featured-post {
+    @apply relative overflow-hidden;
+    
+    &::before {
+      content: '';
+      @apply absolute top-3 left-3 bg-primary-600 text-white px-2 py-1 text-xs font-medium rounded z-10;
+      content: 'Featured';
+    }
+  }
+}
