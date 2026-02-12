@@ -20,9 +20,11 @@
     "build:frontend": "npm run build --workspace=frontend",
     "build:backend": "npm run build --workspace=backend",
     "build": "npm run build:shared && npm run build:frontend && npm run build:backend",
-    "vercel-build": "npm run build:shared && npm run build:frontend"
+    "vercel-build": "npm run build:shared && npm run build:frontend",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "husky": "^9.1.7"
   }
 }

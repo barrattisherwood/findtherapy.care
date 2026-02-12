@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔨 Running pre-push build checks..."
+
+# Build shared package first
+echo "📦 Building shared package..."
+npm run build:shared || { echo "❌ Shared build failed"; exit 1; }
+
+# Build backend
+echo "🔧 Building backend..."
+npm run build:backend || { echo "❌ Backend build failed"; exit 1; }
+
+# Build frontend
+echo "⚛️  Building frontend..."
+npm run build:frontend || { echo "❌ Frontend build failed"; exit 1; }
+
+echo "✅ All builds passed! Proceeding with push..."
