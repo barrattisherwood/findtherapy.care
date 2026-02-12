@@ -8,7 +8,7 @@ import {
   BlogPostsResponse,
   BlogMetrics 
 } from '@findlocal/shared';
-import { cloudinaryService } from '../services/cloudinaryService';
+import { uploadImage, deleteImage } from '../services/cloudinaryService';
 
 // Get all blog posts (public endpoint)
 export const getBlogPosts = async (req: Request, res: Response): Promise<void> => {
@@ -165,7 +165,7 @@ export const getAdminBlogPosts = async (req: AuthRequest, res: Response): Promis
 // Create new blog post
 export const createBlogPost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!._id;
+    const userId = req.userId!;
     const postData: CreateBlogPostRequest = req.body;
 
     // Generate slug from title if not provided
@@ -226,7 +226,7 @@ export const updateBlogPost = async (req: AuthRequest, res: Response): Promise<v
         return;
       }
       
-      updateData.slug = newSlug;
+      (updateData as any).slug = newSlug;
     }
 
     Object.assign(blogPost, updateData);
@@ -258,7 +258,7 @@ export const deleteBlogPost = async (req: AuthRequest, res: Response): Promise<v
       try {
         const publicId = blogPost.featuredImage.split('/').pop()?.split('.')[0];
         if (publicId) {
-          await cloudinaryService.deleteImage(publicId);
+          await deleteImage(publicId);
         }
       } catch (cloudinaryError) {
         console.error('Failed to delete image from Cloudinary:', cloudinaryError);
@@ -282,15 +282,9 @@ export const uploadFeaturedImage = async (req: AuthRequest, res: Response): Prom
       return;
     }
 
-    const imageUrl = await cloudinaryService.uploadImage(req.file.buffer, {
-      folder: 'blog',
-      transformation: [
-        { width: 1200, height: 630, crop: 'fill' },
-        { quality: 'auto', fetch_format: 'auto' }
-      ]
-    });
+    const result = await uploadImage(req.file.buffer, 'blog', undefined);
 
-    res.json({ url: imageUrl });
+    res.json({ url: result.url });
   } catch (error) {
     res.status(500).json({ 
       message: 'Failed to upload image', 

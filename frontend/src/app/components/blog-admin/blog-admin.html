@@ -28,19 +28,19 @@
         </div>
         <div class="bg-green-50 p-4 rounded-lg">
           <div class="text-2xl font-bold text-green-600">
-            {{ posts().filter(p => p.status === 'published').length }}
+            {{ publishedCount() }}
           </div>
           <div class="text-sm text-green-600">Published</div>
         </div>
         <div class="bg-yellow-50 p-4 rounded-lg">
           <div class="text-2xl font-bold text-yellow-600">
-            {{ posts().filter(p => p.status === 'draft').length }}
+            {{ draftCount() }}
           </div>
           <div class="text-sm text-yellow-600">Drafts</div>
         </div>
         <div class="bg-purple-50 p-4 rounded-lg">
           <div class="text-2xl font-bold text-purple-600">
-            {{ posts().filter(p => p.status === 'scheduled').length }}
+            {{ scheduledCount() }}
           </div>
           <div class="text-sm text-purple-600">Scheduled</div>
         </div>

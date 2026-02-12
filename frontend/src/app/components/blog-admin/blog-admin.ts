@@ -45,13 +45,20 @@ export class BlogAdmin implements OnInit {
       filtered = filtered.filter(post => 
         post.title.toLowerCase().includes(query) ||
         post.excerpt.toLowerCase().includes(query) ||
-        post.categories.some(cat => cat.toLowerCase().includes(query)) ||
-        post.tags.some(tag => tag.toLowerCase().includes(query))
+        post.categories.some((cat: string) => cat.toLowerCase().includes(query)) ||
+        post.tags.some((tag: string) => tag.toLowerCase().includes(query))
       );
     }
     
     return filtered;
   });
+
+  publishedCount = computed(() => this.posts().filter(p => p.status === 'published').length);
+  draftCount = computed(() => this.posts().filter(p => p.status === 'draft').length);
+  scheduledCount = computed(() => this.posts().filter(p => p.status === 'scheduled').length);
+  
+  // Make Math available in template
+  Math = Math;
 
   ngOnInit(): void {
     this.loadPosts();

@@ -1,0 +1,286 @@
+<div class="min-h-screen bg-gray-50">
+  <app-navbar />
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">
+            {{ isEditing() ? 'Edit Blog Post' : 'Create New Blog Post' }}
+          </h1>
+          <p class="text-gray-600 mt-1">Share insights about mental health and wellness</p>
+        </div>
+        <button
+          (click)="cancel()"
+          class="text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage()" class="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+      <div class="flex">
+        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-green-800">{{ successMessage() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage()" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <div class="flex">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">Error</h3>
+          <div class="mt-2 text-sm text-red-700">{{ errorMessage() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="blogForm" class="space-y-8">
+      <!-- Main Content -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <!-- Title -->
+        <div class="mb-6">
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+            Title *
+          </label>
+          <input
+            type="text"
+            id="title"
+            formControlName="title"
+            (blur)="generateSeoTitle()"
+            class="form-input"
+            placeholder="Enter your blog post title"
+          />
+          <div *ngIf="isFieldInvalid('title')" class="error">
+            {{ getFieldError('title') }}
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="mb-6">
+          <label for="content" class="block text-sm font-medium text-gray-700 mb-2">
+            Content *
+          </label>
+          <textarea
+            id="content"
+            formControlName="content"
+            (blur)="generateExcerpt()"
+            class="form-textarea"
+            rows="20"
+            placeholder="Write your blog post content here..."
+          ></textarea>
+          <div *ngIf="isFieldInvalid('content')" class="error">
+            {{ getFieldError('content') }}
+          </div>
+        </div>
+
+        <!-- Excerpt -->
+        <div class="mb-6">
+          <label for="excerpt" class="block text-sm font-medium text-gray-700 mb-2">
+            Excerpt *
+          </label>
+          <textarea
+            id="excerpt"
+            formControlName="excerpt"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            rows="3"
+            placeholder="Brief summary of your post (max 300 characters)"
+            maxlength="300"
+          ></textarea>
+          <div *ngIf="isFieldInvalid('excerpt')" class="error">
+            {{ getFieldError('excerpt') }}
+          </div>
+        </div>
+
+        <!-- Featured Image -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Featured Image
+          </label>
+          
+          <div *ngIf="featuredImagePreview()" class="mb-4">
+            <img [src]="featuredImagePreview()" alt="Featured image preview" class="preview-image rounded-lg">
+            <button
+              type="button"
+              (click)="removeFeaturedImage()"
+              class="mt-2 text-sm text-red-600 hover:text-red-800"
+            >
+              Remove image
+            </button>
+          </div>
+
+          <input
+            type="file"
+            (change)="onFileSelected($event)"
+            accept="image/*"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+          />
+          <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB</p>
+        </div>
+
+        <!-- Categories and Tags -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="categories" class="block text-sm font-medium text-gray-700 mb-2">
+              Categories
+            </label>
+            <input
+              type="text"
+              id="categories"
+              formControlName="categories"
+              class="form-input"
+              placeholder="mental-health, therapy, wellness (comma separated)"
+            />
+          </div>
+          <div>
+            <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
+              Tags
+            </label>
+            <input
+              type="text"
+              id="tags"
+              formControlName="tags"
+              class="form-input"
+              placeholder="anxiety, depression, mindfulness (comma separated)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO Settings -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">SEO Settings</h3>
+        
+        <div class="mb-6">
+          <label for="seoTitle" class="block text-sm font-medium text-gray-700 mb-2">
+            SEO Title
+          </label>
+          <input
+            type="text"
+            id="seoTitle"
+            formControlName="seoTitle"
+            class="form-input"
+            placeholder="Custom title for search engines (max 60 characters)"
+            maxlength="60"
+          />
+          <p class="text-xs text-gray-500 mt-1">Leave empty to use the post title</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="seoDescription" class="block text-sm font-medium text-gray-700 mb-2">
+            SEO Description
+          </label>
+          <textarea
+            id="seoDescription"
+            formControlName="seoDescription"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            rows="3"
+            placeholder="Custom description for search engines (max 160 characters)"
+            maxlength="160"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Publishing Settings -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Publishing Settings</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
+            <select
+              id="status"
+              formControlName="status"
+              class="form-input"
+            >
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+              <option value="scheduled">Scheduled</option>
+            </select>
+          </div>
+
+          <div *ngIf="blogForm.get('status')?.value === 'scheduled'">
+            <label for="scheduledFor" class="block text-sm font-medium text-gray-700 mb-2">
+              Publish Date & Time
+            </label>
+            <input
+              type="datetime-local"
+              id="scheduledFor"
+              formControlName="scheduledFor"
+              class="form-input"
+            />
+          </div>
+        </div>
+
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="commentsEnabled"
+            formControlName="commentsEnabled"
+            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+          />
+          <label for="commentsEnabled" class="ml-2 block text-sm text-gray-700">
+            Enable comments
+          </label>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex flex-col sm:flex-row gap-4 justify-end">
+          <button
+            type="button"
+            (click)="cancel()"
+            class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          
+          <button
+            type="button"
+            (click)="onSubmit()"
+            [disabled]="loading() || !blogForm.valid"
+            class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            Save Draft
+          </button>
+
+          <button
+            type="button"
+            *ngIf="blogForm.get('status')?.value === 'scheduled'"
+            (click)="onSchedule()"
+            [disabled]="loading() || !blogForm.valid"
+            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+          >
+            {{ loading() ? 'Scheduling...' : 'Schedule Post' }}
+          </button>
+
+          <button
+            type="button"
+            (click)="onPublish()"
+            [disabled]="loading() || !blogForm.valid"
+            class="px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50"
+          >
+            {{ loading() ? 'Publishing...' : (isEditing() ? 'Update Post' : 'Publish Post') }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <app-footer />
+</div>

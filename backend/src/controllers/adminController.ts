@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
-import User from '../models/User';
-import Provider from '../models/Provider';
-import SupportGroup from '../models/SupportGroup';
-import PaymentEvent from '../models/PaymentEvent';
+import { User } from '../models/User';
+import { Provider } from '../models/Provider';
+import { SupportGroup } from '../models/SupportGroup';
+import { PaymentEvent } from '../models/PaymentEvent';
 import { SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 import {
   DashboardMetrics,

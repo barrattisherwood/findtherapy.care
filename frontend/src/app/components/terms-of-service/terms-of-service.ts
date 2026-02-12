@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Footer } from '../footer/footer';
 import { Navbar } from '../navbar/navbar';
 
 @Component({
   selector: 'app-terms-of-service',
   standalone: true,
-  imports: [CommonModule, RouterLink, Footer, Navbar],
+  imports: [CommonModule, Footer, Navbar],
   templateUrl: './terms-of-service.html',
   styleUrl: './terms-of-service.scss'
 })
