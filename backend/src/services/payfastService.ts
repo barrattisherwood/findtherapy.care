@@ -66,8 +66,9 @@ export const generateSignature = (data: Record<string, string>, passphrase?: str
   let pfOutput = '';
   for (const key of Object.keys(data)) {
     const value = data[key];
-    if (value !== undefined && value !== null && value !== '' && key !== 'signature') {
-      pfOutput += `${key}=${encodeURIComponent(value.trim()).replace(/%20/g, '+')}&`;
+    // Skip signature field, undefined, null, and empty strings
+    if (value !== undefined && value !== null && String(value).trim() !== '' && key !== 'signature') {
+      pfOutput += `${key}=${encodeURIComponent(String(value).trim()).replace(/%20/g, '+')}&`;
     }
   }
 

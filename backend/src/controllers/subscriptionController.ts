@@ -83,6 +83,8 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
 // Handle PayFast ITN (Instant Transaction Notification)
 export const handleITN = async (req: Request, res: Response) => {
   try {
+    console.log('[ITN] Received ITN from PayFast:', JSON.stringify(req.body, null, 2));
+    
     const pfData = req.body;
     const pfPaymentId = pfData.pf_payment_id;
 
@@ -90,26 +92,40 @@ export const handleITN = async (req: Request, res: Response) => {
     if (pfPaymentId) {
       const existingEvent = await PaymentEvent.findOne({ pfPaymentId });
       if (existingEvent) {
+        console.log('[ITN] Duplicate ITN detected, returning OK');
         return res.status(200).send('OK');
       }
     }
 
-    // Build param string for validation
-    const pfParamString = Object.keys(pfData)
-      .map(key => `${key}=${encodeURIComponent(pfData[key]).replace(/%20/g, '+')}`)
+    // Build param string for validation - exclude signature and empty values
+    const paramsForValidation: Record<string, string> = {};
+    for (const [key, value] of Object.entries(pfData)) {
+      if (key !== 'signature' && value !== undefined && value !== null && String(value).trim() !== '') {
+        paramsForValidation[key] = String(value);
+      }
+    }
+
+    const pfParamString = Object.keys(paramsForValidation)
+      .map(key => `${key}=${encodeURIComponent(String(paramsForValidation[key])).replace(/%20/g, '+')}`)
       .join('&');
 
+    console.log('[ITN] Validating signature with params:', pfParamString);
+
     // Validate ITN
-    const isValid = await validateITN({ ...pfData }, pfParamString);
+    const isValid = await validateITN({ ...paramsForValidation }, pfParamString);
     if (!isValid) {
-      console.error('Invalid ITN received');
+      console.error('[ITN] Invalid ITN received - signature mismatch');
       return res.status(400).send('Invalid ITN');
     }
+
+    console.log('[ITN] Signature valid, processing payment...');
 
     // Get payment details
     const paymentId = pfData.m_payment_id;
     const paymentStatus = pfData.payment_status;
     const token = pfData.token; // Subscription token for future charges
+
+    console.log('[ITN] Payment details:', { paymentId, paymentStatus, token });
 
     // Find provider by payment ID
     let providerId: string | undefined;
