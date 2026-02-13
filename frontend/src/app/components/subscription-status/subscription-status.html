@@ -52,7 +52,42 @@
           </div>
         </div>
       } @else {
-        <!-- User hasn't subscribed yet - show subscribe button -->
+        <!-- User hasn't subscribed yet - show payment explanation and subscribe button -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-5">
+          <h4 class="text-blue-900 font-semibold mb-2 text-sm flex items-center gap-2">
+            <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            What happens when you subscribe?
+          </h4>
+          <ul class="space-y-2 text-xs text-blue-800">
+            <li class="flex items-start gap-2">
+              <svg class="h-3.5 w-3.5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span><strong class="font-semibold">No payment today</strong> - You'll complete a R0.00 transaction to set up your subscription</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="h-3.5 w-3.5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span><strong class="font-semibold">Continue your free trial</strong> - Your profile stays visible for the full trial period</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="h-3.5 w-3.5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span><strong class="font-semibold">Automatic billing after trial</strong> - R{{ subscriptionPrice }}/month starts on {{ trialEndsAt | date:'mediumDate' }}</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="h-3.5 w-3.5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span><strong class="font-semibold">Cancel anytime</strong> - No charges if you cancel before {{ trialEndsAt | date:'mediumDate' }}</span>
+            </li>
+          </ul>
+        </div>
+
         <button
           (click)="subscribe()"
           [disabled]="loading()"
@@ -67,7 +102,7 @@
               Processing...
             </span>
           } @else {
-            Subscribe Now - R{{ subscriptionPrice }}/month
+            Complete Setup - No Payment Today
           }
         </button>
       }
@@ -92,6 +127,38 @@
           </div>
         </div>
       </div>
+
+      <!-- Payment Details -->
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
+        <h4 class="text-gray-900 font-semibold mb-2 text-sm">Subscription Details</h4>
+        <ul class="space-y-2 text-sm text-gray-700">
+          <li class="flex items-start gap-2">
+            <svg class="h-4 w-4 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span><strong class="font-medium">R{{ subscriptionPrice }}/month</strong> billed monthly</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="h-4 w-4 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Profile visible in search results</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="h-4 w-4 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Secure payment via PayFast</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="h-4 w-4 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Cancel anytime - no contracts</span>
+          </li>
+        </ul>
+      </div>
+
       <button
         (click)="subscribe()"
         [disabled]="loading()"
@@ -114,10 +181,51 @@
 
   <!-- Not Subscribed (no trial) -->
   @else if (status === 'none' && accessStatus === 'none') {
-    <div class="mb-4">
-      <p class="text-gray-600 mb-4">
+    <div class="mb-6">
+      <p class="text-gray-600 mb-6">
         Subscribe to have your profile listed publicly. Potential clients will be able to find you in search results.
       </p>
+
+      <!-- How Payment Works -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-5 mb-6">
+        <h4 class="text-blue-900 font-semibold mb-3 flex items-center gap-2">
+          <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          How Payment Works
+        </h4>
+        <ol class="space-y-3 text-sm text-blue-800">
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full font-semibold text-xs">1</span>
+            <div>
+              <strong class="font-semibold">Start your free 2-month trial</strong>
+              <p class="text-blue-700 mt-0.5">Your profile becomes visible immediately, no payment required upfront</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full font-semibold text-xs">2</span>
+            <div>
+              <strong class="font-semibold">Complete payment setup (R0.00)</strong>
+              <p class="text-blue-700 mt-0.5">Secure your subscription - you won't be charged anything today</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full font-semibold text-xs">3</span>
+            <div>
+              <strong class="font-semibold">Enjoy 2 months completely free</strong>
+              <p class="text-blue-700 mt-0.5">Your profile stays visible, clients can find and contact you</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="flex-shrink-0 flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full font-semibold text-xs">4</span>
+            <div>
+              <strong class="font-semibold">After trial: R{{ subscriptionPrice }}/month</strong>
+              <p class="text-blue-700 mt-0.5">Billing starts automatically - cancel anytime before trial ends with no charges</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
       <button
         (click)="subscribe()"
         [disabled]="loading()"
@@ -132,7 +240,7 @@
             Processing...
           </span>
         } @else {
-          Subscribe Now - R{{ subscriptionPrice }}/month
+          Start Free Trial - No Payment Today
         }
       </button>
     </div>
