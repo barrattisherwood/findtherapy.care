@@ -154,10 +154,14 @@ export const validateITN = async (
   const signature = pfData.signature;
   delete pfData.signature;
 
-  const generatedSignature = generateSignature(pfData, PAYFAST_PASSPHRASE);
+  // For ITN validation, we must include ALL fields PayFast sent, even empty ones
+  // This is different from when we generate signatures for outgoing data
+  const generatedSignature = generateSignatureForITN(pfData, PAYFAST_PASSPHRASE);
 
   if (generatedSignature !== signature) {
-    console.error('PayFast signature mismatch');
+    console.error('[PayFast] Signature mismatch');
+    console.error('[PayFast] Expected:', signature);
+    console.error('[PayFast] Generated:', generatedSignature);
     return false;
   }
 
@@ -182,6 +186,36 @@ export const validateITN = async (
   }
 
   return true;
+};
+
+// Generate signature for ITN validation (includes empty fields)
+const generateSignatureForITN = (data: Record<string, string>, passphrase?: string): string => {
+  // For ITN, include ALL fields PayFast sent, even if they're empty strings
+  // Only exclude undefined/null and the signature field itself
+  let pfOutput = '';
+  
+  for (const key of Object.keys(data)) {
+    const value = data[key];
+    // Only skip signature field, undefined, and null (keep empty strings!)
+    if (value !== undefined && value !== null && key !== 'signature') {
+      pfOutput += `${key}=${encodeURIComponent(String(value)).replace(/%20/g, '+')}&`;
+    }
+  }
+
+  // Remove last ampersand
+  pfOutput = pfOutput.slice(0, -1);
+
+  // Add passphrase if provided
+  if (passphrase && passphrase.trim()) {
+    pfOutput += `&passphrase=${passphrase.trim()}`;
+  }
+
+  // Debug logging
+  console.log('[PayFast ITN] Signature string:', pfOutput);
+  const signature = crypto.createHash('md5').update(pfOutput).digest('hex');
+  console.log('[PayFast ITN] Generated signature:', signature);
+
+  return signature;
 };
 
 // Get PayFast checkout URL
