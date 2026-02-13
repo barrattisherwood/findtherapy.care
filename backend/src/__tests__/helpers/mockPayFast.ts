@@ -69,11 +69,13 @@ export const generateTestSignature = (
   data: Record<string, string>,
   passphrase: string = mockPayFastConfig.PAYFAST_PASSPHRASE
 ): string => {
-  // Use natural field order (NOT alphabetical) as per PayFast support
+  // Match the exact logic in payfastService.ts
   let pfOutput = '';
   for (const key of Object.keys(data)) {
-    if (data[key] !== '' && key !== 'signature') {
-      pfOutput += `${key}=${encodeURIComponent(data[key].trim()).replace(/%20/g, '+')}&`;
+    const value = data[key];
+    // Skip signature field, undefined, null, and empty strings (matches service logic)
+    if (value !== undefined && value !== null && String(value).trim() !== '' && key !== 'signature') {
+      pfOutput += `${key}=${encodeURIComponent(String(value).trim()).replace(/%20/g, '+')}&`;
     }
   }
   pfOutput = pfOutput.slice(0, -1);

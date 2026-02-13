@@ -97,22 +97,15 @@ export const handleITN = async (req: Request, res: Response) => {
       }
     }
 
-    // Build param string for validation - exclude signature and empty values
-    const paramsForValidation: Record<string, string> = {};
-    for (const [key, value] of Object.entries(pfData)) {
-      if (key !== 'signature' && value !== undefined && value !== null && String(value).trim() !== '') {
-        paramsForValidation[key] = String(value);
-      }
-    }
-
-    const pfParamString = Object.keys(paramsForValidation)
-      .map(key => `${key}=${encodeURIComponent(String(paramsForValidation[key])).replace(/%20/g, '+')}`)
+    // Build param string for validation - must match exactly what PayFast sent
+    const pfParamString = Object.keys(pfData)
+      .map(key => `${key}=${encodeURIComponent(pfData[key]).replace(/%20/g, '+')}`)
       .join('&');
 
-    console.log('[ITN] Validating signature with params:', pfParamString);
+    console.log('[ITN] Validating signature with params');
 
-    // Validate ITN
-    const isValid = await validateITN({ ...paramsForValidation }, pfParamString);
+    // Validate ITN - the validateITN function will handle empty value filtering
+    const isValid = await validateITN({ ...pfData }, pfParamString);
     if (!isValid) {
       console.error('[ITN] Invalid ITN received - signature mismatch');
       return res.status(400).send('Invalid ITN');
