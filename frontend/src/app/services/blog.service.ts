@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { 
   BlogPost, 
@@ -42,13 +42,23 @@ export class BlogService {
       if (filters.author) params.append('author', filters.author);
     }
 
-    return this.http.get<BlogPostsResponse>(`${this.apiUrl}?${params}`);
+    return this.http.get<BlogPostsResponse>(`${this.apiUrl}?${params}`).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   getBlogPostBySlug(slug: string): Observable<BlogPost> {
     this.loading.set(true);
     this.error.set(null);
-    return this.http.get<BlogPost>(`${this.apiUrl}/${slug}`);
+    return this.http.get<BlogPost>(`${this.apiUrl}/${slug}`).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   getBlogFilters(): Observable<{ categories: string[], tags: string[] }> {
@@ -76,7 +86,12 @@ export class BlogService {
       if (filters.author) params.append('author', filters.author);
     }
 
-    return this.http.get<BlogPostsResponse>(`${this.apiUrl}/admin/posts?${params}`);
+    return this.http.get<BlogPostsResponse>(`${this.apiUrl}/admin/posts?${params}`).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   getBlogMetrics(): Observable<BlogMetrics> {
@@ -86,19 +101,34 @@ export class BlogService {
   createBlogPost(postData: CreateBlogPostRequest): Observable<BlogPost> {
     this.loading.set(true);
     this.error.set(null);
-    return this.http.post<BlogPost>(`${this.apiUrl}/admin/posts`, postData);
+    return this.http.post<BlogPost>(`${this.apiUrl}/admin/posts`, postData).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   updateBlogPost(id: string, postData: UpdateBlogPostRequest): Observable<BlogPost> {
     this.loading.set(true);
     this.error.set(null);
-    return this.http.put<BlogPost>(`${this.apiUrl}/admin/posts/${id}`, postData);
+    return this.http.put<BlogPost>(`${this.apiUrl}/admin/posts/${id}`, postData).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   deleteBlogPost(id: string): Observable<{ message: string }> {
     this.loading.set(true);
     this.error.set(null);
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/admin/posts/${id}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/admin/posts/${id}`).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   uploadFeaturedImage(file: File): Observable<{ url: string }> {
@@ -108,7 +138,12 @@ export class BlogService {
     const formData = new FormData();
     formData.append('image', file);
     
-    return this.http.post<{ url: string }>(`${this.apiUrl}/admin/upload-image`, formData);
+    return this.http.post<{ url: string }>(`${this.apiUrl}/admin/upload-image`, formData).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
   }
 
   // Utility methods
