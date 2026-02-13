@@ -47,10 +47,9 @@ export interface PayFastPaymentData {
   item_name: string;
   item_description?: string;
   subscription_type?: string;
-  billing_date?: string;
-  recurring_amount?: string;
   frequency?: string;
   cycles?: string;
+  subscription_notify_email?: string;
   signature?: string;
 }
 
@@ -61,7 +60,7 @@ export const isPayFastConfigured = (): boolean => {
 // Generate MD5 signature for PayFast
 export const generateSignature = (data: Record<string, string>, passphrase?: string): string => {
   // Create parameter string - exclude undefined, null, empty strings, and signature field
-  // Use natural field order as per PayFast support guidance (NOT alphabetical)
+  // Fields must be in the exact order they appear in the form/data object
   let pfOutput = '';
   for (const key of Object.keys(data)) {
     const value = data[key];
@@ -73,9 +72,9 @@ export const generateSignature = (data: Record<string, string>, passphrase?: str
   // Remove last ampersand
   pfOutput = pfOutput.slice(0, -1);
 
-  // Add passphrase if provided (append raw, without URL encoding)
-  if (passphrase) {
-    pfOutput += `&${passphrase.trim()}`;
+  // Add passphrase if provided (append raw, no URL encoding, no prefix if empty)
+  if (passphrase && passphrase.trim()) {
+    pfOutput += `&passphrase=${passphrase.trim()}`;
   }
 
   // Debug logging
@@ -100,14 +99,8 @@ export const createSubscriptionPaymentData = (
     return null;
   }
 
-  // Calculate billing date in Y-m-d format (PayFast requirement)
-  // Start billing from today
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const billingDate = `${year}-${month}-${day}`;
-
+  // Build payment data in exact field order for signature generation
+  // This order must match the HTML form order
   const data: PayFastPaymentData = {
     merchant_id: PAYFAST_MERCHANT_ID!,
     merchant_key: PAYFAST_MERCHANT_KEY!,
@@ -120,14 +113,13 @@ export const createSubscriptionPaymentData = (
     amount: amount.toFixed(2),
     item_name: 'findtherapy.care Provider Subscription',
     item_description: 'Monthly subscription for provider listing',
-    subscription_type: '1',
-    billing_date: billingDate,
-    recurring_amount: amount.toFixed(2),
-    frequency: '3', // Monthly
-    cycles: '0', // Indefinite
+    subscription_type: '1', // 1 = subscription
+    frequency: '3', // 3 = monthly
+    cycles: '0', // 0 = indefinite (use 12 for 12 months, etc.)
+    subscription_notify_email: 'true', // Notify subscriber via email
   };
 
-  // Generate signature
+  // Generate signature - must maintain exact field order
   const dataForSig: Record<string, string> = {};
   for (const [key, value] of Object.entries(data)) {
     if (value !== undefined) {
@@ -135,6 +127,8 @@ export const createSubscriptionPaymentData = (
     }
   }
   data.signature = generateSignature(dataForSig, PAYFAST_PASSPHRASE);
+
+  console.log('[PayFast] Created payment data with signature:', data.signature);
 
   return data;
 };
