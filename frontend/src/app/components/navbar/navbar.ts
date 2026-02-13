@@ -20,6 +20,7 @@ export class Navbar {
     return email ? email.charAt(0).toUpperCase() : '?';
   });
   showMobileMenu = false;
+  showUserMenu = signal(false);
   isScrolled = signal(false);
 
   @HostListener('window:scroll')
@@ -33,13 +34,21 @@ export class Navbar {
     if (!target.closest('.mobile-menu') && !target.closest('.mobile-menu-trigger')) {
       this.showMobileMenu = false;
     }
+    if (!target.closest('.user-menu') && !target.closest('.user-menu-trigger')) {
+      this.showUserMenu.set(false);
+    }
   }
 
   toggleMobileMenu(): void {
     this.showMobileMenu = !this.showMobileMenu;
   }
 
+  toggleUserMenu(): void {
+    this.showUserMenu.set(!this.showUserMenu());
+  }
+
   logout(): void {
+    this.showUserMenu.set(false);
     this.authService.logout();
   }
 }

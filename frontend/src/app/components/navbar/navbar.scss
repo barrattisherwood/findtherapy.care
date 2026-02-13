@@ -1,3 +1,27 @@
 :host {
   display: block;
 }
+
+// User dropdown menu styling
+.user-menu {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-menu-trigger {
+  &:hover {
+    .user-avatar {
+      transform: scale(1.05);
+    }
+  }
+}
