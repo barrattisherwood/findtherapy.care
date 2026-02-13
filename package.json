@@ -21,7 +21,7 @@
     "build:backend": "npm run build --workspace=backend",
     "build": "npm run build:shared && npm run build:frontend && npm run build:backend",
     "vercel-build": "npm run build:shared && npm run build:frontend",
-    "prepare": "husky"
+    "prepare": "node -e \"if (process.env.CI === 'true') process.exit(0)\" && husky || true"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
