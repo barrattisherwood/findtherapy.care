@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import Provider from '../models/Provider';
-import PaymentEvent from '../models/PaymentEvent';
+import { Provider } from '../models/Provider';
+import { PaymentEvent } from '../models/PaymentEvent';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -25,7 +25,7 @@ async function fixSubscription() {
     const events = await PaymentEvent.find({ pfPaymentId: paymentId }).sort({ createdAt: -1 });
     
     console.log(`\nFound ${events.length} payment events for payment ${paymentId}:`);
-    events.forEach((event, i) => {
+    events.forEach((event: any, i: number) => {
       console.log(`\n${i + 1}. Event:`, {
         pfPaymentId: event.pfPaymentId,
         mPaymentId: event.mPaymentId,
@@ -47,7 +47,7 @@ async function fixSubscription() {
       });
       
       console.log(`\nFound ${providers.length} providers:`);
-      providers.forEach((provider, i) => {
+      providers.forEach((provider: any, i: number) => {
         console.log(`\n${i + 1}. Provider:`, {
           id: provider._id,
           displayName: provider.displayName,
