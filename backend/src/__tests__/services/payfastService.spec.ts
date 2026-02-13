@@ -248,7 +248,7 @@ describe('PayFast Service', () => {
       );
 
       expect(result!.amount).toBe('150.00');
-      expect(result!.recurring_amount).toBe('150.00');
+      expect(result!.subscription_notify_email).toBe('true');
     });
 
     it('sets subscription_type to 1', async () => {
