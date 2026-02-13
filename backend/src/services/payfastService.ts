@@ -47,6 +47,7 @@ export interface PayFastPaymentData {
   item_name: string;
   item_description?: string;
   subscription_type?: string;
+  billing_date?: string;
   frequency?: string;
   cycles?: string;
   subscription_notify_email?: string;
@@ -93,11 +94,17 @@ export const createSubscriptionPaymentData = (
   amount: number,
   returnUrl: string,
   cancelUrl: string,
-  notifyUrl: string
+  notifyUrl: string,
+  trialMonths: number = 2 // Number of months before first charge (default: 2 months free)
 ): PayFastPaymentData | null => {
   if (!isPayFastConfigured()) {
     return null;
   }
+
+  // Calculate billing date (when first charge should occur)
+  const billingDate = new Date();
+  billingDate.setMonth(billingDate.getMonth() + trialMonths);
+  const billingDateStr = billingDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
   // Build payment data in exact field order for signature generation
   // This order must match the HTML form order
@@ -114,6 +121,7 @@ export const createSubscriptionPaymentData = (
     item_name: 'findtherapy.care Provider Subscription',
     item_description: 'Monthly subscription for provider listing',
     subscription_type: '1', // 1 = subscription
+    billing_date: billingDateStr, // First charge date (after trial period)
     frequency: '3', // 3 = monthly
     cycles: '0', // 0 = indefinite (use 12 for 12 months, etc.)
     subscription_notify_email: 'true', // Notify subscriber via email
