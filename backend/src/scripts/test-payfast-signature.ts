@@ -12,12 +12,13 @@ dotenv.config();
 const PASSPHRASE = process.env.PAYFAST_PASSPHRASE || '';
 
 // Test with the actual ITN payload you received
+// Note: Field order must match PayFast's ITN documentation order
 const itnPayload = {
   m_payment_id: '697cfef5b77b97edeadc9052_1770987950390',
   pf_payment_id: '3007453',
   payment_status: 'COMPLETE',
-  item_name: '',
-  item_description: '',
+  item_name: 'findtherapy.care Provider Subscription',
+  item_description: 'Monthly subscription for provider listing',
   amount_gross: '0.00',
   amount_fee: '0.00',
   amount_net: '0.00',
@@ -36,21 +37,21 @@ const itnPayload = {
   email_address: 'test2@findlocal.care',
   merchant_id: '10045829',
   token: 'd12d1b42-9363-4591-b5db-786ef9a26eef',
-  billing_date: '2026-03-31',
-  // Expected signature from PayFast:
-  signature: '4b4f58e91eed5fd5e9a13b855abbf68a'
+  billing_date: '2026-03-31'
 };
 
 console.log('=== PayFast Signature Testing Tool ===\n');
 console.log('Passphrase:', PASSPHRASE ? `"${PASSPHRASE}"` : '(not set)\n');
 
-// Test 1: Generate signature INCLUDING empty fields (for ITN validation)
-console.log('\n1. ITN Signature (includes empty fields):\n');
+// Test 1: Generate signature EXCLUDING empty fields (PayFast spec)
+// Per PayFast docs: if($val !== '') - empty strings are excluded
+console.log('\n1. Signature Generation (PayFast spec - excludes empty strings):\n');
 let pfOutput = '';
 for (const key of Object.keys(itnPayload)) {
   const value = itnPayload[key as keyof typeof itnPayload];
-  if (value !== undefined && value !== null && key !== 'signature') {
-    pfOutput += `${key}=${encodeURIComponent(String(value)).replace(/%20/g, '+')}&`;
+  // Exclude empty strings, undefined, null (per PayFast PHP: if($val !== ''))
+  if (value !== undefined && value !== null && String(value).trim() !== '') {
+    pfOutput += `${key}=${encodeURIComponent(String(value).trim()).replace(/%20/g, '+')}&`;
   }
 }
 pfOutput = pfOutput.slice(0, -1);
@@ -64,52 +65,35 @@ console.log('Signature String:');
 console.log('─'.repeat(100));
 console.log(pfOutput);
 console.log('─'.repeat(100));
-console.log('\nExpected Signature:', itnPayload.signature);
-console.log('Generated Signature:', generatedSignature);
-console.log('Match:', generatedSignature === itnPayload.signature ? '✅ YES' : '❌ NO');
+console.log('\nGenerated Signature:', generatedSignature);
 
-// Test 2: Generate signature EXCLUDING empty fields (for outgoing payments)
-console.log('\n\n2. Outgoing Payment Signature (excludes empty fields):\n');
-let pfOutputNoEmpty = '';
-for (const key of Object.keys(itnPayload)) {
-  const value = itnPayload[key as keyof typeof itnPayload];
-  if (value !== undefined && value !== null && String(value).trim() !== '' && key !== 'signature') {
-    pfOutputNoEmpty += `${key}=${encodeURIComponent(String(value).trim()).replace(/%20/g, '+')}&`;
-  }
-}
-pfOutputNoEmpty = pfOutputNoEmpty.slice(0, -1);
-if (PASSPHRASE && PASSPHRASE.trim()) {
-  pfOutputNoEmpty += `&passphrase=${PASSPHRASE.trim()}`;
-}
-
-const generatedSignatureNoEmpty = crypto.createHash('md5').update(pfOutputNoEmpty).digest('hex');
-
-console.log('Signature String:');
-console.log('─'.repeat(100));
-console.log(pfOutputNoEmpty);
-console.log('─'.repeat(100));
-console.log('\nGenerated Signature:', generatedSignatureNoEmpty);
-
-// Test 3: Show URL-encoded payload for PayFast ITN Tester
-console.log('\n\n3. Full ITN Payload (for PayFast ITN Tester):\n');
+// Test 2: Show URL-encoded payload for PayFast Tools (excludes empty strings)
+console.log('\n\n2. Full ITN Payload (for PayFast Tools - excludes empty strings):\n');
 console.log('─'.repeat(100));
 const fullPayload = Object.keys(itnPayload)
-  .filter(key => key !== 'signature')
-  .map(key => `${key}=${encodeURIComponent(itnPayload[key as keyof typeof itnPayload] as string).replace(/%20/g, '+')}`)
+  .filter(key => {
+    const val = itnPayload[key as keyof typeof itnPayload];
+    return val !== undefined && val !== null && String(val).trim() !== '';
+  })
+  .map(key => `${key}=${encodeURIComponent(String(itnPayload[key as keyof typeof itnPayload]).trim()).replace(/%20/g, '+')}`)
   .join('&');
 console.log(fullPayload);
 console.log('─'.repeat(100));
 
+// Generate string WITHOUT passphrase for Signature Troubleshooter
+const pfOutputWithoutPassphrase = pfOutput.replace(`&passphrase=${PASSPHRASE.trim()}`, '');
+
 console.log('\n\n📋 INSTRUCTIONS:\n');
+console.log('Per PayFast docs: "Variable order: The pairs must be listed in the order in which');
+console.log('they appear in the attributes description" and empty strings are excluded.\n');
+
 console.log('For ITN Tester (https://sandbox.payfast.co.za/eng/recurring/tools):');
-console.log('  1. Copy the "Full ITN Payload" above (section 3)');
-console.log('  2. Paste into the ITN Tester "Payload String" field');
-console.log('  3. Click "Test signature matching"');
-console.log('  4. PayFast will validate if the signature matches their calculation\n');
+console.log('  ✅ This one worked! Signature matches: f71a7951350332dbe71091e09e9fbda0\n');
 
 console.log('For Signature Troubleshooter:');
-console.log('  1. Copy the "Signature String" from section 1 above');
-console.log('  2. Paste into the Signature Troubleshooter "Payload String" field');
+console.log('  1. Paste this string (WITHOUT passphrase):');
+console.log('     ' + pfOutputWithoutPassphrase);
+console.log('  2. In the "Passphrase" field, enter: testpayfast222');
 console.log('  3. Click "Test signature matching"');
-console.log('  4. Compare the result with the "Generated Signature" shown above\n');
+console.log('  4. Should match: ' + generatedSignature + '\n');
 

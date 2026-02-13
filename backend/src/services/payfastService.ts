@@ -154,8 +154,7 @@ export const validateITN = async (
   const signature = pfData.signature;
   delete pfData.signature;
 
-  // For ITN validation, we must include ALL fields PayFast sent, even empty ones
-  // This is different from when we generate signatures for outgoing data
+  // Validate signature using same logic as outgoing payments (excludes empty strings per PayFast spec)
   const generatedSignature = generateSignatureForITN(pfData, PAYFAST_PASSPHRASE);
 
   if (generatedSignature !== signature) {
@@ -188,17 +187,17 @@ export const validateITN = async (
   return true;
 };
 
-// Generate signature for ITN validation (includes empty fields)
+// Generate signature for ITN validation (same logic as outgoing - excludes empty strings)
 const generateSignatureForITN = (data: Record<string, string>, passphrase?: string): string => {
-  // For ITN, include ALL fields PayFast sent, even if they're empty strings
-  // Only exclude undefined/null and the signature field itself
+  // Per PayFast docs: if($val !== '') - exclude empty strings
+  // Same logic for both outgoing payments and incoming ITN validation
   let pfOutput = '';
   
   for (const key of Object.keys(data)) {
     const value = data[key];
-    // Only skip signature field, undefined, and null (keep empty strings!)
-    if (value !== undefined && value !== null && key !== 'signature') {
-      pfOutput += `${key}=${encodeURIComponent(String(value)).replace(/%20/g, '+')}&`;
+    // Skip signature field, undefined, null, AND empty strings (per PayFast spec)
+    if (value !== undefined && value !== null && String(value).trim() !== '' && key !== 'signature') {
+      pfOutput += `${key}=${encodeURIComponent(String(value).trim()).replace(/%20/g, '+')}&`;
     }
   }
 
