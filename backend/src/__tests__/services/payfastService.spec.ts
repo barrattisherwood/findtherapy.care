@@ -247,7 +247,8 @@ describe('PayFast Service', () => {
         'http://localhost/notify'
       );
 
-      expect(result!.amount).toBe('150.00');
+      expect(result!.amount).toBe('0.00'); // No initial charge during trial
+      expect(result!.recurring_amount).toBe('150.00'); // Charge after trial
       expect(result!.subscription_notify_email).toBe('true');
     });
 
