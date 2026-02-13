@@ -19,6 +19,10 @@ export class Navbar {
     const email = this.currentUser()?.email;
     return email ? email.charAt(0).toUpperCase() : '?';
   });
+  userName = computed(() => {
+    const email = this.currentUser()?.email;
+    return email ? email.split('@')[0] : 'User';
+  });
   showMobileMenu = false;
   showUserMenu = signal(false);
   isScrolled = signal(false);
