@@ -48,6 +48,7 @@ export interface PayFastPaymentData {
   item_description?: string;
   subscription_type?: string;
   billing_date?: string;
+  recurring_amount?: string;
   frequency?: string;
   cycles?: string;
   subscription_notify_email?: string;
@@ -117,11 +118,12 @@ export const createSubscriptionPaymentData = (
     name_first: name.split(' ')[0],
     email_address: email,
     m_payment_id: paymentId,
-    amount: amount.toFixed(2),
+    amount: '1.00', // Small token charge to verify payment method (R1)
     item_name: 'findtherapy.care Provider Subscription',
-    item_description: 'Monthly subscription for provider listing',
+    item_description: `Monthly subscription for provider listing (${trialMonths}-month free trial)`,
     subscription_type: '1', // 1 = subscription
-    billing_date: billingDateStr, // First charge date (after trial period)
+    billing_date: billingDateStr, // First recurring charge date (after trial period)
+    recurring_amount: amount.toFixed(2), // Amount to charge after trial (R150)
     frequency: '3', // 3 = monthly
     cycles: '0', // 0 = indefinite (use 12 for 12 months, etc.)
     subscription_notify_email: 'true', // Notify subscriber via email
