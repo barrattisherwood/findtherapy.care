@@ -30,20 +30,21 @@ app-root {
 }
 
 // Better form field styling with comfortable padding
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="tel"],
-input[type="number"],
-input[type="url"],
-input[type="date"],
-input[type="datetime-local"],
-select,
-textarea {
-  padding: 0.75rem 1rem !important;
+// Don't override inputs with explicit padding classes (like pl-10 for icons)
+input[type="text"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="email"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="password"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="tel"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="number"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="url"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="date"]:not([class*="pl-"]):not([class*="py-"]),
+input[type="datetime-local"]:not([class*="pl-"]):not([class*="py-"]),
+select:not([class*="pl-"]):not([class*="py-"]),
+textarea:not([class*="p-"]) {
+  padding: 0.75rem 1rem;
   
   @media (min-width: 640px) {
-    padding: 0.875rem 1rem !important;
+    padding: 0.875rem 1rem;
   }
 }
 
