@@ -47,10 +47,8 @@ export class SubscriptionService {
 
   // Create PayFast checkout data
   createCheckout(): Observable<PayFastCheckoutResponse> {
-    this.loading.set(true);
     return this.http.post<PayFastCheckoutResponse>(`${this.apiUrl}/create-checkout`, {}).pipe(
       tap({
-        next: () => this.loading.set(false),
         error: () => this.loading.set(false)
       })
     );
@@ -84,6 +82,7 @@ export class SubscriptionService {
 
   // Redirect to PayFast Checkout using form POST
   redirectToCheckout(): void {
+    this.loading.set(true);
     this.createCheckout().subscribe({
       next: (response) => {
         if (response.url && response.data) {
@@ -103,10 +102,12 @@ export class SubscriptionService {
 
           document.body.appendChild(form);
           form.submit();
+          // Keep loading state true - user is being redirected to PayFast
         }
       },
       error: (error) => {
         console.error('Failed to create checkout session:', error);
+        this.loading.set(false);
       }
     });
   }
