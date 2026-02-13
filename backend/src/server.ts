@@ -32,6 +32,8 @@ app.use(cors({
 // Stripe webhook needs raw body (must be before express.json())
 app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }));
 
+// PayFast ITN sends form-urlencoded data
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Global API rate limiter
