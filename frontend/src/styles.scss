@@ -29,6 +29,24 @@ app-root {
   overflow-x: hidden;
 }
 
+// Better form field styling with comfortable padding
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+input[type="datetime-local"],
+select,
+textarea {
+  padding: 0.75rem 1rem !important;
+  
+  @media (min-width: 640px) {
+    padding: 0.875rem 1rem !important;
+  }
+}
+
 @media (max-width: 640px) {
   button, a, input, select, textarea {
     min-height: 44px;
