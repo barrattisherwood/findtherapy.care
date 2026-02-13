@@ -1,91 +1,115 @@
 /**
  * Test script to verify PayFast signature generation
+ * Use with PayFast Integration Tools: https://sandbox.payfast.co.za/eng/recurring/tools
  * Run with: npx ts-node src/scripts/test-payfast-signature.ts
  */
 
 import crypto from 'crypto';
+import dotenv from 'dotenv';
 
-// Test with the example from PayFast documentation
-const testData = {
-  merchant_id: '10029561',
-  merchant_key: '2goig1s9efs6l',
-  return_url: 'https://findtherapy.care/provider/profile?checkout=success',
-  cancel_url: 'https://findtherapy.care/provider/profile?checkout=canceled',
-  notify_url: 'https://api.findtherapy.care/api/subscriptions/notify',
+dotenv.config();
+
+const PASSPHRASE = process.env.PAYFAST_PASSPHRASE || '';
+
+// Test with the actual ITN payload you received
+const itnPayload = {
+  m_payment_id: '697cfef5b77b97edeadc9052_1770987950390',
+  pf_payment_id: '3007453',
+  payment_status: 'COMPLETE',
+  item_name: '',
+  item_description: '',
+  amount_gross: '0.00',
+  amount_fee: '0.00',
+  amount_net: '0.00',
+  custom_str1: '',
+  custom_str2: '',
+  custom_str3: '',
+  custom_str4: '',
+  custom_str5: '',
+  custom_int1: '',
+  custom_int2: '',
+  custom_int3: '',
+  custom_int4: '',
+  custom_int5: '',
   name_first: 'Dr',
+  name_last: '',
   email_address: 'test2@findlocal.care',
-  m_payment_id: '697cfef5b77b97edeadc9052_1770815877809',
-  amount: '150',
-  item_name: 'findtherapy.care Provider Subscription',
-  item_description: 'Monthly subscription for provider listing',
-  subscription_type: '1',
-  frequency: '3',
-  cycles: '12',
-  subscription_notify_email: 'true',
+  merchant_id: '10045829',
+  token: 'd12d1b42-9363-4591-b5db-786ef9a26eef',
+  billing_date: '2026-03-31',
+  // Expected signature from PayFast:
+  signature: '4b4f58e91eed5fd5e9a13b855abbf68a'
 };
 
-const passphrase = 'FurahaFuraha';
-const expectedSignature = '3a0525a489715233cefddf2a3c895d85';
+console.log('=== PayFast Signature Testing Tool ===\n');
+console.log('Passphrase:', PASSPHRASE ? `"${PASSPHRASE}"` : '(not set)\n');
 
-// Generate signature
-function generateSignature(data: Record<string, string>, passphrase?: string): string {
-  let pfOutput = '';
-  
-  // Build parameter string
-  for (const key of Object.keys(data)) {
-    const value = data[key];
-    if (value !== undefined && value !== null && value !== '') {
-      pfOutput += `${key}=${encodeURIComponent(value.trim()).replace(/%20/g, '+')}&`;
-    }
+// Test 1: Generate signature INCLUDING empty fields (for ITN validation)
+console.log('\n1. ITN Signature (includes empty fields):\n');
+let pfOutput = '';
+for (const key of Object.keys(itnPayload)) {
+  const value = itnPayload[key as keyof typeof itnPayload];
+  if (value !== undefined && value !== null && key !== 'signature') {
+    pfOutput += `${key}=${encodeURIComponent(String(value)).replace(/%20/g, '+')}&`;
   }
-  
-  // Remove last ampersand
-  pfOutput = pfOutput.slice(0, -1);
-  
-  // Add passphrase if provided
-  if (passphrase && passphrase.trim()) {
-    pfOutput += `&passphrase=${passphrase.trim()}`;
+}
+pfOutput = pfOutput.slice(0, -1);
+if (PASSPHRASE && PASSPHRASE.trim()) {
+  pfOutput += `&passphrase=${PASSPHRASE.trim()}`;
+}
+
+const generatedSignature = crypto.createHash('md5').update(pfOutput).digest('hex');
+
+console.log('Signature String:');
+console.log('─'.repeat(100));
+console.log(pfOutput);
+console.log('─'.repeat(100));
+console.log('\nExpected Signature:', itnPayload.signature);
+console.log('Generated Signature:', generatedSignature);
+console.log('Match:', generatedSignature === itnPayload.signature ? '✅ YES' : '❌ NO');
+
+// Test 2: Generate signature EXCLUDING empty fields (for outgoing payments)
+console.log('\n\n2. Outgoing Payment Signature (excludes empty fields):\n');
+let pfOutputNoEmpty = '';
+for (const key of Object.keys(itnPayload)) {
+  const value = itnPayload[key as keyof typeof itnPayload];
+  if (value !== undefined && value !== null && String(value).trim() !== '' && key !== 'signature') {
+    pfOutputNoEmpty += `${key}=${encodeURIComponent(String(value).trim()).replace(/%20/g, '+')}&`;
   }
-  
-  console.log('Parameter string:');
-  console.log(pfOutput);
-  console.log('');
-  
-  const signature = crypto.createHash('md5').update(pfOutput).digest('hex');
-  return signature;
+}
+pfOutputNoEmpty = pfOutputNoEmpty.slice(0, -1);
+if (PASSPHRASE && PASSPHRASE.trim()) {
+  pfOutputNoEmpty += `&passphrase=${PASSPHRASE.trim()}`;
 }
 
-// Test signature generation
-console.log('Testing PayFast Signature Generation');
-console.log('=====================================\n');
+const generatedSignatureNoEmpty = crypto.createHash('md5').update(pfOutputNoEmpty).digest('hex');
 
-const generatedSignature = generateSignature(testData, passphrase);
+console.log('Signature String:');
+console.log('─'.repeat(100));
+console.log(pfOutputNoEmpty);
+console.log('─'.repeat(100));
+console.log('\nGenerated Signature:', generatedSignatureNoEmpty);
 
-console.log('Expected signature: ', expectedSignature);
-console.log('Generated signature:', generatedSignature);
-console.log('');
+// Test 3: Show URL-encoded payload for PayFast ITN Tester
+console.log('\n\n3. Full ITN Payload (for PayFast ITN Tester):\n');
+console.log('─'.repeat(100));
+const fullPayload = Object.keys(itnPayload)
+  .filter(key => key !== 'signature')
+  .map(key => `${key}=${encodeURIComponent(itnPayload[key as keyof typeof itnPayload] as string).replace(/%20/g, '+')}`)
+  .join('&');
+console.log(fullPayload);
+console.log('─'.repeat(100));
 
-if (generatedSignature === expectedSignature) {
-  console.log('✅ SUCCESS! Signatures match!');
-} else {
-  console.log('❌ FAILED! Signatures do not match!');
-}
+console.log('\n\n📋 INSTRUCTIONS:\n');
+console.log('For ITN Tester (https://sandbox.payfast.co.za/eng/recurring/tools):');
+console.log('  1. Copy the "Full ITN Payload" above (section 3)');
+console.log('  2. Paste into the ITN Tester "Payload String" field');
+console.log('  3. Click "Test signature matching"');
+console.log('  4. PayFast will validate if the signature matches their calculation\n');
 
-// Test URL encoding
-console.log('\n\nTesting URL Encoding:');
-console.log('=====================\n');
+console.log('For Signature Troubleshooter:');
+console.log('  1. Copy the "Signature String" from section 1 above');
+console.log('  2. Paste into the Signature Troubleshooter "Payload String" field');
+console.log('  3. Click "Test signature matching"');
+console.log('  4. Compare the result with the "Generated Signature" shown above\n');
 
-const testCases = [
-  { input: 'findtherapy.care Provider Subscription', expected: 'findtherapy.care+Provider+Subscription' },
-  { input: 'Monthly subscription for provider listing', expected: 'Monthly+subscription+for+provider+listing' },
-  { input: 'https://findtherapy.care/provider/profile?checkout=success', expected: 'https%3A%2F%2Ffindtherapy.care%2Fprovider%2Fprofile%3Fcheckout%3Dsuccess' },
-];
-
-for (const test of testCases) {
-  const encoded = encodeURIComponent(test.input).replace(/%20/g, '+');
-  const match = encoded === test.expected ? '✅' : '❌';
-  console.log(`${match} Input: ${test.input}`);
-  console.log(`   Expected: ${test.expected}`);
-  console.log(`   Got:      ${encoded}`);
-  console.log('');
-}
