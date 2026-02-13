@@ -51,7 +51,7 @@ async function fixSubscription() {
         console.log(`\n${i + 1}. Provider:`, {
           id: provider._id,
           displayName: provider.displayName,
-          email: provider.email,
+          userId: provider.userId,
           subscriptionStatus: provider.subscriptionStatus,
           payfastPaymentId: provider.payfastPaymentId,
           payfastSubscriptionToken: provider.payfastSubscriptionToken,
@@ -83,7 +83,7 @@ async function fixSubscription() {
     console.log('\n--- Current Provider Status ---');
     console.log('ID:', provider._id.toString());
     console.log('Name:', provider.displayName);
-    console.log('Email:', provider.email);
+    console.log('User ID:', provider.userId);
     console.log('Subscription Status:', provider.subscriptionStatus);
     console.log('PayFast Payment ID:', provider.payfastPaymentId);
     console.log('PayFast Token:', provider.payfastSubscriptionToken);
