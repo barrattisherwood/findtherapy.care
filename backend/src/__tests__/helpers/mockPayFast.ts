@@ -69,8 +69,9 @@ export const generateTestSignature = (
   data: Record<string, string>,
   passphrase: string = mockPayFastConfig.PAYFAST_PASSPHRASE
 ): string => {
-  // Match the exact logic in payfastService.ts
+  // Match the exact logic in payfastService.ts - NATURAL order, NOT alphabetical
   let pfOutput = '';
+  
   for (const key of Object.keys(data)) {
     const value = data[key];
     // Skip signature field, undefined, null, and empty strings (matches service logic)

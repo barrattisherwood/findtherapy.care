@@ -103,11 +103,13 @@ export const handleITN = async (req: Request, res: Response) => {
       .join('&');
 
     console.log('[ITN] Validating signature with params');
+    console.log('[ITN] PayFast signature:', pfData.signature);
 
     // Validate ITN - the validateITN function will handle empty value filtering
     const isValid = await validateITN({ ...pfData }, pfParamString);
     if (!isValid) {
       console.error('[ITN] Invalid ITN received - signature mismatch');
+      console.error('[ITN] Full payload:', JSON.stringify(pfData, null, 2));
       return res.status(400).send('Invalid ITN');
     }
 

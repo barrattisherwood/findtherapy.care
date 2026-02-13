@@ -62,8 +62,9 @@ export const isPayFastConfigured = (): boolean => {
 // Generate MD5 signature for PayFast
 export const generateSignature = (data: Record<string, string>, passphrase?: string): string => {
   // Create parameter string - exclude undefined, null, empty strings, and signature field
-  // Fields must be in the exact order they appear in the form/data object
+  // Fields must be in NATURAL order (the order they appear) - NOT alphabetical
   let pfOutput = '';
+  
   for (const key of Object.keys(data)) {
     const value = data[key];
     // Skip signature field, undefined, null, and empty strings
