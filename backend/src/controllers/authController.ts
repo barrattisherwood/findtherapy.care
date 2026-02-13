@@ -49,6 +49,7 @@ export const register = async (req: Request, res: Response) => {
       user: {
         id: user._id.toString(),
         email: user.email,
+        isAdmin: user.isAdmin,
       },
     };
 
@@ -88,6 +89,7 @@ export const login = async (req: Request, res: Response) => {
       user: {
         id: user._id.toString(),
         email: user.email,
+        isAdmin: user.isAdmin,
       },
     };
 
@@ -110,6 +112,7 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
       user: {
         id: user._id.toString(),
         email: user.email,
+        isAdmin: user.isAdmin,
         profile: user.profile,
       }
     });
