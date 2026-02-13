@@ -18,34 +18,59 @@
             <p class="text-primary-800 font-medium mb-2">
               {{ trialDaysRemaining }} days remaining in your free trial
             </p>
-            <p class="text-primary-700 text-sm leading-relaxed">
-              Your profile is visible in search results. Subscribe before your trial ends to keep it visible.
-            </p>
+            @if (status === 'active') {
+              <p class="text-primary-700 text-sm leading-relaxed">
+                Your profile is visible in search results. Billing of R{{ subscriptionPrice }}/month will begin automatically when your trial ends.
+              </p>
+            } @else {
+              <p class="text-primary-700 text-sm leading-relaxed">
+                Your profile is visible in search results. Subscribe before your trial ends to keep it visible.
+              </p>
+            }
           </div>
         </div>
       </div>
       @if (trialEndsAt) {
         <p class="text-sm text-gray-500 mb-5">
-          Trial ends on {{ trialEndsAt | date:'mediumDate' }}
+          @if (status === 'active') {
+            Billing starts on {{ trialEndsAt | date:'mediumDate' }}
+          } @else {
+            Trial ends on {{ trialEndsAt | date:'mediumDate' }}
+          }
         </p>
       }
-      <button
-        (click)="subscribe()"
-        [disabled]="loading()"
-        class="w-full bg-primary-600 text-white px-4 py-3 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-      >
-        @if (loading()) {
-          <span class="inline-flex items-center justify-center">
-            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      @if (status === 'active') {
+        <!-- User already subscribed - show subscription info instead of subscribe button -->
+        <div class="bg-success-50 border border-success-200 rounded-lg p-4">
+          <div class="flex items-center gap-2">
+            <svg class="h-5 w-5 text-success-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Processing...
-          </span>
-        } @else {
-          Subscribe Now - R{{ subscriptionPrice }}/month
-        }
-      </button>
+            <p class="text-success-800 font-medium">
+              Subscription Active - No action needed
+            </p>
+          </div>
+        </div>
+      } @else {
+        <!-- User hasn't subscribed yet - show subscribe button -->
+        <button
+          (click)="subscribe()"
+          [disabled]="loading()"
+          class="w-full bg-primary-600 text-white px-4 py-3 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+        >
+          @if (loading()) {
+            <span class="inline-flex items-center justify-center">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Processing...
+            </span>
+          } @else {
+            Subscribe Now - R{{ subscriptionPrice }}/month
+          }
+        </button>
+      }
     </div>
   }
 
