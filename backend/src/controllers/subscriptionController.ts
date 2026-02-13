@@ -53,6 +53,7 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
     await provider.save();
 
     // Create PayFast payment data
+    // Pass trial end date so billing starts after trial expires
     const paymentData = createSubscriptionPaymentData(
       user.email,
       provider.displayName,
@@ -60,7 +61,8 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
       PAYFAST_SUBSCRIPTION_AMOUNT,
       `${FRONTEND_URL}/provider/profile?checkout=success`,
       `${FRONTEND_URL}/provider/profile?checkout=canceled`,
-      `${BACKEND_URL}/api/subscriptions/notify`
+      `${BACKEND_URL}/api/subscriptions/notify`,
+      provider.trialEndsAt // Billing starts when trial ends
     );
 
     if (!paymentData) {

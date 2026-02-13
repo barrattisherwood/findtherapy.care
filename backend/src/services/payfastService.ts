@@ -96,15 +96,15 @@ export const createSubscriptionPaymentData = (
   returnUrl: string,
   cancelUrl: string,
   notifyUrl: string,
-  trialMonths: number = 2 // Number of months before first charge (default: 2 months free)
+  trialEndDate?: Date // When trial ends (billing starts after this date)
 ): PayFastPaymentData | null => {
   if (!isPayFastConfigured()) {
     return null;
   }
 
   // Calculate billing date (when first charge should occur)
-  const billingDate = new Date();
-  billingDate.setMonth(billingDate.getMonth() + trialMonths);
+  // If trial end date provided and in future, use it. Otherwise start billing now.
+  const billingDate = trialEndDate && trialEndDate > new Date() ? trialEndDate : new Date();
   const billingDateStr = billingDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
   // Build payment data in exact field order for signature generation
@@ -118,9 +118,9 @@ export const createSubscriptionPaymentData = (
     name_first: name.split(' ')[0],
     email_address: email,
     m_payment_id: paymentId,
-    amount: '1.00', // Small token charge to verify payment method (R1)
+    amount: '0.00', // No initial charge - free trial period (PayFast may require min R1 - will notify user if so)
     item_name: 'findtherapy.care Provider Subscription',
-    item_description: `Monthly subscription for provider listing (${trialMonths}-month free trial)`,
+    item_description: 'Monthly subscription for provider listing',
     subscription_type: '1', // 1 = subscription
     billing_date: billingDateStr, // First recurring charge date (after trial period)
     recurring_amount: amount.toFixed(2), // Amount to charge after trial (R150)
