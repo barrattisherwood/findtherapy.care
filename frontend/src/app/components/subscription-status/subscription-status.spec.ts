@@ -29,6 +29,10 @@ describe('SubscriptionStatus Component', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
   describe('Input Properties', () => {
     it('accepts status input with default value none', () => {
       expect(component.status).toBe('none');

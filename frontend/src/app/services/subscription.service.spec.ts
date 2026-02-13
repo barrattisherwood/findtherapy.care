@@ -18,6 +18,7 @@ describe('SubscriptionService', () => {
 
   afterEach(() => {
     httpMock.verify();
+    TestBed.resetTestingModule();
   });
 
   describe('Signal Initialization', () => {
@@ -107,20 +108,13 @@ describe('SubscriptionService', () => {
   });
 
   describe('createCheckout', () => {
-    it('sets loading to true on call', () => {
+    it('does not set loading state (handled by redirectToCheckout)', () => {
       service.createCheckout().subscribe();
-      expect(service.loading()).toBe(true);
+      expect(service.loading()).toBe(false);
 
       const req = httpMock.expectOne(`${environment.apiUrl}/subscriptions/create-checkout`);
       req.flush({ url: 'https://payfast.co.za', data: {} });
-    });
-
-    it('sets loading to false on success', () => {
-      service.createCheckout().subscribe();
-
-      const req = httpMock.expectOne(`${environment.apiUrl}/subscriptions/create-checkout`);
-      req.flush({ url: 'https://payfast.co.za', data: {} });
-
+      
       expect(service.loading()).toBe(false);
     });
 
