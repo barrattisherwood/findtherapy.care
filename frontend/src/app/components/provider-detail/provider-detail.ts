@@ -61,6 +61,10 @@ export class ProviderDetail implements OnInit {
         });
 
         // Add structured data for better SEO
+        const priceRange = p.pricing.individualCounsellingRate 
+          ? `R${p.pricing.individualCounsellingRate}` 
+          : undefined;
+
         this.seo.setStructuredData({
           '@context': 'https://schema.org',
           '@type': 'LocalBusiness',
@@ -73,23 +77,12 @@ export class ProviderDetail implements OnInit {
           email: p.contactEmail,
           address: {
             '@type': 'PostalAddress',
-            streetAddress: p.location.address,
+            streetAddress: p.location.address || p.location.city,
             addressLocality: p.location.city,
             postalCode: p.location.postcode,
             addressCountry: 'ZA'
           },
-          geo: p.location.coordinates ? {
-            '@type': 'GeoCoordinates',
-            latitude: p.location.coordinates.lat,
-            longitude: p.location.coordinates.lng
-          } : undefined,
-          priceRange: p.rates?.standard ? `R${p.rates.standard}` : undefined,
-          openingHoursSpecification: p.availability ? Object.entries(p.availability).map(([day, hours]) => ({
-            '@type': 'OpeningHoursSpecification',
-            dayOfWeek: day.charAt(0).toUpperCase() + day.slice(1),
-            opens: hours.start,
-            closes: hours.end
-          })) : undefined,
+          priceRange: priceRange,
           areaServed: {
             '@type': 'City',
             name: p.location.city
