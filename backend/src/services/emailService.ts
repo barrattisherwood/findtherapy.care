@@ -136,3 +136,72 @@ export const sendContactNotificationEmail = async (
 
   console.log('✅ Contact notification email sent successfully:', result);
 };
+
+export const sendSiteContactEmail = async (
+  name: string,
+  email: string,
+  subject: string,
+  message: string
+): Promise<void> => {
+  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'b4rr4tt@gmail.com';
+
+  // Log contact in development
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== SITE CONTACT FORM ==========');
+    console.log(`From: ${name} (${email})`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Message: ${message}`);
+    console.log('========================================\n');
+  }
+
+  // Skip actual email send if API key not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: ADMIN_EMAIL,
+    replyTo: email,
+    subject: `Site Contact: ${subject}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">Site Contact Form Submission</h2>
+        <p>You have received a new message through the findtherapy.care contact form.</p>
+
+        <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0 0 10px 0;"><strong>From:</strong> ${name}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+          <p style="margin: 0 0 10px 0;"><strong>Subject:</strong> ${subject}</p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;">
+          <p style="margin: 0;"><strong>Message:</strong></p>
+          <p style="margin: 10px 0 0 0; white-space: pre-line;">${message}</p>
+        </div>
+
+        <p>You can reply directly to this email to respond to ${name}.</p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+          findtherapy.care - Site Contact Form
+        </p>
+      </div>
+    `,
+    text: `
+      Site Contact Form Submission
+
+      You have received a new message through the findtherapy.care contact form.
+
+      From: ${name}
+      Email: ${email}
+      Subject: ${subject}
+
+      Message:
+      ${message}
+
+      You can reply directly to this email to respond to ${name}.
+    `,
+  });
+
+  console.log('✅ Site contact email sent successfully:', result);
+};
