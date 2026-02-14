@@ -59,6 +59,42 @@ export class ProviderDetail implements OnInit {
           description: `${p.displayName} is a ${type.toLowerCase()} in ${p.location.city}. Specialties: ${p.specialties.slice(0, 4).join(', ')}. View profile and get in touch.`,
           url: `/providers/${p.id}`,
         });
+
+        // Add structured data for better SEO
+        this.seo.setStructuredData({
+          '@context': 'https://schema.org',
+          '@type': 'LocalBusiness',
+          name: p.displayName,
+          description: p.bio || `${type} specializing in ${p.specialties.slice(0, 3).join(', ')}`,
+          image: p.profileImage || 'https://findtherapy.care/assets/images/placeholder-profile.png',
+          '@id': `https://findtherapy.care/providers/${p.id}`,
+          url: `https://findtherapy.care/providers/${p.id}`,
+          telephone: p.contactPhone || undefined,
+          email: p.contactEmail,
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: p.location.address,
+            addressLocality: p.location.city,
+            postalCode: p.location.postcode,
+            addressCountry: 'ZA'
+          },
+          geo: p.location.coordinates ? {
+            '@type': 'GeoCoordinates',
+            latitude: p.location.coordinates.lat,
+            longitude: p.location.coordinates.lng
+          } : undefined,
+          priceRange: p.rates?.standard ? `R${p.rates.standard}` : undefined,
+          openingHoursSpecification: p.availability ? Object.entries(p.availability).map(([day, hours]) => ({
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: day.charAt(0).toUpperCase() + day.slice(1),
+            opens: hours.start,
+            closes: hours.end
+          })) : undefined,
+          areaServed: {
+            '@type': 'City',
+            name: p.location.city
+          }
+        });
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to load provider');

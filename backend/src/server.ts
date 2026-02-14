@@ -9,6 +9,7 @@ import supportGroupRoutes from './routes/supportGroupRoutes';
 import adminRoutes from './routes/adminRoutes';
 import blogRoutes from './routes/blogRoutes';
 import contactRoutes from './routes/contactRoutes';
+import sitemapRoutes from './routes/sitemapRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
 
@@ -44,6 +45,9 @@ app.use('/api', apiRateLimiter);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'findtherapy.care API is running' });
 });
+
+// Sitemap (no /api prefix for SEO)
+app.use('/sitemap.xml', sitemapRoutes);
 
 // Routes
 app.use('/api/auth', authRoutes);

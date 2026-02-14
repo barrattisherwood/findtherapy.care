@@ -56,4 +56,25 @@ export class SeoService {
     }
     link.setAttribute('href', url);
   }
+
+  setStructuredData(data: any): void {
+    // Remove existing structured data
+    const existingScript = this.doc.querySelector('script[type="application/ld+json"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Add new structured data
+    const script = this.doc.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(data);
+    this.doc.head.appendChild(script);
+  }
+
+  clearStructuredData(): void {
+    const existingScript = this.doc.querySelector('script[type="application/ld+json"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+  }
 }
