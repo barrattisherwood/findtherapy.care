@@ -25,7 +25,7 @@ export const sendPasswordResetEmail = async (
     return;
   }
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: `findtherapy.care <${FROM_EMAIL}>`,
     to: email,
     subject: 'Reset Your Password - findtherapy.care',
@@ -60,6 +60,8 @@ export const sendPasswordResetEmail = async (
       This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
     `,
   });
+
+  console.log('✅ Password reset email sent successfully:', result);
 };
 
 export const sendContactNotificationEmail = async (
@@ -86,7 +88,7 @@ export const sendContactNotificationEmail = async (
     return;
   }
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: `findtherapy.care <${FROM_EMAIL}>`,
     to: providerEmail,
     replyTo: contactEmail,
@@ -131,4 +133,6 @@ export const sendContactNotificationEmail = async (
       You can reply directly to this email to respond to ${contactName}.
     `,
   });
+
+  console.log('✅ Contact notification email sent successfully:', result);
 };
