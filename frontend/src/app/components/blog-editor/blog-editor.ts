@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { BlogService } from '../../services/blog.service';
+import { MarkdownService } from '../../services/markdown.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { BlogPost, CreateBlogPostRequest, UpdateBlogPostRequest } from '@findlocal/shared';
@@ -19,12 +20,15 @@ export class BlogEditor implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private blogService = inject(BlogService);
+  private markdownService = inject(MarkdownService);
 
   isEditing = signal(false);
   postId = signal<string | null>(null);
   loading = this.blogService.loading;
   errorMessage = signal('');
   successMessage = signal('');
+  previewMode = signal(false);
+  markdownPreview = signal('');
   
   blogForm: FormGroup;
   featuredImageFile = signal<File | null>(null);
@@ -129,9 +133,22 @@ export class BlogEditor implements OnInit {
   generateExcerpt(): void {
     const content = this.blogForm.get('content')?.value;
     if (content && !this.blogForm.get('excerpt')?.value) {
-      const excerpt = this.blogService.generateExcerpt(content, 300);
+      const excerpt = this.markdownService.generateExcerpt(content, 300);
       this.blogForm.patchValue({ excerpt });
     }
+  }
+
+  togglePreview(): void {
+    const newMode = !this.previewMode();
+    this.previewMode.set(newMode);
+    if (newMode) {
+      this.updatePreview();
+    }
+  }
+
+  updatePreview(): void {
+    const content = this.blogForm.get('content')?.value || '';
+    this.markdownPreview.set(this.markdownService.renderToString(content));
   }
 
   generateSeoTitle(): void {
