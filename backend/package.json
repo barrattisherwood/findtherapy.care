@@ -11,7 +11,9 @@
     "test:coverage": "jest --coverage",
     "seed": "ts-node src/scripts/seed.ts",
     "migrate": "ts-node src/scripts/migrate-provider-types.ts",
-    "admin": "ts-node src/scripts/set-admin.ts"
+    "admin": "ts-node src/scripts/set-admin.ts",
+    "list-accounts": "ts-node src/scripts/list-accounts.ts",
+    "cleanup": "ts-node src/scripts/cleanup-test-data.ts"
   },
   "dependencies": {
     "@findlocal/shared": "file:../shared",
