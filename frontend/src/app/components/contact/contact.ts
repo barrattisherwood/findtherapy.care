@@ -33,7 +33,7 @@ export class ContactComponent {
     this.error.set('');
 
     try {
-      await this.http.post(`${environment.apiUrl}/api/contact`, {
+      await this.http.post(`${environment.apiUrl}/contact`, {
         name: this.name(),
         email: this.email(),
         subject: this.subject(),
