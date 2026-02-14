@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
+import { AnalyticsService } from '../../services/analytics.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -15,6 +16,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ContactComponent {
   private http = inject(HttpClient);
+  private analytics = inject(AnalyticsService);
 
   name = signal('');
   email = signal('');
@@ -40,6 +42,7 @@ export class ContactComponent {
         message: this.message(),
       }).toPromise();
 
+      this.analytics.trackSiteContactSubmit(this.subject());
       this.submitted.set(true);
     } catch (err: any) {
       console.error('Contact form error:', err);

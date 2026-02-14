@@ -1,6 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SubscriptionService } from '../../services/subscription.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { SubscriptionStatus as SubscriptionStatusType, ProviderAccessStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
 @Component({
@@ -12,6 +13,7 @@ import { SubscriptionStatus as SubscriptionStatusType, ProviderAccessStatus, SUB
 })
 export class SubscriptionStatus {
   private subscriptionService = inject(SubscriptionService);
+  private analytics = inject(AnalyticsService);
 
   @Input() status: SubscriptionStatusType = 'none';
   @Input() accessStatus: ProviderAccessStatus = 'none';
@@ -31,6 +33,7 @@ export class SubscriptionStatus {
   }
 
   subscribe(): void {
+    this.analytics.trackSubscriptionStart(this.subscriptionPrice);
     this.subscriptionService.redirectToCheckout();
   }
 

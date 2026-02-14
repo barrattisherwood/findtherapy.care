@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ProviderService } from '../../services/provider.service';
 import { SubscriptionService } from '../../services/subscription.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { ImageUpload } from '../image-upload/image-upload';
-import { CreateProviderRequest, ProviderType, Certification, ProviderPricing } from '@findlocal/shared';
+import { CreateProviderRequest, ProviderType, Certification, ProviderPricing, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROVIDER_REGISTRATIONS } from '@findlocal/shared';
 
 @Component({
@@ -24,6 +25,7 @@ export class ProviderProfile implements OnInit {
   private route = inject(ActivatedRoute);
   private providerService = inject(ProviderService);
   private subscriptionService = inject(SubscriptionService);
+  private analytics = inject(AnalyticsService);
   private toast = inject(ToastService);
 
   myProvider = this.providerService.myProvider;
@@ -80,6 +82,7 @@ export class ProviderProfile implements OnInit {
     // Check for checkout result
     const checkoutResult = this.route.snapshot.queryParamMap.get('checkout');
     if (checkoutResult === 'success') {
+      this.analytics.trackSubscriptionComplete(this.subscriptionService.subscriptionPrice || SUBSCRIPTION_PRICE_ZAR);
       this.toast.success('Success', 'Subscription activated! Your profile is now visible.');
       this.subscriptionService.getStatus().subscribe();
     } else if (checkoutResult === 'canceled') {

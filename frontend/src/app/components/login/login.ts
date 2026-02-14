@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { Footer } from '../footer/footer';
 
 @Component({
@@ -20,6 +21,7 @@ export class Login {
   loading = signal(false);
 
   private destroy$ = takeUntilDestroyed();
+  private analytics = inject(AnalyticsService);
 
   constructor(
     private authService: AuthService,
@@ -39,6 +41,7 @@ export class Login {
       .pipe(this.destroy$)
       .subscribe({
       next: () => {
+        this.analytics.trackLogin('email');
         this.router.navigate(['/provider/profile']);
       },
       error: (err) => {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProviderService } from '../../services/provider.service';
 import { SeoService } from '../../services/seo.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { ProviderCard } from '../provider-card/provider-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
@@ -24,6 +25,7 @@ export class ProviderList implements OnInit {
 
   private providerService = inject(ProviderService);
   private seo = inject(SeoService);
+  private analytics = inject(AnalyticsService);
 
   providers = this.providerService.providers;
   loading = this.providerService.loading;
@@ -67,6 +69,14 @@ export class ProviderList implements OnInit {
     if (this.selectedCity()) params.city = this.selectedCity();
     if (this.selectedSpecialty()) params.specialty = this.selectedSpecialty();
     if (this.freeConsultation()) params.freeConsultation = true;
+
+    // Track search event
+    this.analytics.trackSearch(
+      this.selectedSpecialty(),
+      this.selectedCity(),
+      this.selectedType() || undefined,
+      this.freeConsultation()
+    );
 
     this.providerService.search(params).subscribe();
   }

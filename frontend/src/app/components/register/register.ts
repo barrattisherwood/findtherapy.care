@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { Footer } from '../footer/footer';
 import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
@@ -24,6 +25,7 @@ export class Register {
   subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
 
   private destroy$ = takeUntilDestroyed();
+  private analytics = inject(AnalyticsService);
 
   constructor(
     private authService: AuthService,
@@ -53,6 +55,7 @@ export class Register {
       .pipe(this.destroy$)
       .subscribe({
       next: () => {
+        this.analytics.trackRegistration('email');
         this.router.navigate(['/provider/profile']);
       },
       error: (err) => {

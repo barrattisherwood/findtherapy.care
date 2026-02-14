@@ -6,6 +6,7 @@ import { ProviderService } from '../../services/provider.service';
 import { ContactService } from '../../services/contact.service';
 import { ToastService } from '../../services/toast';
 import { SeoService } from '../../services/seo.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
@@ -24,6 +25,7 @@ export class ProviderDetail implements OnInit {
   private contactService = inject(ContactService);
   private toast = inject(ToastService);
   private seo = inject(SeoService);
+  private analytics = inject(AnalyticsService);
 
   provider = signal<Provider | null>(null);
   loading = signal<boolean>(true);
@@ -88,6 +90,9 @@ export class ProviderDetail implements OnInit {
             name: p.location.city
           }
         });
+
+        // Track provider view
+        this.analytics.trackProviderView(p.id, p.displayName);
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to load provider');
@@ -157,6 +162,7 @@ export class ProviderDetail implements OnInit {
 
     this.contactService.contactProvider(providerId, data).subscribe({
       next: () => {
+        this.analytics.trackContactFormSubmit(providerId, this.provider()?.displayName || 'Unknown');
         this.toast.success('Message Sent', 'Your message has been sent successfully. The provider will contact you soon.');
         this.toggleContactForm();
         this.submitting.set(false);
