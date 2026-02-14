@@ -1,14 +1,6 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@findtherapy.care';
 const APP_URL = process.env.APP_URL || 'http://localhost:4200';
@@ -27,14 +19,14 @@ export const sendPasswordResetEmail = async (
     console.log('=====================================\n');
   }
 
-  // Skip actual email send in development if SMTP not configured
-  if (process.env.NODE_ENV !== 'production' && !process.env.SMTP_USER) {
-    console.log('(Email send skipped - SMTP not configured)');
+  // Skip actual email send if API key not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
     return;
   }
 
-  const mailOptions = {
-    from: `"findtherapy.care" <${FROM_EMAIL}>`,
+  await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
     to: email,
     subject: 'Reset Your Password - findtherapy.care',
     html: `
@@ -67,9 +59,7 @@ export const sendPasswordResetEmail = async (
 
       This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
     `,
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 export const sendContactNotificationEmail = async (
@@ -90,14 +80,14 @@ export const sendContactNotificationEmail = async (
     console.log('==========================================\n');
   }
 
-  // Skip actual email send in development if SMTP not configured
-  if (process.env.NODE_ENV !== 'production' && !process.env.SMTP_USER) {
-    console.log('(Email send skipped - SMTP not configured)');
+  // Skip actual email send if API key not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
     return;
   }
 
-  const mailOptions = {
-    from: `"findtherapy.care" <${FROM_EMAIL}>`,
+  await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
     to: providerEmail,
     replyTo: contactEmail,
     subject: `New Inquiry from ${contactName} - findtherapy.care`,
@@ -140,7 +130,5 @@ export const sendContactNotificationEmail = async (
 
       You can reply directly to this email to respond to ${contactName}.
     `,
-  };
-
-  await transporter.sendMail(mailOptions);
+  });
 };
