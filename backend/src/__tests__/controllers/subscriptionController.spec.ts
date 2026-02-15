@@ -7,6 +7,7 @@ import {
   createTestProvider,
   createProviderWithActiveSubscription,
   createProviderWithActiveTrial,
+  createFounderProvider,
 } from '../fixtures/providers';
 import { createTestUser } from '../fixtures/users';
 import {
@@ -15,6 +16,7 @@ import {
   createMockITNData,
   generateTestSignature,
 } from '../helpers/mockPayFast';
+import { FOUNDERS_PRICE_ZAR, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
 
 // Import controller functions
 import {
@@ -425,6 +427,93 @@ describe('Subscription Controller', () => {
       await cancelSubscription(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(responseJson).toHaveBeenCalledWith({ message: 'Subscription canceled' });
+    });
+  });
+
+  describe('Founder Pricing', () => {
+    it('uses founder price (R99) in checkout for founder providers', async () => {
+      const user = await createTestUser();
+      await createFounderProvider(user._id.toString(), 1, 180);
+      mockRequest.userId = user._id.toString();
+
+      await createCheckout(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseJson).toHaveBeenCalled();
+      const response = responseJson.mock.calls[0][0];
+      expect(response.data).toBeDefined();
+      // The recurring_amount should be the founder price
+      expect(response.data.recurring_amount).toBe(FOUNDERS_PRICE_ZAR.toFixed(2));
+    });
+
+    it('uses regular price (R150) in checkout for non-founder providers', async () => {
+      const user = await createTestUser();
+      await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'none',
+      });
+      mockRequest.userId = user._id.toString();
+
+      await createCheckout(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseJson).toHaveBeenCalled();
+      const response = responseJson.mock.calls[0][0];
+      expect(response.data.recurring_amount).toBe(SUBSCRIPTION_PRICE_ZAR.toFixed(2));
+    });
+
+    it('returns founder info in subscription status for founder provider', async () => {
+      const user = await createTestUser();
+      await createFounderProvider(user._id.toString(), 5, 180);
+      mockRequest.userId = user._id.toString();
+
+      await getSubscriptionStatus(mockRequest as AuthRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      expect(response.isFounder).toBe(true);
+      expect(response.founderNumber).toBe(5);
+      expect(response.subscriptionPrice).toBe(FOUNDERS_PRICE_ZAR);
+    });
+
+    it('returns non-founder info in subscription status for regular provider', async () => {
+      const user = await createTestUser();
+      await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'none',
+      });
+      mockRequest.userId = user._id.toString();
+
+      await getSubscriptionStatus(mockRequest as AuthRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      expect(response.isFounder).toBe(false);
+      expect(response.founderNumber).toBeUndefined();
+      expect(response.subscriptionPrice).toBe(SUBSCRIPTION_PRICE_ZAR);
+    });
+
+    it('sets initial amount to R0.00 for both founder and regular (free trial)', async () => {
+      const user = await createTestUser();
+      await createFounderProvider(user._id.toString(), 1, 180);
+      mockRequest.userId = user._id.toString();
+
+      await createCheckout(mockRequest as AuthRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      expect(response.data.amount).toBe('0.00');
+    });
+
+    it('sets billing date to trial end date for founders', async () => {
+      const user = await createTestUser();
+      const provider = await createFounderProvider(user._id.toString(), 1, 180);
+      mockRequest.userId = user._id.toString();
+
+      await createCheckout(mockRequest as AuthRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      const billingDate = response.data.billing_date;
+      expect(billingDate).toBeDefined();
+
+      // Billing date should match the trial end date
+      const expectedDate = new Date(provider.trialEndsAt).toISOString().split('T')[0];
+      expect(billingDate).toBe(expectedDate);
     });
   });
 });

@@ -21,6 +21,9 @@ export interface TestProviderOptions {
   payfastSubscriptionToken?: string;
   isPublished?: boolean;
   viewCount?: number;
+  isFounder?: boolean;
+  founderNumber?: number;
+  founderSince?: Date;
 }
 
 export const createTestProvider = async (options: TestProviderOptions = {}): Promise<any> => {
@@ -55,6 +58,9 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     trialEndsAt: options.trialEndsAt,
     payfastPaymentId: options.payfastPaymentId,
     payfastSubscriptionToken: options.payfastSubscriptionToken,
+    isFounder: options.isFounder ?? false,
+    founderNumber: options.founderNumber,
+    founderSince: options.founderSince,
   };
 
   const provider = await Provider.create(providerData);
@@ -103,5 +109,23 @@ export const createProviderWithCanceledSubscription = async (userId: string): Pr
   return createTestProvider({
     userId,
     subscriptionStatus: 'canceled',
+  });
+};
+
+export const createFounderProvider = async (
+  userId: string,
+  founderNumber: number = 1,
+  trialDaysRemaining: number = 180
+): Promise<any> => {
+  const trialEndsAt = new Date();
+  trialEndsAt.setDate(trialEndsAt.getDate() + trialDaysRemaining);
+
+  return createTestProvider({
+    userId,
+    trialEndsAt,
+    subscriptionStatus: 'none',
+    isFounder: true,
+    founderNumber,
+    founderSince: new Date(),
   });
 };

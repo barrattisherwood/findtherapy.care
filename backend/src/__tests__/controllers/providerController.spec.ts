@@ -8,12 +8,20 @@ import {
   createProviderWithExpiredTrial,
   createProviderWithActiveSubscription,
   createProviderWithCanceledSubscription,
+  createFounderProvider,
 } from '../fixtures/providers';
 import { createTestUser } from '../fixtures/users';
 import {
   getProviderAccessStatus,
   hasProviderAccess,
+  createProvider,
 } from '../../controllers/providerController';
+import {
+  FOUNDERS_MAX_SPOTS,
+  FOUNDERS_PROMO_CODE,
+  FOUNDERS_TRIAL_DAYS,
+  TRIAL_PERIOD_DAYS,
+} from '@findlocal/shared';
 
 describe('Provider Controller - Subscription Logic', () => {
   describe('getProviderAccessStatus', () => {
@@ -323,6 +331,241 @@ describe('Provider Controller - Subscription Logic', () => {
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
       expect(diffDays).toBe(trialPeriodDays);
+    });
+
+    it('calculates founder trial end date (180 days) correctly', () => {
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + FOUNDERS_TRIAL_DAYS);
+
+      const now = new Date();
+      const diffTime = trialEnd.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      expect(diffDays).toBe(FOUNDERS_TRIAL_DAYS);
+      expect(FOUNDERS_TRIAL_DAYS).toBeGreaterThan(TRIAL_PERIOD_DAYS);
+    });
+  });
+
+  describe('Founder Provider Creation', () => {
+    let mockResponse: Partial<Response>;
+    let responseJson: jest.Mock;
+    let responseStatus: jest.Mock;
+
+    const validProviderData = {
+      type: 'psychologist',
+      displayName: 'Dr. Founder Test',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: ['PhD Psychology'],
+      registrations: ['HPCSA'],
+      certifications: [],
+      specialties: ['Anxiety & Stress'],
+      pricing: {
+        individualCounsellingRate: 800,
+        offersIntroductoryConsultation: false,
+      },
+      location: {
+        city: 'Cape Town',
+        postcode: '8001',
+      },
+      contactEmail: 'founder@example.com',
+    };
+
+    beforeEach(() => {
+      responseJson = jest.fn();
+      responseStatus = jest.fn().mockReturnThis();
+
+      mockResponse = {
+        json: responseJson,
+        status: responseStatus,
+      };
+    });
+
+    it('creates a founder provider when valid promo code is provided', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const response = responseJson.mock.calls[0][0];
+      expect(response.provider.isFounder).toBe(true);
+      expect(response.provider.founderNumber).toBe(1);
+      expect(response.provider.founderSince).toBeDefined();
+    });
+
+    it('assigns sequential founder numbers', async () => {
+      // Create 3 existing founders
+      for (let i = 0; i < 3; i++) {
+        const existingUser = await createTestUser();
+        await createFounderProvider(existingUser._id.toString(), i + 1);
+      }
+
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      expect(response.provider.isFounder).toBe(true);
+      expect(response.provider.founderNumber).toBe(4);
+    });
+
+    it('grants 180-day trial for founder providers', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+      } as unknown as AuthRequest;
+
+      const beforeDate = new Date();
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      const trialEnd = new Date(response.provider.trialEndsAt);
+
+      // Trial should be approximately FOUNDERS_TRIAL_DAYS from now
+      const expectedEnd = new Date(beforeDate);
+      expectedEnd.setDate(expectedEnd.getDate() + FOUNDERS_TRIAL_DAYS);
+
+      // Allow 2 seconds tolerance for test execution time
+      const diffMs = Math.abs(trialEnd.getTime() - expectedEnd.getTime());
+      expect(diffMs).toBeLessThan(2000);
+    });
+
+    it('creates regular provider without promo code (standard trial)', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData },
+      } as unknown as AuthRequest;
+
+      const beforeDate = new Date();
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const response = responseJson.mock.calls[0][0];
+      expect(response.provider.isFounder).toBe(false);
+      expect(response.provider.founderNumber).toBeUndefined();
+
+      // Trial should be standard TRIAL_PERIOD_DAYS
+      const trialEnd = new Date(response.provider.trialEndsAt);
+      const expectedEnd = new Date(beforeDate);
+      expectedEnd.setDate(expectedEnd.getDate() + TRIAL_PERIOD_DAYS);
+
+      const diffMs = Math.abs(trialEnd.getTime() - expectedEnd.getTime());
+      expect(diffMs).toBeLessThan(2000);
+    });
+
+    it('ignores invalid promo code and creates regular provider', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData, promoCode: 'INVALID' },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const response = responseJson.mock.calls[0][0];
+      expect(response.provider.isFounder).toBe(false);
+      expect(response.provider.founderNumber).toBeUndefined();
+    });
+
+    it('is case-insensitive for promo code', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData, promoCode: 'founder50' },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      const response = responseJson.mock.calls[0][0];
+      expect(response.provider.isFounder).toBe(true);
+    });
+
+    it('does not grant founder status when all spots are taken', async () => {
+      // Fill all founder spots
+      for (let i = 0; i < FOUNDERS_MAX_SPOTS; i++) {
+        const existingUser = await createTestUser();
+        await createFounderProvider(existingUser._id.toString(), i + 1);
+      }
+
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const response = responseJson.mock.calls[0][0];
+      // Provider is created but NOT as founder
+      expect(response.provider.isFounder).toBe(false);
+      expect(response.provider.founderNumber).toBeUndefined();
+    });
+  });
+
+  describe('Founder Provider Model', () => {
+    it('stores founder fields correctly in database', async () => {
+      const user = await createTestUser();
+      const provider = await createFounderProvider(user._id.toString(), 7);
+
+      const dbProvider = await Provider.findById(provider._id);
+      expect(dbProvider?.isFounder).toBe(true);
+      expect(dbProvider?.founderNumber).toBe(7);
+      expect(dbProvider?.founderSince).toBeDefined();
+    });
+
+    it('defaults isFounder to false for regular providers', async () => {
+      const user = await createTestUser();
+      const provider = await createTestProvider({ userId: user._id.toString() });
+
+      const dbProvider = await Provider.findById(provider._id);
+      expect(dbProvider?.isFounder).toBe(false);
+      expect(dbProvider?.founderNumber).toBeUndefined();
+      expect(dbProvider?.founderSince).toBeUndefined();
+    });
+
+    it('founder provider has correct access status while in trial', async () => {
+      const user = await createTestUser();
+      const provider = await createFounderProvider(user._id.toString(), 1, 180);
+
+      const status = getProviderAccessStatus(provider);
+      expect(status).toBe('trial');
+      expect(hasProviderAccess(provider)).toBe(true);
+    });
+
+    it('founder provider can have active subscription after trial', async () => {
+      const user = await createTestUser();
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() - 1); // Expired trial
+
+      const subscriptionEndsAt = new Date();
+      subscriptionEndsAt.setMonth(subscriptionEndsAt.getMonth() + 1);
+
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        isFounder: true,
+        founderNumber: 1,
+        founderSince: new Date(),
+        trialEndsAt,
+        subscriptionStatus: 'active',
+        subscriptionEndsAt,
+      });
+
+      const status = getProviderAccessStatus(provider);
+      expect(status).toBe('active');
+      expect(provider.isFounder).toBe(true);
     });
   });
 });
