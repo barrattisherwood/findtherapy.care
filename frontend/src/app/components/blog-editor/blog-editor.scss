@@ -18,8 +18,9 @@
     object-fit: cover;
   }
 
-  // Markdown preview styling
-  .prose {
+  // Markdown preview styling - use ::ng-deep to pierce Angular's view encapsulation
+  // This is necessary because innerHTML content doesn't get component-scoped attributes
+  ::ng-deep .prose {
     h1 {
       @apply text-3xl font-bold mt-6 mb-4;
     }

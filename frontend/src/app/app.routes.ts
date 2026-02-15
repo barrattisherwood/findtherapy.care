@@ -18,6 +18,7 @@ import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
 import { BlogAdmin } from './components/blog-admin/blog-admin';
 import { BlogEditor } from './components/blog-editor/blog-editor';
 import { BlogList } from './components/blog-list/blog-list';
+import { BlogDetail } from './components/blog-detail/blog-detail';
 import { PrivacyComponent } from './components/privacy/privacy';
 import { TermsComponent } from './components/terms/terms';
 import { TermsOfService } from './components/terms-of-service/terms-of-service';
@@ -45,6 +46,7 @@ export const routes: Routes = [
   { path: 'support-groups/:id', component: SupportGroupDetail },
   // Blog routes
   { path: 'blog', component: BlogList, title: 'Mental Health Blog — findtherapy.care' },
+  { path: 'blog/:slug', component: BlogDetail },
   // Admin routes
   { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
   { path: 'admin/blog', component: BlogAdmin, canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
