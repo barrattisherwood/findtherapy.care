@@ -9,6 +9,7 @@ interface SubscriptionStatusResponse {
   subscriptionEndsAt?: Date;
   trialEndsAt?: Date;
   accessStatus: ProviderAccessStatus;
+  isFounder?: boolean;
 }
 
 interface PayFastCheckoutResponse {
@@ -26,6 +27,7 @@ export class SubscriptionService {
   subscriptionEndsAt = signal<Date | null>(null);
   trialEndsAt = signal<Date | null>(null);
   accessStatus = signal<ProviderAccessStatus>('none');
+  isFounder = signal<boolean>(false);
   loading = signal<boolean>(false);
 
   // Computed: days remaining in trial
@@ -62,6 +64,7 @@ export class SubscriptionService {
         this.subscriptionEndsAt.set(response.subscriptionEndsAt ? new Date(response.subscriptionEndsAt) : null);
         this.trialEndsAt.set(response.trialEndsAt ? new Date(response.trialEndsAt) : null);
         this.accessStatus.set(response.accessStatus);
+        this.isFounder.set(response.isFounder ?? false);
       })
     );
   }
@@ -118,5 +121,6 @@ export class SubscriptionService {
     this.subscriptionEndsAt.set(null);
     this.trialEndsAt.set(null);
     this.accessStatus.set('none');
+    this.isFounder.set(false);
   }
 }

@@ -55,6 +55,9 @@ export interface Provider {
   trialEndsAt?: Date;
   trialEndingReminderSent?: boolean;
   payfastSubscriptionToken?: string;
+  isFounder?: boolean;
+  founderNumber?: number;
+  founderSince?: Date;
   createdAt: Date;
   updatedAt: Date;
 }

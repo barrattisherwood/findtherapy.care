@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProviderService } from '../../services/provider.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { PromoService } from '../../services/promo.service';
 import { ToastService } from '../../services/toast';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
@@ -26,6 +27,7 @@ export class ProviderProfile implements OnInit {
   private providerService = inject(ProviderService);
   private subscriptionService = inject(SubscriptionService);
   private analytics = inject(AnalyticsService);
+  private promoService = inject(PromoService);
   private toast = inject(ToastService);
 
   myProvider = this.providerService.myProvider;
@@ -33,6 +35,7 @@ export class ProviderProfile implements OnInit {
   subscriptionEndsAt = this.subscriptionService.subscriptionEndsAt;
   trialEndsAt = this.subscriptionService.trialEndsAt;
   accessStatus = this.subscriptionService.accessStatus;
+  isFounder = this.subscriptionService.isFounder;
 
   loading = signal<boolean>(true);
   saving = signal<boolean>(false);
@@ -163,11 +166,14 @@ export class ProviderProfile implements OnInit {
         }
       });
     } else {
-      this.providerService.create(data).subscribe({
+      const promoCode = this.promoService.getStoredPromoCode() || undefined;
+      this.providerService.create(data, promoCode).subscribe({
         next: () => {
           this.hasProfile.set(true);
           this.toast.success('Success', 'Profile created successfully.');
           this.saving.set(false);
+          // Clear promo code after successful use
+          this.promoService.clearPromoCode();
         },
         error: (err) => {
           this.toast.error('Error', err.error?.message || 'Failed to create profile.');

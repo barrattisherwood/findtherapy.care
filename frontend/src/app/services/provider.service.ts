@@ -26,8 +26,9 @@ export class ProviderService {
   constructor(private http: HttpClient) {}
 
   // Create provider profile
-  create(data: CreateProviderRequest): Observable<{ provider: Provider }> {
-    return this.http.post<{ provider: Provider }>(this.apiUrl, data).pipe(
+  create(data: CreateProviderRequest, promoCode?: string): Observable<{ provider: Provider }> {
+    const body = promoCode ? { ...data, promoCode } : data;
+    return this.http.post<{ provider: Provider }>(this.apiUrl, body).pipe(
       tap(response => this.myProvider.set(response.provider))
     );
   }

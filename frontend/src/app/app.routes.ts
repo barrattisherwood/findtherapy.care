@@ -23,6 +23,7 @@ import { PrivacyComponent } from './components/privacy/privacy';
 import { TermsComponent } from './components/terms/terms';
 import { TermsOfService } from './components/terms-of-service/terms-of-service';
 import { ContactComponent } from './components/contact/contact';
+import { Founders } from './components/founders/founders';
 
 export const routes: Routes = [
   { path: '', component: Landing, title: 'findtherapy.care — Find therapists and counsellors near you' },
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'pretoria', component: CityLanding, title: 'Therapists in Pretoria — findtherapy.care' },
   { path: 'login', component: Login, title: 'Sign In — findtherapy.care' },
   { path: 'register', component: Register, title: 'Create Account — findtherapy.care' },
+  { path: 'founders', component: Founders, title: 'Founding Supporter Deal — findtherapy.care' },
   { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password — findtherapy.care' },
   { path: 'reset-password', component: ResetPassword, title: 'Reset Password — findtherapy.care' },
   // Provider routes

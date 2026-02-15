@@ -10,6 +10,7 @@ import adminRoutes from './routes/adminRoutes';
 import blogRoutes from './routes/blogRoutes';
 import contactRoutes from './routes/contactRoutes';
 import sitemapRoutes from './routes/sitemapRoutes';
+import promoRoutes from './routes/promoRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
 import { initializeScheduledJobs } from './services/scheduledJobs';
@@ -58,6 +59,7 @@ app.use('/api/support-groups', supportGroupRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/promo', promoRoutes);
 
 // Global error handler (must be after all routes)
 app.use(errorHandler);

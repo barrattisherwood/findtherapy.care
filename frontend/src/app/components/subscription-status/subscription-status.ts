@@ -2,7 +2,7 @@ import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SubscriptionService } from '../../services/subscription.service';
 import { AnalyticsService } from '../../services/analytics.service';
-import { SubscriptionStatus as SubscriptionStatusType, ProviderAccessStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { SubscriptionStatus as SubscriptionStatusType, ProviderAccessStatus, SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR } from '@findlocal/shared';
 
 @Component({
   selector: 'app-subscription-status',
@@ -19,9 +19,13 @@ export class SubscriptionStatus {
   @Input() accessStatus: ProviderAccessStatus = 'none';
   @Input() endsAt: Date | null = null;
   @Input() trialEndsAt: Date | null = null;
+  @Input() isFounder: boolean = false;
 
   loading = this.subscriptionService.loading;
-  subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
+  
+  get subscriptionPrice(): number {
+    return this.isFounder ? FOUNDERS_PRICE_ZAR : SUBSCRIPTION_PRICE_ZAR;
+  }
 
   // Calculate days remaining in trial
   get trialDaysRemaining(): number {

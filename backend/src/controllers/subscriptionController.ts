@@ -10,10 +10,9 @@ import {
   getPayFastUrl,
   mapPaymentStatus,
 } from '../services/payfastService';
-import { SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR } from '@findlocal/shared';
 import { getProviderAccessStatus } from './providerController';
 
-const PAYFAST_SUBSCRIPTION_AMOUNT = SUBSCRIPTION_PRICE_ZAR;
 // FRONTEND_URL may be comma-separated (for CORS); take only the first for redirects
 // Strip trailing slashes to prevent double slashes in URLs
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:4200').split(',')[0].trim().replace(/\/+$/, '');
@@ -52,13 +51,16 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
     provider.payfastPaymentId = paymentId;
     await provider.save();
 
+    // Use founder pricing if applicable
+    const subscriptionAmount = provider.isFounder ? FOUNDERS_PRICE_ZAR : SUBSCRIPTION_PRICE_ZAR;
+
     // Create PayFast payment data
     // Pass trial end date so billing starts after trial expires
     const paymentData = createSubscriptionPaymentData(
       user.email,
       provider.displayName,
       paymentId,
-      PAYFAST_SUBSCRIPTION_AMOUNT,
+      subscriptionAmount,
       `${FRONTEND_URL}/provider/profile?checkout=success`,
       `${FRONTEND_URL}/provider/profile?checkout=canceled`,
       `${BACKEND_URL}/api/subscriptions/notify`,
@@ -182,6 +184,9 @@ export const getSubscriptionStatus = async (req: AuthRequest, res: Response) => 
       subscriptionEndsAt: provider.subscriptionEndsAt,
       trialEndsAt: provider.trialEndsAt,
       accessStatus, // 'trial' | 'active' | 'expired' | 'none'
+      isFounder: provider.isFounder || false,
+      founderNumber: provider.founderNumber,
+      subscriptionPrice: provider.isFounder ? FOUNDERS_PRICE_ZAR : SUBSCRIPTION_PRICE_ZAR,
     });
   } catch (error: any) {
     console.error('Get subscription status error:', error);

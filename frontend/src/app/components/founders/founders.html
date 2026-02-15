@@ -1,0 +1,304 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50">
+  <!-- Hero Section -->
+  <div class="relative bg-gradient-to-br from-primary-700 via-primary-600 to-secondary-600 overflow-hidden">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="text-center">
+        <!-- Badge -->
+        <div class="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-medium mb-8">
+          <svg class="w-5 h-5 mr-2 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          Limited to {{ dealStatus()?.totalSpots || 50 }} founding supporters
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
+          Become a<br>
+          <span class="text-yellow-300">Founding Supporter</span>
+        </h1>
+        
+        <p class="text-xl sm:text-2xl text-primary-100 max-w-3xl mx-auto mb-8">
+          Be among the first {{ dealStatus()?.totalSpots || 50 }} therapists to join findtherapy.care and lock in our exclusive founding rate — forever.
+        </p>
+
+        <!-- Key Benefits -->
+        <div class="flex flex-wrap justify-center gap-6 mb-12 text-white">
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-lg">6 months free</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-lg">R99/month forever</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-6 h-6 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-lg">Founders badge</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-10">
+    <!-- Spots Counter Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+      @if (loading()) {
+        <div class="text-center py-4">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+        </div>
+      } @else if (dealStatus()) {
+        <div class="text-center mb-6">
+          @if (dealStatus()!.isAvailable) {
+            <p class="text-lg font-semibold text-gray-900 mb-2">
+              <span class="text-primary-600 text-3xl font-bold">{{ dealStatus()!.spotsRemaining }}</span>
+              of {{ dealStatus()!.totalSpots }} spots remaining
+            </p>
+          } @else {
+            <p class="text-lg font-semibold text-red-600">All founding supporter spots have been claimed!</p>
+          }
+        </div>
+
+        <!-- Progress bar -->
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-6 overflow-hidden">
+          <div 
+            class="h-4 rounded-full transition-all duration-1000 ease-out"
+            [class.bg-primary-500]="spotsPercentage < 80"
+            [class.bg-yellow-500]="spotsPercentage >= 80 && spotsPercentage < 100"
+            [class.bg-red-500]="spotsPercentage >= 100"
+            [style.width.%]="spotsPercentage"
+          ></div>
+        </div>
+
+        @if (dealStatus()!.isAvailable) {
+          <button 
+            (click)="claimFounderSpot()"
+            class="w-full sm:w-auto px-10 py-4 bg-primary-600 text-white font-bold text-lg rounded-xl hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-lg hover:shadow-xl"
+          >
+            Claim Your Founding Spot
+          </button>
+        }
+      }
+    </div>
+
+    <!-- Pricing Comparison -->
+    <div class="mb-16">
+      <h2 class="text-3xl font-bold text-gray-900 text-center mb-10">What Founding Supporters Get</h2>
+      
+      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <!-- Regular Plan -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 relative">
+          <div class="text-center mb-8">
+            <h3 class="text-lg font-medium text-gray-500 mb-2">Regular Plan</h3>
+            <div class="flex items-baseline justify-center gap-1">
+              <span class="text-4xl font-bold text-gray-900">R150</span>
+              <span class="text-gray-500">/month</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">After 2-month free trial</p>
+          </div>
+          
+          <ul class="space-y-4 text-gray-700">
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              2 months free trial
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Full profile listing
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Client enquiry form
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Cancel anytime
+            </li>
+          </ul>
+        </div>
+
+        <!-- Founders Plan -->
+        <div class="bg-white rounded-2xl shadow-xl border-2 border-primary-500 p-8 relative">
+          <!-- Recommended badge -->
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+            <span class="inline-flex items-center px-4 py-1.5 bg-primary-600 text-white text-sm font-bold rounded-full shadow-lg">
+              <svg class="w-4 h-4 mr-1.5 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+              FOUNDING SUPPORTER
+            </span>
+          </div>
+          
+          <div class="text-center mb-8 mt-2">
+            <h3 class="text-lg font-medium text-primary-600 mb-2">Founders Deal</h3>
+            <div class="flex items-baseline justify-center gap-1">
+              <span class="text-4xl font-bold text-gray-900">R99</span>
+              <span class="text-gray-500">/month</span>
+            </div>
+            <p class="text-sm text-primary-600 font-semibold mt-2">After 6-month free trial</p>
+            <div class="mt-2 inline-flex items-center gap-1">
+              <span class="text-sm text-gray-400 line-through">R150/month</span>
+              <span class="text-sm font-bold text-green-600">Save 34%</span>
+            </div>
+          </div>
+          
+          <ul class="space-y-4 text-gray-700">
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span><strong class="text-primary-700">6 months</strong> free trial</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span><strong class="text-primary-700">R99/month forever</strong> (grandfathered)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span>Exclusive <strong class="text-primary-700">Founding Supporter</strong> badge</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Full profile listing
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Client enquiry form
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              Cancel anytime
+            </li>
+          </ul>
+
+          <div class="mt-8">
+            @if (dealStatus()?.isAvailable) {
+              <button 
+                (click)="claimFounderSpot()"
+                class="w-full py-4 bg-primary-600 text-white font-bold text-lg rounded-xl hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-md"
+              >
+                Claim Founding Spot
+              </button>
+            } @else {
+              <p class="text-center text-red-600 font-medium">All spots claimed</p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="mb-16">
+      <h2 class="text-3xl font-bold text-gray-900 text-center mb-10">How It Works</h2>
+      
+      <div class="grid sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-100 flex items-center justify-center">
+            <span class="text-2xl font-bold text-primary-600">1</span>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Sign Up</h3>
+          <p class="text-gray-600">Create your account using the founding supporter link. Your promo code is automatically applied.</p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-100 flex items-center justify-center">
+            <span class="text-2xl font-bold text-primary-600">2</span>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Build Your Profile</h3>
+          <p class="text-gray-600">Complete your professional profile with your specialties, qualifications, and rates. Go live immediately.</p>
+        </div>
+
+        <div class="text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-primary-100 flex items-center justify-center">
+            <span class="text-2xl font-bold text-primary-600">3</span>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Get Found</h3>
+          <p class="text-gray-600">Clients find your profile when searching for therapists in their area. Your founders badge shows you're an early supporter.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="mb-16">
+      <h2 class="text-3xl font-bold text-gray-900 text-center mb-10">Frequently Asked Questions</h2>
+      
+      <div class="max-w-3xl mx-auto space-y-6">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">What does "grandfathered pricing" mean?</h3>
+          <p class="text-gray-600">Your R99/month rate is locked in permanently. Even as we raise prices in the future, you'll always pay R99/month as long as your subscription remains active.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">When do I need to pay?</h3>
+          <p class="text-gray-600">Not for 6 months! Your founders trial gives you full access for 6 months at no cost. No credit card is needed upfront. After your trial, you'll pay just R99/month via PayFast.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">What is the Founding Supporter badge?</h3>
+          <p class="text-gray-600">As a founding supporter, your profile gets an exclusive badge that shows clients you were among the first therapists to join findtherapy.care. It demonstrates your commitment to making therapy accessible.</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I cancel anytime?</h3>
+          <p class="text-gray-600">Absolutely. You can cancel your subscription at any time. Note that if you cancel and resubscribe later, you'll be on the standard pricing (R150/month).</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">What happens after all 50 spots are taken?</h3>
+          <p class="text-gray-600">New therapists will sign up at our regular pricing: 2-month free trial followed by R150/month. That's why it's worth joining early!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final CTA -->
+    @if (dealStatus()?.isAvailable) {
+      <div class="text-center pb-16">
+        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl p-10 text-white">
+          <h2 class="text-3xl font-bold mb-4">Don't miss your chance</h2>
+          <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+            Only <strong class="text-yellow-300">{{ dealStatus()!.spotsRemaining }} spots</strong> left. 
+            Lock in R99/month forever and get 6 months free.
+          </p>
+          <button 
+            (click)="claimFounderSpot()"
+            class="px-10 py-4 bg-white text-primary-700 font-bold text-lg rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            Become a Founding Supporter
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<app-footer />

@@ -150,6 +150,17 @@ const providerSchema = new Schema<IProvider>(
     subscriptionEndsAt: {
       type: Date,
     },
+    // Founders deal fields
+    isFounder: {
+      type: Boolean,
+      default: false,
+    },
+    founderNumber: {
+      type: Number,
+    },
+    founderSince: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

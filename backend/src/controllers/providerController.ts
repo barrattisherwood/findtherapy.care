@@ -8,6 +8,9 @@ import {
   Provider as ProviderType,
   ProviderAccessStatus,
   TRIAL_PERIOD_DAYS,
+  FOUNDERS_TRIAL_DAYS,
+  FOUNDERS_MAX_SPOTS,
+  FOUNDERS_PROMO_CODE,
   isTrialEnabled,
 } from '@findlocal/shared';
 import { uploadImage, deleteImage, isCloudinaryConfigured } from '../services/cloudinaryService';
@@ -77,6 +80,9 @@ const toProviderResponse = (doc: any): ProviderType => ({
   subscriptionStatus: doc.subscriptionStatus,
   subscriptionEndsAt: doc.subscriptionEndsAt,
   trialEndsAt: doc.trialEndsAt,
+  isFounder: doc.isFounder || false,
+  founderNumber: doc.founderNumber,
+  founderSince: doc.founderSince,
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
 });
@@ -127,6 +133,23 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
     // Set trial end date if trial is enabled
     const trialEndsAt = getTrialEndDate();
 
+    // Check if founder promo code was provided
+    const promoCode = (req.body as any).promoCode;
+    let isFounder = false;
+    let founderNumber: number | undefined;
+    let founderTrialEndsAt = trialEndsAt;
+
+    if (promoCode && promoCode.toUpperCase() === FOUNDERS_PROMO_CODE) {
+      const founderCount = await Provider.countDocuments({ isFounder: true });
+      if (founderCount < FOUNDERS_MAX_SPOTS) {
+        isFounder = true;
+        founderNumber = founderCount + 1;
+        // Override trial to 6 months for founders
+        founderTrialEndsAt = new Date();
+        founderTrialEndsAt.setDate(founderTrialEndsAt.getDate() + FOUNDERS_TRIAL_DAYS);
+      }
+    }
+
     const provider = await Provider.create({
       userId,
       type: data.type,
@@ -143,7 +166,10 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       website: data.website,
       isPublished: true,
       subscriptionStatus: 'none',
-      trialEndsAt,
+      trialEndsAt: founderTrialEndsAt,
+      isFounder,
+      founderNumber,
+      founderSince: isFounder ? new Date() : undefined,
     });
 
     res.status(201).json({ provider: toProviderResponse(provider) });

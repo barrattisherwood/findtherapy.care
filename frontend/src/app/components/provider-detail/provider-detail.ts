@@ -10,7 +10,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
-import { Provider, ContactProviderRequest, ProviderType } from '@findlocal/shared';
+import { Provider, ContactProviderRequest, ProviderType, FOUNDERS_MAX_SPOTS } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-detail',
@@ -38,6 +38,7 @@ export class ProviderDetail implements OnInit {
   contactMessage = signal<string>('');
   submitting = signal<boolean>(false);
   showContactForm = signal<boolean>(false);
+  foundersTotal = FOUNDERS_MAX_SPOTS;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

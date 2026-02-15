@@ -9,6 +9,15 @@ export const TRIAL_PERIOD_DAYS = 60;
 // Monthly subscription price in Rands
 export const SUBSCRIPTION_PRICE_ZAR = 150;
 
+// ===========================================
+// FOUNDERS DEAL CONFIGURATION
+// ===========================================
+// First 50 sign-ups get grandfathered pricing
+export const FOUNDERS_MAX_SPOTS = 50;
+export const FOUNDERS_PRICE_ZAR = 99;
+export const FOUNDERS_TRIAL_DAYS = 180; // 6 months free
+export const FOUNDERS_PROMO_CODE = 'FOUNDER50';
+
 // Helper to check if trial is enabled
 export const isTrialEnabled = () => TRIAL_PERIOD_DAYS > 0;
 

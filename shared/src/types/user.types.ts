@@ -23,6 +23,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
+  promoCode?: string;
 }
 
 export interface ForgotPasswordRequest {
