@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { SafeHtml } from '@angular/platform-browser';
 import { BlogService } from '../../services/blog.service';
 import { MarkdownService } from '../../services/markdown.service';
 import { Navbar } from '../navbar/navbar';
@@ -28,7 +29,7 @@ export class BlogEditor implements OnInit {
   errorMessage = signal('');
   successMessage = signal('');
   previewMode = signal(false);
-  markdownPreview = signal('');
+  markdownPreview = signal<SafeHtml>('');
   
   blogForm: FormGroup;
   featuredImageFile = signal<File | null>(null);
@@ -148,7 +149,7 @@ export class BlogEditor implements OnInit {
 
   updatePreview(): void {
     const content = this.blogForm.get('content')?.value || '';
-    this.markdownPreview.set(this.markdownService.renderToString(content));
+    this.markdownPreview.set(this.markdownService.render(content));
   }
 
   generateSeoTitle(): void {

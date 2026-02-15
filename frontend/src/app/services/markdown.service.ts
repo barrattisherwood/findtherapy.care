@@ -15,14 +15,14 @@ export class MarkdownService {
   }
 
   /**
-   * Convert markdown string to sanitized HTML
+   * Convert markdown string to sanitized HTML (for innerHTML binding)
    */
   render(markdown: string): SafeHtml {
     if (!markdown) return '';
     
     try {
       const rawHtml = marked.parse(markdown) as string;
-      return this.sanitizer.sanitize(1, rawHtml) || '';
+      return this.sanitizer.bypassSecurityTrustHtml(rawHtml);
     } catch (error) {
       console.error('Markdown parsing error:', error);
       return markdown;
