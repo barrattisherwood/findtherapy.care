@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gray-50">
+<div class="blog-editor min-h-screen bg-gray-50">
   <app-navbar />
 
   <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -60,7 +60,7 @@
             id="title"
             formControlName="title"
             (blur)="generateSeoTitle()"
-            class="form-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="Enter your blog post title"
           />
           <div *ngIf="isFieldInvalid('title')" class="error">
@@ -107,7 +107,7 @@
               formControlName="content"
               (input)="updatePreview()"
               (blur)="generateExcerpt()"
-              class="form-textarea"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               rows="20"
               placeholder="Write your blog post content in Markdown...
               
@@ -188,7 +188,7 @@ Example:
               type="text"
               id="categories"
               formControlName="categories"
-              class="form-input"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="mental-health, therapy, wellness (comma separated)"
             />
           </div>
@@ -200,7 +200,7 @@ Example:
               type="text"
               id="tags"
               formControlName="tags"
-              class="form-input"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               placeholder="anxiety, depression, mindfulness (comma separated)"
             />
           </div>
@@ -219,7 +219,7 @@ Example:
             type="text"
             id="seoTitle"
             formControlName="seoTitle"
-            class="form-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             placeholder="Custom title for search engines (max 60 characters)"
             maxlength="60"
           />
@@ -253,7 +253,7 @@ Example:
             <select
               id="status"
               formControlName="status"
-              class="form-input"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
@@ -269,7 +269,7 @@ Example:
               type="datetime-local"
               id="scheduledFor"
               formControlName="scheduledFor"
-              class="form-input"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
         </div>
