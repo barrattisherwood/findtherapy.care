@@ -53,6 +53,7 @@ export interface Provider {
   subscriptionStatus: SubscriptionStatus;
   subscriptionEndsAt?: Date;
   trialEndsAt?: Date;
+  trialEndingReminderSent?: boolean;
   payfastSubscriptionToken?: string;
   createdAt: Date;
   updatedAt: Date;

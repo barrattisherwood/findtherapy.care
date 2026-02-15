@@ -205,3 +205,99 @@ export const sendSiteContactEmail = async (
 
   console.log('✅ Site contact email sent successfully:', result);
 };
+
+export const sendTrialEndingReminderEmail = async (
+  email: string,
+  displayName: string,
+  trialEndsAt: Date
+): Promise<void> => {
+  const daysRemaining = Math.ceil((trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const subscribeUrl = `${APP_URL}/provider-profile`;
+
+  // Log in development
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== TRIAL ENDING REMINDER ==========');
+    console.log(`Provider: ${displayName} (${email})`);
+    console.log(`Days Remaining: ${daysRemaining}`);
+    console.log(`Subscribe URL: ${subscribeUrl}`);
+    console.log('==========================================\n');
+  }
+
+  // Skip actual email send if API key not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: email,
+    subject: 'Your Trial is Ending Soon - findtherapy.care',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">Your Trial is Ending Soon</h2>
+        <p>Hello ${displayName},</p>
+        <p>This is a friendly reminder that your free trial on findtherapy.care will end in <strong>${daysRemaining} days</strong>.</p>
+        
+        <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">
+          <p style="margin: 0; color: #92400e;">
+            <strong>Trial ends:</strong> ${trialEndsAt.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+
+        <p>To continue enjoying the benefits of being listed on our platform and connecting with clients seeking mental health support, please subscribe to one of our plans.</p>
+        
+        <h3 style="color: #374151; margin-top: 30px;">Benefits of subscribing:</h3>
+        <ul style="color: #4b5563; line-height: 1.8;">
+          <li>Maintain your profile visibility to thousands of care seekers</li>
+          <li>Receive direct inquiries from potential clients</li>
+          <li>Manage your profile and availability</li>
+          <li>Access to platform analytics and insights</li>
+        </ul>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${subscribeUrl}"
+             style="background-color: #2563eb; color: white; padding: 12px 32px;
+                    text-decoration: none; border-radius: 8px; display: inline-block;
+                    font-weight: 600;">
+            Subscribe Now
+          </a>
+        </div>
+
+        <p style="color: #666; font-size: 14px;">
+          Have questions? Feel free to reply to this email and we'll be happy to help.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+          findtherapy.care - Connecting care seekers with mental health professionals across South Africa
+        </p>
+      </div>
+    `,
+    text: `
+      Your Trial is Ending Soon
+
+      Hello ${displayName},
+
+      This is a friendly reminder that your free trial on findtherapy.care will end in ${daysRemaining} days.
+
+      Trial ends: ${trialEndsAt.toLocaleDateString('en-ZA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+
+      To continue enjoying the benefits of being listed on our platform and connecting with clients seeking mental health support, please subscribe to one of our plans.
+
+      Benefits of subscribing:
+      - Maintain your profile visibility to thousands of care seekers
+      - Receive direct inquiries from potential clients
+      - Manage your profile and availability
+      - Access to platform analytics and insights
+
+      Subscribe now: ${subscribeUrl}
+
+      Have questions? Feel free to reply to this email and we'll be happy to help.
+
+      findtherapy.care - Connecting care seekers with mental health professionals across South Africa
+    `,
+  });
+
+  console.log('✅ Trial ending reminder email sent successfully:', result);
+};

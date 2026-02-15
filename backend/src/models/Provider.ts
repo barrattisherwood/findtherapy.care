@@ -131,6 +131,10 @@ const providerSchema = new Schema<IProvider>(
     trialEndsAt: {
       type: Date,
     },
+    trialEndingReminderSent: {
+      type: Boolean,
+      default: false,
+    },
     // PayFast subscription fields
     payfastPaymentId: {
       type: String,

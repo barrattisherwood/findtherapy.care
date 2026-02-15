@@ -12,6 +12,7 @@ import contactRoutes from './routes/contactRoutes';
 import sitemapRoutes from './routes/sitemapRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
+import { initializeScheduledJobs } from './services/scheduledJobs';
 
 dotenv.config();
 
@@ -67,6 +68,10 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/findlo
 mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
+    
+    // Initialize scheduled jobs (cron tasks)
+    initializeScheduledJobs();
+    
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
