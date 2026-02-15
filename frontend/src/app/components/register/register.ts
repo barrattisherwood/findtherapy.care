@@ -55,7 +55,7 @@ export class Register {
       .pipe(this.destroy$)
       .subscribe({
       next: () => {
-        this.analytics.trackRegistration('email');
+        this.analytics.trackRegistration('provider');
         this.router.navigate(['/provider/profile']);
       },
       error: (err) => {

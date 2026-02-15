@@ -82,7 +82,7 @@ export class ProviderProfile implements OnInit {
     // Check for checkout result
     const checkoutResult = this.route.snapshot.queryParamMap.get('checkout');
     if (checkoutResult === 'success') {
-      this.analytics.trackSubscriptionComplete(this.subscriptionService.subscriptionPrice || SUBSCRIPTION_PRICE_ZAR);
+      this.analytics.trackSubscriptionComplete(`R${SUBSCRIPTION_PRICE_ZAR} Monthly Subscription`);
       this.toast.success('Success', 'Subscription activated! Your profile is now visible.');
       this.subscriptionService.getStatus().subscribe();
     } else if (checkoutResult === 'canceled') {

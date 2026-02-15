@@ -73,11 +73,12 @@ export class AnalyticsService {
     this.trackEvent('contact_site');
   }
 
-  trackSearch(query: string, city: string, specialty?: string): void {
+  trackSearch(specialty: string, city: string, type?: string, freeConsultation?: boolean): void {
     this.trackEvent('search', {
-      search_term: query,
-      city: city,
-      specialty: specialty
+      specialty: specialty || undefined,
+      city: city || undefined,
+      provider_type: type,
+      free_consultation: freeConsultation
     });
   }
 

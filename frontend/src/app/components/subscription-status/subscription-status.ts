@@ -33,7 +33,7 @@ export class SubscriptionStatus {
   }
 
   subscribe(): void {
-    this.analytics.trackSubscriptionStart(this.subscriptionPrice);
+    this.analytics.trackSubscriptionStart(`R${this.subscriptionPrice} Monthly Subscription`);
     this.subscriptionService.redirectToCheckout();
   }
 

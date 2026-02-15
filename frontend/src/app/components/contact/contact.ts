@@ -42,7 +42,7 @@ export class ContactComponent {
         message: this.message(),
       }).toPromise();
 
-      this.analytics.trackSiteContactSubmit(this.subject());
+      this.analytics.trackSiteContactSubmit();
       this.submitted.set(true);
     } catch (err: any) {
       console.error('Contact form error:', err);

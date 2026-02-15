@@ -41,7 +41,7 @@ export class Login {
       .pipe(this.destroy$)
       .subscribe({
       next: () => {
-        this.analytics.trackLogin('email');
+        this.analytics.trackLogin();
         this.router.navigate(['/provider/profile']);
       },
       error: (err) => {
