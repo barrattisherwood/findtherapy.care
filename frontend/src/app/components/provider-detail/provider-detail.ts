@@ -38,6 +38,7 @@ export class ProviderDetail implements OnInit {
   contactMessage = signal<string>('');
   submitting = signal<boolean>(false);
   showContactForm = signal<boolean>(false);
+  showContactModal = signal<boolean>(false);
   foundersTotal = FOUNDERS_MAX_SPOTS;
 
   ngOnInit(): void {
@@ -126,12 +127,23 @@ export class ProviderDetail implements OnInit {
   toggleContactForm(): void {
     this.showContactForm.set(!this.showContactForm());
     if (!this.showContactForm()) {
-      // Reset form when hiding
       this.contactName.set('');
       this.contactEmail.set('');
       this.contactPhone.set('');
       this.contactMessage.set('');
     }
+  }
+
+  openContactModal(): void {
+    this.showContactModal.set(true);
+  }
+
+  closeContactModal(): void {
+    this.showContactModal.set(false);
+    this.contactName.set('');
+    this.contactEmail.set('');
+    this.contactPhone.set('');
+    this.contactMessage.set('');
   }
 
   submitContactForm(): void {
@@ -165,8 +177,12 @@ export class ProviderDetail implements OnInit {
       next: () => {
         this.analytics.trackContactFormSubmit(providerId, this.provider()?.displayName || 'Unknown');
         this.toast.success('Message Sent', 'Your message has been sent successfully. The provider will contact you soon.');
-        this.toggleContactForm();
         this.submitting.set(false);
+        if (this.showContactModal()) {
+          this.closeContactModal();
+        } else {
+          this.toggleContactForm();
+        }
       },
       error: (err) => {
         this.toast.error('Error', err.error?.message || 'Failed to send message. Please try again.');
