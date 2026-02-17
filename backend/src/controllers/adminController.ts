@@ -118,23 +118,31 @@ export const suspendProvider = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
-    const provider = await Provider.findById(id);
+    const update = suspended
+      ? {
+          $set: {
+            isSuspended: true,
+            isPublished: false,
+            suspensionReason: reason || 'Suspended by admin',
+            suspendedAt: new Date(),
+            suspendedBy: req.userId!,
+          },
+        }
+      : {
+          $set: { isSuspended: false },
+          $unset: { suspensionReason: '', suspendedAt: '', suspendedBy: '' },
+        };
+
+    const provider = await Provider.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: false,
+      select: 'displayName isSuspended isPublished',
+    });
+
     if (!provider) {
       res.status(404).json({ message: 'Provider not found' });
       return;
     }
-
-    provider.isSuspended = suspended;
-    provider.suspensionReason = suspended ? (reason || 'Suspended by admin') : undefined;
-    provider.suspendedAt = suspended ? new Date() : undefined;
-    provider.suspendedBy = suspended ? req.userId! : undefined;
-
-    // Also unpublish when suspending
-    if (suspended) {
-      provider.isPublished = false;
-    }
-
-    await provider.save();
 
     res.json({
       message: `Provider ${suspended ? 'suspended' : 'unsuspended'} successfully`,
