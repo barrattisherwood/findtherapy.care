@@ -4,7 +4,7 @@ import { User } from '../models/User';
 import { Provider } from '../models/Provider';
 import { SupportGroup } from '../models/SupportGroup';
 import { PaymentEvent } from '../models/PaymentEvent';
-import { SUBSCRIPTION_PRICE_ZAR, VetProviderRequest } from '@findlocal/shared';
+import { SUBSCRIPTION_PRICE_ZAR, VetProviderRequest, ProviderAccessStatus } from '@findlocal/shared';
 import {
   DashboardMetrics,
   UserMetrics,
@@ -12,6 +12,173 @@ import {
   RevenueMetrics,
   SupportGroupMetrics,
 } from '@findlocal/shared';
+
+// ============================================
+// Provider Management (full list, suspend, delete)
+// ============================================
+
+// Helper to determine provider access status
+function getProviderAccessStatus(provider: any): ProviderAccessStatus {
+  const now = new Date();
+  if (provider.subscriptionStatus === 'active') return 'active';
+  if (provider.trialEndsAt && new Date(provider.trialEndsAt) > now) return 'trial';
+  if (provider.trialEndsAt && new Date(provider.trialEndsAt) <= now) return 'expired';
+  return 'none';
+}
+
+// List all providers with filtering, sorting, search
+export const getAllProviders = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const filter: any = {};
+
+    // Status filter
+    const status = req.query.status as string;
+    if (status === 'published') filter.isPublished = true;
+    if (status === 'unpublished') filter.isPublished = false;
+    if (status === 'suspended') filter.isSuspended = true;
+
+    // Vetting filter
+    const vetting = req.query.vetting as string;
+    if (['pending', 'approved', 'rejected'].includes(vetting)) {
+      filter.vettingStatus = vetting;
+    }
+
+    // Type filter
+    const type = req.query.type as string;
+    if (['psychologist', 'counsellor', 'social-worker'].includes(type)) {
+      filter.type = type;
+    }
+
+    // Search by name or email
+    const search = req.query.search as string;
+    if (search?.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      filter.$or = [
+        { displayName: searchRegex },
+        { contactEmail: searchRegex },
+      ];
+    }
+
+    // Sort
+    const sortField = req.query.sortBy as string || 'createdAt';
+    const sortDir = req.query.sortDir === 'asc' ? 1 : -1;
+    const allowedSorts = ['createdAt', 'displayName', 'type', 'vettingStatus', 'viewCount'];
+    const sort: any = {};
+    sort[allowedSorts.includes(sortField) ? sortField : 'createdAt'] = sortDir;
+
+    const [providers, total] = await Promise.all([
+      Provider.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .select('displayName type contactEmail vettingStatus isPublished isSuspended subscriptionStatus trialEndsAt viewCount isFounder founderNumber createdAt profileImage'),
+      Provider.countDocuments(filter),
+    ]);
+
+    res.json({
+      providers: providers.map(p => ({
+        id: p._id.toString(),
+        displayName: p.displayName,
+        type: p.type,
+        contactEmail: p.contactEmail,
+        vettingStatus: p.vettingStatus,
+        isPublished: p.isPublished,
+        isSuspended: p.isSuspended || false,
+        subscriptionStatus: p.subscriptionStatus,
+        accessStatus: getProviderAccessStatus(p),
+        trialEndsAt: p.trialEndsAt,
+        viewCount: p.viewCount,
+        isFounder: p.isFounder || false,
+        founderNumber: p.founderNumber,
+        profileImage: p.profileImage,
+        createdAt: p.createdAt,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching all providers:', error);
+    res.status(500).json({ message: 'Failed to fetch providers' });
+  }
+};
+
+// Suspend / unsuspend a provider
+export const suspendProvider = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { suspended, reason } = req.body;
+
+    if (typeof suspended !== 'boolean') {
+      res.status(400).json({ message: 'suspended must be a boolean' });
+      return;
+    }
+
+    const provider = await Provider.findById(id);
+    if (!provider) {
+      res.status(404).json({ message: 'Provider not found' });
+      return;
+    }
+
+    provider.isSuspended = suspended;
+    provider.suspensionReason = suspended ? (reason || 'Suspended by admin') : undefined;
+    provider.suspendedAt = suspended ? new Date() : undefined;
+    provider.suspendedBy = suspended ? req.userId! : undefined;
+
+    // Also unpublish when suspending
+    if (suspended) {
+      provider.isPublished = false;
+    }
+
+    await provider.save();
+
+    res.json({
+      message: `Provider ${suspended ? 'suspended' : 'unsuspended'} successfully`,
+      provider: {
+        id: provider._id.toString(),
+        displayName: provider.displayName,
+        isSuspended: provider.isSuspended,
+        isPublished: provider.isPublished,
+      },
+    });
+  } catch (error) {
+    console.error('Error suspending provider:', error);
+    res.status(500).json({ message: 'Failed to suspend provider' });
+  }
+};
+
+// Delete a provider and their associated user account
+export const deleteProvider = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    const provider = await Provider.findById(id);
+    if (!provider) {
+      res.status(404).json({ message: 'Provider not found' });
+      return;
+    }
+
+    const userId = provider.userId;
+    const displayName = provider.displayName;
+
+    // Delete the provider profile
+    await Provider.findByIdAndDelete(id);
+
+    // Delete the associated user account
+    await User.findByIdAndDelete(userId);
+
+    res.json({
+      message: `Provider "${displayName}" and associated user account deleted successfully`,
+    });
+  } catch (error) {
+    console.error('Error deleting provider:', error);
+    res.status(500).json({ message: 'Failed to delete provider' });
+  }
+};
 
 // ============================================
 // Provider Vetting

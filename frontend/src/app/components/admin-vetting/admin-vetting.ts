@@ -37,7 +37,7 @@ export class AdminVetting implements OnInit {
 
   loadProviders(): void {
     this.loading.set(true);
-    this.adminService.getProviders(this.statusFilter(), this.page()).subscribe({
+    this.adminService.getVettingProviders(this.statusFilter(), this.page()).subscribe({
       next: (response) => {
         this.providers.set(response.providers);
         this.total.set(response.total);

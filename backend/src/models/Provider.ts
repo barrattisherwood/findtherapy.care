@@ -141,6 +141,21 @@ const providerSchema = new Schema<IProvider>(
     vettedBy: {
       type: String,
     },
+    // Suspension
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
+    suspensionReason: {
+      type: String,
+      trim: true,
+    },
+    suspendedAt: {
+      type: Date,
+    },
+    suspendedBy: {
+      type: String,
+    },
     viewCount: {
       type: Number,
       default: 0,

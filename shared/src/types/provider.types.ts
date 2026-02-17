@@ -81,6 +81,12 @@ export interface Provider {
   trialEndsAt?: Date;
   trialEndingReminderSent?: boolean;
   payfastSubscriptionToken?: string;
+  // Suspension
+  isSuspended?: boolean;
+  suspensionReason?: string;
+  suspendedAt?: Date;
+  suspendedBy?: string;
+
   isFounder?: boolean;
   founderNumber?: number;
   founderSince?: Date;

@@ -349,6 +349,7 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     const query: any = {
       isPublished: true,
       vettingStatus: 'approved',
+      isSuspended: { $ne: true },
       $or: [
         { subscriptionStatus: 'active' },
         { trialEndsAt: { $gt: now } },
@@ -400,6 +401,7 @@ export const getProviderById = async (req: AuthRequest, res: Response) => {
         _id: id,
         isPublished: true,
         vettingStatus: 'approved',
+        isSuspended: { $ne: true },
         $or: [
           { subscriptionStatus: 'active' },
           { trialEndsAt: { $gt: now } },
