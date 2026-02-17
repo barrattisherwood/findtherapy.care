@@ -75,9 +75,14 @@ export const getAllProviders = async (req: AuthRequest, res: Response): Promise<
         .sort(sort)
         .skip(skip)
         .limit(limit)
-        .select('displayName type contactEmail vettingStatus isPublished isSuspended subscriptionStatus trialEndsAt viewCount isFounder founderNumber createdAt profileImage'),
+        .select('displayName type contactEmail vettingStatus isPublished isSuspended subscriptionStatus trialEndsAt viewCount isFounder founderNumber createdAt profileImage userId'),
       Provider.countDocuments(filter),
     ]);
+
+    // Look up isAdmin status for each provider's user account
+    const userIds = providers.map(p => p.userId).filter(Boolean);
+    const adminUsers = await User.find({ _id: { $in: userIds }, isAdmin: true }).select('_id');
+    const adminUserIdSet = new Set(adminUsers.map(u => u._id.toString()));
 
     res.json({
       providers: providers.map(p => ({
@@ -96,6 +101,7 @@ export const getAllProviders = async (req: AuthRequest, res: Response): Promise<
         founderNumber: p.founderNumber,
         profileImage: p.profileImage,
         createdAt: p.createdAt,
+        isAdmin: adminUserIdSet.has(p.userId),
       })),
       total,
       page,

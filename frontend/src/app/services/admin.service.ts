@@ -43,6 +43,7 @@ export interface AdminProvider {
   founderNumber?: number;
   profileImage?: string;
   createdAt: Date;
+  isAdmin: boolean;
 }
 
 export interface AdminProviderListResponse {
