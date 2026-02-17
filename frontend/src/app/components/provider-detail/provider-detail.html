@@ -90,7 +90,7 @@
                     }
                   </div>
                 </div>
-                <div class="flex flex-col items-end gap-3 flex-shrink-0">
+                <div class="flex flex-col items-end justify-between self-stretch flex-shrink-0">
                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20">
                     {{ providerTypeLabel }}
                   </span>
@@ -227,93 +227,12 @@
             <!-- Contact Form Button -->
             <div class="mb-6">
               <button
-                (click)="toggleContactForm()"
+                (click)="openContactModal()"
                 class="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 font-medium transition-colors"
               >
-                @if (showContactForm()) {
-                  Cancel
-                } @else {
-                  Send a Message
-                }
+                Send a Message
               </button>
             </div>
-
-            <!-- Contact Form -->
-            @if (showContactForm()) {
-              <form (ngSubmit)="submitContactForm()" class="mb-6 bg-gray-50 p-6 rounded-lg border">
-                <h3 class="text-md font-semibold text-gray-900 mb-4">Send a Message</h3>
-
-                <div class="space-y-4">
-                  <div>
-                    <label for="contactName" class="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
-                    <input
-                      id="contactName"
-                      type="text"
-                      [ngModel]="contactName()"
-                      (ngModelChange)="contactName.set($event)"
-                      name="contactName"
-                      required
-                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="John Doe"
-                    />
-                  </div>
-
-                  <div>
-                    <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-1">Your Email *</label>
-                    <input
-                      id="contactEmail"
-                      type="email"
-                      [ngModel]="contactEmail()"
-                      (ngModelChange)="contactEmail.set($event)"
-                      name="contactEmail"
-                      required
-                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="john@example.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-1">Your Phone (optional)</label>
-                    <input
-                      id="contactPhone"
-                      type="tel"
-                      [ngModel]="contactPhone()"
-                      (ngModelChange)="contactPhone.set($event)"
-                      name="contactPhone"
-                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="+27 12 345 6789"
-                    />
-                  </div>
-
-                  <div>
-                    <label for="contactMessage" class="block text-sm font-medium text-gray-700 mb-1">Message *</label>
-                    <textarea
-                      id="contactMessage"
-                      [ngModel]="contactMessage()"
-                      (ngModelChange)="contactMessage.set($event)"
-                      name="contactMessage"
-                      rows="5"
-                      required
-                      class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      placeholder="Tell the provider about yourself and what support you're looking for..."
-                    ></textarea>
-                    <p class="mt-1 text-xs text-gray-500">Minimum 10 characters</p>
-                  </div>
-
-                  <button
-                    type="submit"
-                    [disabled]="submitting()"
-                    class="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                  >
-                    @if (submitting()) {
-                      Sending...
-                    } @else {
-                      Send Message
-                    }
-                  </button>
-                </div>
-              </form>
-            }
 
             <!-- Website Link -->
             @if (provider()!.website) {
