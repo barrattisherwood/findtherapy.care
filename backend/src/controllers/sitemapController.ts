@@ -14,6 +14,7 @@ export const getSitemap = async (req: Request, res: Response) => {
     const now = new Date();
     const providers = await Provider.find({
       isPublished: true,
+      vettingStatus: 'approved',
       $or: [
         { subscriptionStatus: 'active' },
         { trialEndsAt: { $gt: now } }

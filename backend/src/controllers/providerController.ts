@@ -59,13 +59,18 @@ const toProviderResponse = (doc: any): ProviderType => ({
   type: doc.type,
   displayName: doc.displayName,
   bio: doc.bio,
-  // NEW FIELDS
+  // Professional credentials
   degrees: doc.degrees || [],
-  registrations: doc.registrations || [],
+  professionalBodies: doc.professionalBodies || [],
   certifications: doc.certifications || [],
   pricing: doc.pricing || {
     offersIntroductoryConsultation: false,
   },
+  // Vetting
+  vettingStatus: doc.vettingStatus || 'pending',
+  vettingNotes: doc.vettingNotes,
+  vettedAt: doc.vettedAt,
+  vettedBy: doc.vettedBy,
   specialties: doc.specialties || [],
   location: doc.location,
   contactEmail: doc.contactEmail,
@@ -116,6 +121,22 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Validate professional bodies - at least one required
+    if (!data.professionalBodies || data.professionalBodies.length === 0) {
+      return res.status(400).json({ message: 'At least one professional body registration is required' });
+    }
+    for (const pb of data.professionalBodies) {
+      if (!pb.body) {
+        return res.status(400).json({ message: 'Each professional body entry must have a body selected' });
+      }
+      if (!pb.registrationNumber?.trim()) {
+        return res.status(400).json({ message: 'Each professional body entry must have a registration/membership number' });
+      }
+      if (pb.body === 'Other' && !pb.otherBodyName?.trim()) {
+        return res.status(400).json({ message: 'Please specify the professional body name when selecting "Other"' });
+      }
+    }
+
     // Validate pricing - at least one rate should be specified
     if (data.pricing) {
       const hasAnyRate = [
@@ -130,33 +151,28 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Set trial end date if trial is enabled
-    const trialEndsAt = getTrialEndDate();
-
     // Check if founder promo code was provided
     const promoCode = (req.body as any).promoCode;
     let isFounder = false;
     let founderNumber: number | undefined;
-    let founderTrialEndsAt = trialEndsAt;
 
     if (promoCode && promoCode.toUpperCase() === FOUNDERS_PROMO_CODE) {
       const founderCount = await Provider.countDocuments({ isFounder: true });
       if (founderCount < FOUNDERS_MAX_SPOTS) {
         isFounder = true;
         founderNumber = founderCount + 1;
-        // Override trial to 6 months for founders
-        founderTrialEndsAt = new Date();
-        founderTrialEndsAt.setDate(founderTrialEndsAt.getDate() + FOUNDERS_TRIAL_DAYS);
       }
     }
 
+    // NOTE: trialEndsAt is NOT set here — it starts on vetting approval
+    // so the vetting delay doesn't eat into the provider's trial period.
     const provider = await Provider.create({
       userId,
       type: data.type,
       displayName: data.displayName,
       bio: data.bio,
       degrees: data.degrees || [],
-      registrations: data.registrations || [],
+      professionalBodies: data.professionalBodies || [],
       certifications: data.certifications || [],
       pricing: data.pricing || { offersIntroductoryConsultation: false },
       specialties: data.specialties || [],
@@ -165,12 +181,20 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       contactPhone: data.contactPhone,
       website: data.website,
       isPublished: true,
+      vettingStatus: 'pending',
       subscriptionStatus: 'none',
-      trialEndsAt: founderTrialEndsAt,
       isFounder,
       founderNumber,
       founderSince: isFounder ? new Date() : undefined,
     });
+
+    // Notify admin of new provider pending vetting
+    try {
+      const { sendNewProviderPendingEmail } = await import('../services/emailService');
+      await sendNewProviderPendingEmail(data.displayName, data.contactEmail, data.type);
+    } catch (emailErr) {
+      console.error('Failed to send new provider notification email:', emailErr);
+    }
 
     res.status(201).json({ provider: toProviderResponse(provider) });
   } catch (error: any) {
@@ -219,6 +243,24 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Validate professional bodies if provided
+    if (data.professionalBodies !== undefined) {
+      if (data.professionalBodies.length === 0) {
+        return res.status(400).json({ message: 'At least one professional body registration is required' });
+      }
+      for (const pb of data.professionalBodies) {
+        if (!pb.body) {
+          return res.status(400).json({ message: 'Each professional body entry must have a body selected' });
+        }
+        if (!pb.registrationNumber?.trim()) {
+          return res.status(400).json({ message: 'Each professional body entry must have a registration/membership number' });
+        }
+        if (pb.body === 'Other' && !pb.otherBodyName?.trim()) {
+          return res.status(400).json({ message: 'Please specify the professional body name when selecting "Other"' });
+        }
+      }
+    }
+
     // Validate pricing if provided
     if (data.pricing) {
       const hasAnyRate = [
@@ -238,7 +280,18 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
     if (data.displayName !== undefined) provider.displayName = data.displayName;
     if (data.bio !== undefined) provider.bio = data.bio;
     if (data.degrees !== undefined) provider.degrees = data.degrees;
-    if (data.registrations !== undefined) provider.registrations = data.registrations;
+    if (data.professionalBodies !== undefined) {
+      // Check if registration numbers changed — if so, reset vetting
+      const oldNumbers = (provider.professionalBodies || []).map(pb => `${pb.body}:${pb.registrationNumber}`).sort().join(',');
+      const newNumbers = data.professionalBodies.map(pb => `${pb.body}:${pb.registrationNumber}`).sort().join(',');
+      provider.professionalBodies = data.professionalBodies;
+      if (oldNumbers !== newNumbers) {
+        provider.vettingStatus = 'pending';
+        provider.vettingNotes = undefined;
+        provider.vettedAt = undefined;
+        provider.vettedBy = undefined;
+      }
+    }
     if (data.certifications !== undefined) provider.certifications = data.certifications;
     if (data.pricing !== undefined) provider.pricing = data.pricing;
     if (data.specialties !== undefined) provider.specialties = data.specialties;
@@ -291,10 +344,11 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     const limit = Math.min(50, Math.max(1, params.limit || 20));
     const skip = (page - 1) * limit;
 
-    // Build query - show providers with active trial OR active subscription
+    // Build query - show providers with active trial OR active subscription, AND approved vetting
     const now = new Date();
     const query: any = {
       isPublished: true,
+      vettingStatus: 'approved',
       $or: [
         { subscriptionStatus: 'active' },
         { trialEndsAt: { $gt: now } },
@@ -345,6 +399,7 @@ export const getProviderById = async (req: AuthRequest, res: Response) => {
       {
         _id: id,
         isPublished: true,
+        vettingStatus: 'approved',
         $or: [
           { subscriptionStatus: 'active' },
           { trialEndsAt: { $gt: now } },

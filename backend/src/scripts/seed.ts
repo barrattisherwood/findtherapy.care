@@ -34,7 +34,8 @@ I believe that everyone has the capacity for growth and healing. My role is to p
 
 I have particular expertise in treating anxiety disorders, depression, and trauma. I also work extensively with professionals experiencing burnout and work-related stress.`,
       degrees: ['MA', 'MSc'],
-      registrations: ['HPCSA'],
+      professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0123456' }],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'Cognitive Behavioural Therapy (CBT)',
@@ -80,7 +81,11 @@ My approach is collaborative and solution-focused. I believe that you are the ex
 
 I have extensive experience working with blended families, couples facing infidelity, and parents navigating the challenges of raising teenagers.`,
       degrees: ['MA'],
-      registrations: ['SACSSP', 'CCSA'],
+      professionalBodies: [
+        { body: 'SACSSP', registrationNumber: 'SW 0012345' },
+        { body: 'CCSA', registrationNumber: 'CC 0012345' },
+      ],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'Solution-Focused Brief Therapy',
@@ -121,7 +126,8 @@ I use evidence-based approaches including EMDR (Eye Movement Desensitisation and
 
 My practice is a safe haven where healing can begin. I am committed to walking alongside you on your journey to recovery.`,
       degrees: ['MA'],
-      registrations: ['HPCSA'],
+      professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0234567' }],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'EMDR Level 1 & 2',
@@ -167,7 +173,8 @@ My approach combines motivational interviewing, CBT, and 12-step facilitation. I
 
 Whether you're taking your first steps towards sobriety or working to maintain long-term recovery, I'm here to support you with compassion and without judgment.`,
       degrees: ['BA (Hons) Social Work'],
-      registrations: ['SACSSP'],
+      professionalBodies: [{ body: 'SACSSP', registrationNumber: 'SW 0023456' }],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'Motivational Interviewing',
@@ -212,7 +219,8 @@ My therapy room is a creative, welcoming space where children and teens can expr
 
 I also offer parent guidance sessions to help families support their children's mental health at home. I believe that when we invest in the mental wellbeing of young people, we're investing in a healthier future for all.`,
       degrees: ['MA', 'MSc'],
-      registrations: ['HPCSA'],
+      professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0345678' }],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'Play Therapy',
@@ -259,7 +267,8 @@ My practice is an affirming space where you can be your authentic self without f
 
 I also offer support for partners and family members of LGBTQ+ individuals who are navigating their own journey of understanding and acceptance.`,
       degrees: ['MA Social Work'],
-      registrations: ['SACSSP'],
+      professionalBodies: [{ body: 'SACSSP', registrationNumber: 'SW 0034567' }],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'LGBTQ+ Affirmative Therapy',
@@ -300,7 +309,8 @@ My approach integrates CBT, DBT, and family-based treatment. I work closely with
 
 I also offer support groups and workshops on body positivity and intuitive eating.`,
       degrees: ['MA', 'MSc'],
-      registrations: ['HPCSA'],
+      professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0456789' }],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'Dialectical Behavior Therapy (DBT)',
@@ -346,7 +356,11 @@ My approach combines practical career planning with emotional support. I help cl
 
 I have particular expertise in supporting women in leadership and professionals experiencing burnout or workplace stress.`,
       degrees: ['MA'],
-      registrations: ['SACSSP', 'Counselling-SA'],
+      professionalBodies: [
+        { body: 'SACSSP', registrationNumber: 'SW 0045678' },
+        { body: 'Counselling-SA', registrationNumber: 'CSA 0045678' },
+      ],
+      vettingStatus: 'approved' as const,
       certifications: [
         {
           certificationName: 'Career Development Facilitation',

@@ -3,7 +3,204 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@findtherapy.care';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@findtherapy.care';
 const APP_URL = process.env.APP_URL || 'http://localhost:4200';
+
+// ===========================================
+// Provider Vetting Emails
+// ===========================================
+
+/**
+ * Notify admin that a new provider has registered and is pending vetting.
+ */
+export const sendNewProviderPendingEmail = async (
+  providerName: string,
+  providerEmail: string,
+  providerType: string
+): Promise<void> => {
+  const vettingUrl = `${APP_URL}/admin/vetting`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== NEW PROVIDER PENDING ==========');
+    console.log(`Provider: ${providerName} (${providerEmail})`);
+    console.log(`Type: ${providerType}`);
+    console.log(`Vetting URL: ${vettingUrl}`);
+    console.log('==========================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: ADMIN_EMAIL,
+    subject: `New Provider Pending Review - ${providerName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">New Provider Registration</h2>
+        <p>A new provider has registered and is waiting for your review.</p>
+        <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin: 20px 0;">
+          <p style="margin: 4px 0;"><strong>Name:</strong> ${providerName}</p>
+          <p style="margin: 4px 0;"><strong>Email:</strong> ${providerEmail}</p>
+          <p style="margin: 4px 0;"><strong>Type:</strong> ${providerType}</p>
+        </div>
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${vettingUrl}"
+             style="background-color: #2563eb; color: white; padding: 12px 32px;
+                    text-decoration: none; border-radius: 8px; display: inline-block;
+                    font-weight: 600;">
+            Review Provider
+          </a>
+        </div>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">findtherapy.care admin notification</p>
+      </div>
+    `,
+    text: `New Provider Registration\n\nA new provider has registered and is waiting for review.\n\nName: ${providerName}\nEmail: ${providerEmail}\nType: ${providerType}\n\nReview at: ${vettingUrl}`,
+  });
+
+  console.log('✅ New provider pending email sent to admin:', result);
+};
+
+/**
+ * Notify provider that their profile has been approved.
+ */
+export const sendVettingApprovedEmail = async (
+  email: string,
+  displayName: string
+): Promise<void> => {
+  const profileUrl = `${APP_URL}/provider-profile`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== VETTING APPROVED ==========');
+    console.log(`Provider: ${displayName} (${email})`);
+    console.log('======================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: email,
+    subject: 'Your Profile Has Been Approved! - findtherapy.care',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #16a34a;">Your Profile Has Been Approved!</h2>
+        <p>Hello ${displayName},</p>
+        <p>Great news! Your profile on findtherapy.care has been reviewed and <strong>approved</strong>. Your profile is now live and visible to care seekers across South Africa.</p>
+
+        <div style="background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 16px; margin: 20px 0;">
+          <p style="margin: 0; color: #166534;">
+            <strong>Your free trial has started.</strong> Take this time to make sure your profile is complete and stands out to potential clients.
+          </p>
+        </div>
+
+        <h3 style="color: #374151; margin-top: 30px;">Next steps:</h3>
+        <ul style="color: #4b5563; line-height: 1.8;">
+          <li>Review your profile to make sure everything looks great</li>
+          <li>Add a professional profile photo if you haven't already</li>
+          <li>Share your findtherapy.care profile link with your network</li>
+        </ul>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${profileUrl}"
+             style="background-color: #16a34a; color: white; padding: 12px 32px;
+                    text-decoration: none; border-radius: 8px; display: inline-block;
+                    font-weight: 600;">
+            View My Profile
+          </a>
+        </div>
+
+        <p style="color: #666; font-size: 14px;">
+          Thank you for joining findtherapy.care. If you have any questions, simply reply to this email.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+          findtherapy.care - Connecting care seekers with mental health professionals across South Africa
+        </p>
+      </div>
+    `,
+    text: `Your Profile Has Been Approved!\n\nHello ${displayName},\n\nGreat news! Your profile on findtherapy.care has been reviewed and approved. Your profile is now live and visible to care seekers.\n\nYour free trial has started. Take this time to make sure your profile is complete.\n\nNext steps:\n- Review your profile\n- Add a professional profile photo\n- Share your profile link\n\nView your profile: ${profileUrl}\n\nThank you for joining findtherapy.care.`,
+  });
+
+  console.log('✅ Vetting approved email sent:', result);
+};
+
+/**
+ * Notify provider that their profile has been rejected.
+ */
+export const sendVettingRejectedEmail = async (
+  email: string,
+  displayName: string,
+  notes?: string
+): Promise<void> => {
+  const profileUrl = `${APP_URL}/provider-profile`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== VETTING REJECTED ==========');
+    console.log(`Provider: ${displayName} (${email})`);
+    console.log(`Notes: ${notes || '(none)'}`);
+    console.log('======================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const notesSection = notes
+    ? `<div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 20px 0;">
+          <p style="margin: 0 0 8px 0; color: #991b1b; font-weight: 600;">Reviewer notes:</p>
+          <p style="margin: 0; color: #991b1b;">${notes}</p>
+        </div>`
+    : '';
+
+  const notesText = notes ? `\nReviewer notes: ${notes}\n` : '';
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: email,
+    subject: 'Profile Review Update - findtherapy.care',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #dc2626;">Profile Review Update</h2>
+        <p>Hello ${displayName},</p>
+        <p>Thank you for registering on findtherapy.care. After reviewing your profile, we were unable to approve it at this time.</p>
+
+        ${notesSection}
+
+        <p>Please review the feedback above and update your profile details. Once updated, your profile will be resubmitted for review automatically.</p>
+
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${profileUrl}"
+             style="background-color: #2563eb; color: white; padding: 12px 32px;
+                    text-decoration: none; border-radius: 8px; display: inline-block;
+                    font-weight: 600;">
+            Update My Profile
+          </a>
+        </div>
+
+        <p style="color: #666; font-size: 14px;">
+          If you believe this decision was made in error, or if you have any questions, please reply to this email.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">
+          findtherapy.care - Connecting care seekers with mental health professionals across South Africa
+        </p>
+      </div>
+    `,
+    text: `Profile Review Update\n\nHello ${displayName},\n\nThank you for registering on findtherapy.care. After reviewing your profile, we were unable to approve it at this time.\n${notesText}\nPlease review the feedback and update your profile details. Once updated, your profile will be resubmitted for review automatically.\n\nUpdate your profile: ${profileUrl}\n\nIf you believe this decision was made in error, please reply to this email.`,
+  });
+
+  console.log('✅ Vetting rejected email sent:', result);
+};
 
 export const sendPasswordResetEmail = async (
   email: string,

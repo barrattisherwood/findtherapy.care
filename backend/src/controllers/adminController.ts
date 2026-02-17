@@ -4,7 +4,7 @@ import { User } from '../models/User';
 import { Provider } from '../models/Provider';
 import { SupportGroup } from '../models/SupportGroup';
 import { PaymentEvent } from '../models/PaymentEvent';
-import { SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { SUBSCRIPTION_PRICE_ZAR, VetProviderRequest } from '@findlocal/shared';
 import {
   DashboardMetrics,
   UserMetrics,
@@ -12,6 +12,129 @@ import {
   RevenueMetrics,
   SupportGroupMetrics,
 } from '@findlocal/shared';
+
+// ============================================
+// Provider Vetting
+// ============================================
+
+// List providers pending vetting
+export const getPendingProviders = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    // Optional status filter (default: pending)
+    const status = req.query.status as string || 'pending';
+    const validStatuses = ['pending', 'approved', 'rejected'];
+    const filter: any = {};
+    if (validStatuses.includes(status)) {
+      filter.vettingStatus = status;
+    }
+
+    const [providers, total] = await Promise.all([
+      Provider.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select('displayName type professionalBodies vettingStatus vettingNotes vettedAt createdAt contactEmail'),
+      Provider.countDocuments(filter),
+    ]);
+
+    res.json({
+      providers: providers.map(p => ({
+        id: p._id.toString(),
+        displayName: p.displayName,
+        type: p.type,
+        professionalBodies: p.professionalBodies,
+        vettingStatus: p.vettingStatus,
+        vettingNotes: p.vettingNotes,
+        vettedAt: p.vettedAt,
+        contactEmail: p.contactEmail,
+        createdAt: p.createdAt,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching providers for vetting:', error);
+    res.status(500).json({ message: 'Failed to fetch providers' });
+  }
+};
+
+// Vet (approve/reject) a provider
+export const vetProvider = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { status, notes }: VetProviderRequest = req.body;
+
+    if (!status || !['approved', 'rejected'].includes(status)) {
+      res.status(400).json({ message: 'Status must be "approved" or "rejected"' });
+      return;
+    }
+
+    const provider = await Provider.findById(id);
+    if (!provider) {
+      res.status(404).json({ message: 'Provider not found' });
+      return;
+    }
+
+    provider.vettingStatus = status;
+    provider.vettingNotes = notes || undefined;
+    provider.vettedAt = new Date();
+    provider.vettedBy = req.userId!;
+
+    // Start trial on approval — founders get extended trial
+    if (status === 'approved' && !provider.trialEndsAt) {
+      const { TRIAL_PERIOD_DAYS, FOUNDERS_TRIAL_DAYS, isTrialEnabled } = await import('@findlocal/shared');
+      if (isTrialEnabled()) {
+        const trialDays = provider.isFounder ? FOUNDERS_TRIAL_DAYS : TRIAL_PERIOD_DAYS;
+        const trialEnd = new Date();
+        trialEnd.setDate(trialEnd.getDate() + trialDays);
+        provider.trialEndsAt = trialEnd;
+      }
+    }
+
+    await provider.save();
+
+    // Send email notification to the provider
+    try {
+      const { sendVettingApprovedEmail, sendVettingRejectedEmail } = await import('../services/emailService');
+      if (status === 'approved') {
+        await sendVettingApprovedEmail(provider.contactEmail, provider.displayName);
+      } else {
+        await sendVettingRejectedEmail(provider.contactEmail, provider.displayName, notes);
+      }
+    } catch (emailErr) {
+      console.error('Failed to send vetting notification email:', emailErr);
+    }
+
+    res.json({
+      message: `Provider ${status === 'approved' ? 'approved' : 'rejected'} successfully`,
+      provider: {
+        id: provider._id.toString(),
+        displayName: provider.displayName,
+        vettingStatus: provider.vettingStatus,
+        vettedAt: provider.vettedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error vetting provider:', error);
+    res.status(500).json({ message: 'Failed to vet provider' });
+  }
+};
+
+// Get count of pending providers (for badge in admin nav)
+export const getPendingCount = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const count = await Provider.countDocuments({ vettingStatus: 'pending' });
+    res.json({ count });
+  } catch (error) {
+    console.error('Error fetching pending count:', error);
+    res.status(500).json({ message: 'Failed to fetch pending count' });
+  }
+};
 
 export const getDashboardMetrics = async (
   req: AuthRequest,

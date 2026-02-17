@@ -12,8 +12,8 @@ import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { ImageUpload } from '../image-upload/image-upload';
-import { CreateProviderRequest, ProviderType, Certification, ProviderPricing, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
-import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROVIDER_REGISTRATIONS } from '@findlocal/shared';
+import { CreateProviderRequest, ProviderType, Certification, ProfessionalBodyMembership, ProfessionalBodyName, ProviderPricing, VettingStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROFESSIONAL_BODIES } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-profile',
@@ -52,6 +52,7 @@ export class ProviderProfile implements OnInit {
   contactPhoneError = signal<string>('');
   websiteError = signal<string>('');
   certificationsError = signal<string>('');
+  professionalBodiesError = signal<string>('');
   pricingError = signal<string>('');
 
   // Form fields
@@ -59,7 +60,7 @@ export class ProviderProfile implements OnInit {
   displayName = signal<string>('');
   bio = signal<string>('');
   degrees = signal<string[]>([]);
-  registrations = signal<string[]>([]);
+  professionalBodies = signal<ProfessionalBodyMembership[]>([]);
   certifications = signal<Certification[]>([]);
   pricing = signal<ProviderPricing>({
     offersIntroductoryConsultation: false
@@ -72,10 +73,11 @@ export class ProviderProfile implements OnInit {
   contactPhone = signal<string>('');
   website = signal<string>('');
   isPublished = signal<boolean>(true);
+  vettingStatus = signal<VettingStatus>('pending');
 
   availableSpecialties = PROVIDER_SPECIALTIES;
   availableDegrees = PROVIDER_DEGREES;
-  availableRegistrations = PROVIDER_REGISTRATIONS;
+  availableProfessionalBodies = PROFESSIONAL_BODIES;
 
   currentYear = new Date().getFullYear();
 
@@ -104,7 +106,7 @@ export class ProviderProfile implements OnInit {
         this.displayName.set(p.displayName);
         this.bio.set(p.bio);
         this.degrees.set([...(p.degrees || [])]);
-        this.registrations.set([...(p.registrations || [])]);
+        this.professionalBodies.set([...(p.professionalBodies || [])]);
         this.certifications.set([...(p.certifications || [])]);
         this.pricing.set(p.pricing || { offersIntroductoryConsultation: false });
         this.specialties.set([...(p.specialties || [])]);
@@ -115,6 +117,7 @@ export class ProviderProfile implements OnInit {
         this.contactPhone.set(p.contactPhone || '');
         this.website.set(p.website || '');
         this.isPublished.set(p.isPublished);
+        this.vettingStatus.set(p.vettingStatus || 'pending');
         this.viewCount.set(p.viewCount || 0);
 
         this.subscriptionService.getStatus().subscribe();
@@ -140,7 +143,7 @@ export class ProviderProfile implements OnInit {
       displayName: this.displayName(),
       bio: this.bio(),
       degrees: this.degrees(),
-      registrations: this.registrations(),
+      professionalBodies: this.professionalBodies(),
       certifications: this.certifications(),
       pricing: this.pricing(),
       specialties: this.specialties(),
@@ -241,18 +244,29 @@ export class ProviderProfile implements OnInit {
     return this.degrees().includes(degree);
   }
 
-  // Registration management
-  toggleRegistration(reg: string): void {
-    const current = this.registrations();
-    if (current.includes(reg)) {
-      this.registrations.set(current.filter(r => r !== reg));
-    } else {
-      this.registrations.set([...current, reg]);
-    }
+  // Professional body management
+  addProfessionalBody(): void {
+    this.professionalBodies.set([
+      ...this.professionalBodies(),
+      { body: '' as ProfessionalBodyName, otherBodyName: '', registrationNumber: '' }
+    ]);
   }
 
-  isRegistrationSelected(reg: string): boolean {
-    return this.registrations().includes(reg);
+  removeProfessionalBody(index: number): void {
+    this.professionalBodies.set(
+      this.professionalBodies().filter((_, i) => i !== index)
+    );
+    this.validateProfessionalBodies();
+  }
+
+  updateProfessionalBody(index: number, field: keyof ProfessionalBodyMembership, value: any): void {
+    const updated = [...this.professionalBodies()];
+    updated[index] = { ...updated[index], [field]: value };
+    // Clear otherBodyName when switching away from 'Other'
+    if (field === 'body' && value !== 'Other') {
+      updated[index].otherBodyName = '';
+    }
+    this.professionalBodies.set(updated);
   }
 
   // Certification management
@@ -433,6 +447,33 @@ export class ProviderProfile implements OnInit {
     return true;
   }
 
+  validateProfessionalBodies(): boolean {
+    const bodies = this.professionalBodies();
+
+    if (bodies.length === 0) {
+      this.professionalBodiesError.set('At least one professional body registration is required');
+      return false;
+    }
+
+    for (const pb of bodies) {
+      if (!pb.body) {
+        this.professionalBodiesError.set('Please select a professional body for each entry');
+        return false;
+      }
+      if (!pb.registrationNumber?.trim()) {
+        this.professionalBodiesError.set('Each entry must have a registration/membership number');
+        return false;
+      }
+      if (pb.body === 'Other' && !pb.otherBodyName?.trim()) {
+        this.professionalBodiesError.set('Please specify the professional body name for "Other" entries');
+        return false;
+      }
+    }
+
+    this.professionalBodiesError.set('');
+    return true;
+  }
+
   validatePricing(): boolean {
     const p = this.pricing();
     const hasAnyRate = [
@@ -460,9 +501,10 @@ export class ProviderProfile implements OnInit {
     const phoneValid = this.validateContactPhone();
     const websiteValid = this.validateWebsite();
     const certificationsValid = this.validateCertifications();
+    const professionalBodiesValid = this.validateProfessionalBodies();
     const pricingValid = this.validatePricing();
 
-    return displayNameValid && bioValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid && certificationsValid && pricingValid;
+    return displayNameValid && bioValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid && certificationsValid && professionalBodiesValid && pricingValid;
   }
 
   formatViewCount(): string {

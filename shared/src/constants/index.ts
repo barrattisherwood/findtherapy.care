@@ -39,8 +39,8 @@ export const PROVIDER_DEGREES = [
   'MSW',
 ] as const;
 
-// Professional registrations
-export const PROVIDER_REGISTRATIONS = [
+// Professional bodies (for registration/membership)
+export const PROFESSIONAL_BODIES = [
   'HPCSA',
   'SACSSP',
   'ASCHP',
@@ -48,6 +48,9 @@ export const PROVIDER_REGISTRATIONS = [
   'Counselling-SA',
   'SAAC',
 ] as const;
+
+// Keep backward-compatible alias
+export const PROVIDER_REGISTRATIONS = PROFESSIONAL_BODIES;
 
 // Provider specialties (expanded list)
 export const PROVIDER_SPECIALTIES = [

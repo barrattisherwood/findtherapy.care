@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { Provider as SharedProvider, ProviderType, SubscriptionStatus } from '@findlocal/shared';
+import { Provider as SharedProvider, ProviderType, SubscriptionStatus, VettingStatus } from '@findlocal/shared';
 
 export interface IProvider extends Omit<SharedProvider, 'id'>, Document {
   _id: mongoose.Types.ObjectId;
@@ -29,14 +29,26 @@ const providerSchema = new Schema<IProvider>(
       required: true,
       maxlength: 2000,
     },
-    // NEW FIELDS - Professional credentials
+    // Professional credentials
     degrees: [{
       type: String,
       trim: true,
     }],
-    registrations: [{
-      type: String,
-      trim: true,
+    professionalBodies: [{
+      body: {
+        type: String,
+        enum: ['HPCSA', 'SACSSP', 'ASCHP', 'CCSA', 'Counselling-SA', 'SAAC', 'Other'],
+        required: true,
+      },
+      otherBodyName: {
+        type: String,
+        trim: true,
+      },
+      registrationNumber: {
+        type: String,
+        required: true,
+        trim: true,
+      },
     }],
     certifications: [{
       certificationName: {
@@ -113,6 +125,22 @@ const providerSchema = new Schema<IProvider>(
       type: Boolean,
       default: true,
     },
+    // Vetting
+    vettingStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'] as VettingStatus[],
+      default: 'pending',
+    },
+    vettingNotes: {
+      type: String,
+      trim: true,
+    },
+    vettedAt: {
+      type: Date,
+    },
+    vettedBy: {
+      type: String,
+    },
     viewCount: {
       type: Number,
       default: 0,
@@ -170,5 +198,6 @@ const providerSchema = new Schema<IProvider>(
 // Index for searching
 providerSchema.index({ type: 1, 'location.city': 1, subscriptionStatus: 1 });
 providerSchema.index({ specialties: 1 });
+providerSchema.index({ vettingStatus: 1 });
 
 export const Provider = mongoose.model<IProvider>('Provider', providerSchema);

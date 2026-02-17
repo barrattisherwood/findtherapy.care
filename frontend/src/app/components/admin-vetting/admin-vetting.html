@@ -1,0 +1,195 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <a routerLink="/admin" class="text-primary-600 hover:text-primary-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </a>
+        <h1 class="text-3xl font-bold text-gray-900">Provider Vetting</h1>
+      </div>
+      <p class="text-gray-600">Review and approve practitioner registrations</p>
+    </div>
+
+    <!-- Status Filter Tabs -->
+    <div class="flex gap-2 mb-6">
+      @for (status of statusOptions; track status) {
+        <button
+          (click)="onStatusFilterChange(status)"
+          [class.bg-primary-600]="statusFilter() === status"
+          [class.text-white]="statusFilter() === status"
+          [class.bg-white]="statusFilter() !== status"
+          [class.text-gray-700]="statusFilter() !== status"
+          class="px-4 py-2 rounded-lg border border-gray-200 font-medium text-sm transition-colors capitalize"
+        >
+          {{ status }}
+          @if (status === 'pending') {
+            <span class="ml-1 text-xs">({{ total() }})</span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <p class="mt-4 text-gray-600">Loading providers...</p>
+      </div>
+    } @else if (providers().length === 0) {
+      <div class="bg-white rounded-xl shadow-sm p-12 text-center">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No {{ statusFilter() }} providers</h3>
+        <p class="text-gray-500">
+          @if (statusFilter() === 'pending') {
+            All providers have been reviewed. Check back later.
+          } @else {
+            No providers with this status.
+          }
+        </p>
+      </div>
+    } @else {
+      <!-- Provider Cards -->
+      <div class="space-y-4">
+        @for (provider of providers(); track provider.id) {
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+              <!-- Provider Info -->
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-lg font-semibold text-gray-900">{{ provider.displayName }}</h3>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 capitalize">
+                    {{ formatProviderType(provider.type) }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-500 mb-3">
+                  Registered {{ formatDate(provider.createdAt) }} &middot; {{ provider.contactEmail }}
+                </p>
+
+                <!-- Professional Bodies -->
+                <div class="mb-3">
+                  <h4 class="text-sm font-medium text-gray-700 mb-2">Professional Body Registrations:</h4>
+                  <div class="space-y-1">
+                    @for (pb of provider.professionalBodies; track $index) {
+                      <div class="flex items-center gap-2 text-sm">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">
+                          {{ pb.body === 'Other' ? pb.otherBodyName : pb.body }}
+                        </span>
+                        <span class="text-gray-600 font-mono">{{ pb.registrationNumber }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                @if (provider.vettingNotes) {
+                  <div class="mt-2 p-2 bg-gray-50 rounded text-sm text-gray-600">
+                    <span class="font-medium">Notes:</span> {{ provider.vettingNotes }}
+                  </div>
+                }
+              </div>
+
+              <!-- Actions -->
+              <div class="flex-shrink-0 flex flex-col gap-2 min-w-[160px]">
+                @if (provider.vettingStatus === 'pending') {
+                  <button
+                    (click)="approve(provider)"
+                    class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    (click)="openRejectNotes(provider.id)"
+                    class="w-full bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+                  >
+                    Reject
+                  </button>
+                } @else if (provider.vettingStatus === 'approved') {
+                  <span class="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-50 text-green-700 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Approved
+                  </span>
+                } @else if (provider.vettingStatus === 'rejected') {
+                  <span class="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-red-50 text-red-700 text-sm font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Rejected
+                  </span>
+                  <!-- Allow re-reviewing rejected providers -->
+                  <button
+                    (click)="approve(provider)"
+                    class="w-full bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium"
+                  >
+                    Re-approve
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Reject Notes Input (shown inline when rejecting) -->
+            @if (activeNotesId() === provider.id) {
+              <div class="mt-4 pt-4 border-t border-gray-200">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Rejection Notes (optional)</label>
+                <textarea
+                  [ngModel]="vetNotes()"
+                  (ngModelChange)="vetNotes.set($event)"
+                  name="vetNotes"
+                  rows="2"
+                  class="w-full rounded-lg border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
+                  placeholder="Reason for rejection (internal only, not shown to provider)..."
+                ></textarea>
+                <div class="flex gap-2 mt-2">
+                  <button
+                    (click)="confirmReject(provider)"
+                    class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                  >
+                    Confirm Rejection
+                  </button>
+                  <button
+                    (click)="cancelReject()"
+                    class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="flex justify-center gap-2 mt-8">
+          <button
+            [disabled]="page() <= 1"
+            (click)="onPageChange(page() - 1)"
+            class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Previous
+          </button>
+          <span class="px-4 py-2 text-sm text-gray-600">
+            Page {{ page() }} of {{ totalPages() }}
+          </span>
+          <button
+            [disabled]="page() >= totalPages()"
+            (click)="onPageChange(page() + 1)"
+            class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Next
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<app-footer />

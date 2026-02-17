@@ -89,6 +89,36 @@
         </div>
       </div>
 
+      <!-- Provider Vetting Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <h3 class="text-lg font-semibold text-gray-900">Provider Vetting</h3>
+            @if (pendingVettingCount() > 0) {
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-500 text-white text-xs font-bold">
+                {{ pendingVettingCount() }}
+              </span>
+            }
+          </div>
+          <a
+            routerLink="/admin/vetting"
+            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors"
+          >
+            Review Providers
+            <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
+        <p class="text-sm text-gray-600">
+          @if (pendingVettingCount() > 0) {
+            {{ pendingVettingCount() }} provider(s) awaiting registration verification.
+          } @else {
+            All providers have been reviewed. No pending verifications.
+          }
+        </p>
+      </div>
+
       <!-- Breakdown Sections -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Provider Type Breakdown -->

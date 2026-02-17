@@ -1,6 +1,26 @@
 // Provider Types
 export type ProviderType = 'psychologist' | 'counsellor' | 'social-worker';
 
+// Professional body names
+export type ProfessionalBodyName =
+  | 'HPCSA'
+  | 'SACSSP'
+  | 'ASCHP'
+  | 'CCSA'
+  | 'Counselling-SA'
+  | 'SAAC'
+  | 'Other';
+
+// Professional body membership entry (repeatable)
+export interface ProfessionalBodyMembership {
+  body: ProfessionalBodyName;
+  otherBodyName?: string;        // required when body === 'Other'
+  registrationNumber: string;    // member/reg number
+}
+
+// Vetting status for provider approval
+export type VettingStatus = 'pending' | 'approved' | 'rejected';
+
 // Certification for additional training/certifications
 export interface Certification {
   certificationName: string;
@@ -32,10 +52,16 @@ export interface Provider {
   displayName: string;
   bio: string;
 
-  // NEW FIELDS - Professional credentials
+  // Professional credentials
   degrees: string[];
-  registrations: string[];
+  professionalBodies: ProfessionalBodyMembership[];
   certifications: Certification[];
+
+  // Vetting
+  vettingStatus: VettingStatus;
+  vettingNotes?: string;
+  vettedAt?: Date;
+  vettedBy?: string;
 
   // NEW FIELD - Pricing
   pricing: ProviderPricing;
@@ -70,7 +96,7 @@ export interface CreateProviderRequest {
   displayName: string;
   bio: string;
   degrees: string[];
-  registrations: string[];
+  professionalBodies: ProfessionalBodyMembership[];
   certifications: Certification[];
   specialties: string[];
   pricing: ProviderPricing;
@@ -82,6 +108,11 @@ export interface CreateProviderRequest {
 
 export interface UpdateProviderRequest extends Partial<CreateProviderRequest> {
   isPublished?: boolean;
+}
+
+export interface VetProviderRequest {
+  status: 'approved' | 'rejected';
+  notes?: string;
 }
 
 export interface ProviderSearchParams {

@@ -134,15 +134,17 @@
             </section>
           }
 
-          <!-- Professional Registration -->
-          @if (provider()!.registrations && provider()!.registrations.length > 0) {
+          <!-- Professional Body Memberships -->
+          @if (provider()!.professionalBodies && provider()!.professionalBodies.length > 0) {
             <section class="mb-8">
               <h2 class="text-lg font-semibold text-gray-900 mb-3">Professional Registration</h2>
-              <div class="flex flex-wrap gap-2">
-                @for (reg of provider()!.registrations; track reg) {
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-secondary-50 text-secondary-700">
-                    {{ reg }}
-                  </span>
+              <div class="space-y-2">
+                @for (pb of provider()!.professionalBodies; track $index) {
+                  <div class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-secondary-50 text-secondary-700 mr-2 mb-1">
+                    <span>{{ pb.body === 'Other' && pb.otherBodyName ? pb.otherBodyName : pb.body }}</span>
+                    <span class="mx-1.5 text-secondary-300">|</span>
+                    <span class="text-secondary-500">{{ pb.registrationNumber }}</span>
+                  </div>
                 }
               </div>
             </section>

@@ -24,6 +24,7 @@ export class AdminDashboard implements OnInit {
   blogLoading = this.blogService.loading;
   errorMessage = signal('');
   selectedDays = signal(30);
+  pendingVettingCount = this.adminService.pendingCount;
 
   timeRangeOptions = [
     { value: 7, label: 'Last 7 days' },
@@ -34,6 +35,7 @@ export class AdminDashboard implements OnInit {
   ngOnInit(): void {
     this.loadMetrics();
     this.loadBlogMetrics();
+    this.adminService.getPendingCount().subscribe();
   }
 
   loadMetrics(): void {

@@ -356,7 +356,7 @@ describe('Provider Controller - Subscription Logic', () => {
       displayName: 'Dr. Founder Test',
       bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
       degrees: ['PhD Psychology'],
-      registrations: ['HPCSA'],
+      professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0123456' }],
       certifications: [],
       specialties: ['Anxiety & Stress'],
       pricing: {
@@ -416,37 +416,29 @@ describe('Provider Controller - Subscription Logic', () => {
       expect(response.provider.founderNumber).toBe(4);
     });
 
-    it('grants 180-day trial for founder providers', async () => {
+    it('does not start trial at creation (deferred to vetting approval)', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
         body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
       } as unknown as AuthRequest;
 
-      const beforeDate = new Date();
-
       await createProvider(mockRequest, mockResponse as Response);
 
       const response = responseJson.mock.calls[0][0];
-      const trialEnd = new Date(response.provider.trialEndsAt);
-
-      // Trial should be approximately FOUNDERS_TRIAL_DAYS from now
-      const expectedEnd = new Date(beforeDate);
-      expectedEnd.setDate(expectedEnd.getDate() + FOUNDERS_TRIAL_DAYS);
-
-      // Allow 2 seconds tolerance for test execution time
-      const diffMs = Math.abs(trialEnd.getTime() - expectedEnd.getTime());
-      expect(diffMs).toBeLessThan(2000);
+      // Trial should NOT be set at creation — it starts when admin approves
+      expect(response.provider.trialEndsAt).toBeUndefined();
+      // But founder status should still be recorded
+      expect(response.provider.isFounder).toBe(true);
+      expect(response.provider.vettingStatus).toBe('pending');
     });
 
-    it('creates regular provider without promo code (standard trial)', async () => {
+    it('creates regular provider without promo code (no trial until approved)', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
         body: { ...validProviderData },
       } as unknown as AuthRequest;
-
-      const beforeDate = new Date();
 
       await createProvider(mockRequest, mockResponse as Response);
 
@@ -455,13 +447,9 @@ describe('Provider Controller - Subscription Logic', () => {
       expect(response.provider.isFounder).toBe(false);
       expect(response.provider.founderNumber).toBeUndefined();
 
-      // Trial should be standard TRIAL_PERIOD_DAYS
-      const trialEnd = new Date(response.provider.trialEndsAt);
-      const expectedEnd = new Date(beforeDate);
-      expectedEnd.setDate(expectedEnd.getDate() + TRIAL_PERIOD_DAYS);
-
-      const diffMs = Math.abs(trialEnd.getTime() - expectedEnd.getTime());
-      expect(diffMs).toBeLessThan(2000);
+      // Trial should NOT be set at creation — starts on vetting approval
+      expect(response.provider.trialEndsAt).toBeUndefined();
+      expect(response.provider.vettingStatus).toBe('pending');
     });
 
     it('ignores invalid promo code and creates regular provider', async () => {

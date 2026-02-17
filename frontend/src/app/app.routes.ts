@@ -15,6 +15,7 @@ import { SupportGroupDetail } from './components/support-group-detail/support-gr
 import { SupportGroupForm } from './components/support-group-form/support-group-form';
 import { CityLanding } from './components/city-landing/city-landing';
 import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
+import { AdminVetting } from './components/admin-vetting/admin-vetting';
 import { BlogAdmin } from './components/blog-admin/blog-admin';
 import { BlogEditor } from './components/blog-editor/blog-editor';
 import { BlogList } from './components/blog-list/blog-list';
@@ -51,6 +52,7 @@ export const routes: Routes = [
   { path: 'blog/:slug', component: BlogDetail },
   // Admin routes
   { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
+  { path: 'admin/vetting', component: AdminVetting, canActivate: [adminGuard], title: 'Provider Vetting — findtherapy.care' },
   { path: 'admin/blog', component: BlogAdmin, canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
   { path: 'admin/blog/new', component: BlogEditor, canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
   { path: 'admin/blog/edit/:id', component: BlogEditor, canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },

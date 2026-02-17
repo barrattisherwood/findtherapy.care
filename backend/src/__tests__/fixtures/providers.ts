@@ -37,7 +37,7 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     displayName: options.displayName || 'Test Provider',
     bio: options.bio || 'A test provider bio that is at least 50 characters long for validation purposes.',
     degrees: ['PhD Psychology'],
-    registrations: ['HPCSA'],
+    professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0123456' }],
     certifications: [],
     specialties: ['Anxiety & Stress', 'Depression'],
     pricing: {
@@ -52,6 +52,7 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     contactEmail: options.contactEmail || 'provider@example.com',
     contactPhone: options.contactPhone || '+27123456789',
     isPublished: options.isPublished ?? true,
+    vettingStatus: 'approved',
     viewCount: options.viewCount ?? 0,
     subscriptionStatus: options.subscriptionStatus || 'none',
     subscriptionEndsAt: options.subscriptionEndsAt,
