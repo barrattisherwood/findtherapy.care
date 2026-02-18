@@ -107,7 +107,8 @@ export class ProviderDetail implements OnInit {
     const labels: Record<ProviderType, string> = {
       'psychologist': 'Psychologist',
       'counsellor': 'Counsellor',
-      'social-worker': 'Social Worker'
+      'social-worker': 'Social Worker',
+      'coach': 'Coach',
     };
     return labels[type] || type;
   }

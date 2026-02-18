@@ -49,7 +49,7 @@ export const getAllProviders = async (req: AuthRequest, res: Response): Promise<
 
     // Type filter
     const type = req.query.type as string;
-    if (['psychologist', 'counsellor', 'social-worker'].includes(type)) {
+    if (['psychologist', 'counsellor', 'social-worker', 'coach'].includes(type)) {
       filter.type = type;
     }
 

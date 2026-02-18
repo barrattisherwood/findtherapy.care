@@ -1,5 +1,5 @@
 // Provider Types
-export type ProviderType = 'psychologist' | 'counsellor' | 'social-worker';
+export type ProviderType = 'psychologist' | 'counsellor' | 'social-worker' | 'coach';
 
 // Professional body names
 export type ProfessionalBodyName =

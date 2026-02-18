@@ -17,7 +17,8 @@ export class ProviderCard {
     const labels: Record<ProviderType, string> = {
       'psychologist': 'Psychologist',
       'counsellor': 'Counsellor',
-      'social-worker': 'Social Worker'
+      'social-worker': 'Social Worker',
+      'coach': 'Coach',
     };
     return labels[this.provider.type] || this.provider.type;
   }
