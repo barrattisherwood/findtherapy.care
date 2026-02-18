@@ -2,5 +2,5 @@ export const environment = {
   production: true,
   apiUrl: 'https://api.findtherapy.care/api',
   gaTrackingId: 'G-HRW0854HSG', // Replace with your GA4 measurement ID
-  sentryDsn: '', // Add your Sentry frontend project DSN here
+  sentryDsn: 'https://6918d4b432a7934184271d427bc1905d@o4510907654668288.ingest.de.sentry.io/4510907670003792', // Add your Sentry frontend project DSN here
 };
