@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { Provider } from '../models/Provider';
+import { ContactMessage } from '../models/ContactMessage';
 import { ContactProviderRequest } from '@findlocal/shared';
 import { sendContactNotificationEmail, sendSiteContactEmail } from '../services/emailService';
 import { sendContactNotificationSMS } from '../services/smsService';
@@ -66,6 +67,23 @@ export const contactProvider = async (req: AuthRequest, res: Response) => {
       return res.status(500).json({ message: 'Failed to send contact notification' });
     }
 
+    // Persist message to database
+    try {
+      await ContactMessage.create({
+        type: 'provider',
+        providerId: provider._id.toString(),
+        providerName: provider.displayName,
+        providerContactEmail: provider.contactEmail,
+        senderName: data.name,
+        senderEmail: data.email,
+        senderPhone: data.phone,
+        message: data.message,
+      });
+    } catch (dbErr) {
+      console.error('Failed to persist contact message:', dbErr);
+      // Don't fail the request if DB write fails
+    }
+
     // Send SMS notification if phone number is available
     if (provider.contactPhone) {
       try {
@@ -121,6 +139,19 @@ export const contactSite = async (req: AuthRequest, res: Response) => {
     } catch (error) {
       console.error('Failed to send site contact email:', error);
       return res.status(500).json({ message: 'Failed to send message' });
+    }
+
+    // Persist to database
+    try {
+      await ContactMessage.create({
+        type: 'site',
+        senderName: name,
+        senderEmail: email,
+        subject,
+        message,
+      });
+    } catch (dbErr) {
+      console.error('Failed to persist site contact message:', dbErr);
     }
 
     res.json({

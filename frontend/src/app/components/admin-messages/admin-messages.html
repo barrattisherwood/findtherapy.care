@@ -1,0 +1,171 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Header -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Messages</h1>
+        <p class="text-gray-600 mt-1">
+          {{ total() }} total
+          @if (unreadCount() > 0) {
+            <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+              {{ unreadCount() }} unread
+            </span>
+          }
+        </p>
+      </div>
+      <a routerLink="/admin/dashboard" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+        &larr; Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 flex flex-wrap gap-3">
+      <select
+        [value]="typeFilter()"
+        (change)="typeFilter.set($any($event.target).value); onFilterChange()"
+        class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
+      >
+        <option value="">All Types</option>
+        <option value="provider">Provider Enquiries</option>
+        <option value="site">Site Contact</option>
+      </select>
+
+      <select
+        [value]="readFilter()"
+        (change)="readFilter.set($any($event.target).value); onFilterChange()"
+        class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary-500 focus:border-primary-500"
+      >
+        <option value="">All Messages</option>
+        <option value="false">Unread only</option>
+        <option value="true">Read only</option>
+      </select>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+        <p class="mt-3 text-gray-600">Loading messages...</p>
+      </div>
+    } @else if (messages().length === 0) {
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <p class="text-gray-500">No messages found.</p>
+      </div>
+    } @else {
+      <div class="space-y-2">
+        @for (msg of messages(); track msg.id) {
+          <div
+            class="bg-white rounded-lg shadow-sm border transition-colors cursor-pointer"
+            [class.border-gray-200]="msg.isRead"
+            [class.border-primary-300]="!msg.isRead"
+            [class.bg-primary-50]="!msg.isRead"
+          >
+            <!-- Row -->
+            <div class="px-5 py-4 flex items-start gap-4" (click)="toggleExpand(msg.id)">
+              <!-- Unread dot -->
+              <div class="mt-1.5 flex-shrink-0">
+                @if (!msg.isRead) {
+                  <span class="block w-2 h-2 rounded-full bg-primary-500"></span>
+                } @else {
+                  <span class="block w-2 h-2 rounded-full bg-gray-200"></span>
+                }
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <!-- Type badge -->
+                  @if (msg.type === 'provider') {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                      Provider enquiry
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                      Site contact
+                    </span>
+                  }
+                  <span class="font-medium text-sm text-gray-900">{{ msg.senderName }}</span>
+                  <span class="text-sm text-gray-500">{{ msg.senderEmail }}</span>
+                </div>
+
+                @if (msg.type === 'provider' && msg.providerName) {
+                  <p class="text-xs text-gray-500 mb-1">To: <span class="font-medium text-gray-700">{{ msg.providerName }}</span></p>
+                }
+                @if (msg.subject) {
+                  <p class="text-xs text-gray-500 mb-1">Subject: <span class="font-medium text-gray-700">{{ msg.subject }}</span></p>
+                }
+
+                <!-- Message preview (collapsed) -->
+                @if (expandedId() !== msg.id) {
+                  <p class="text-sm text-gray-600 truncate">{{ msg.message }}</p>
+                }
+              </div>
+
+              <!-- Date + chevron -->
+              <div class="flex-shrink-0 text-right">
+                <p class="text-xs text-gray-400 whitespace-nowrap">{{ formatDate(msg.createdAt) }}</p>
+                <svg
+                  class="w-4 h-4 text-gray-400 mt-2 ml-auto transition-transform"
+                  [class.rotate-180]="expandedId() === msg.id"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Expanded body -->
+            @if (expandedId() === msg.id) {
+              <div class="px-5 pb-5 border-t border-gray-100 pt-4" (click)="$event.stopPropagation()">
+                <p class="text-sm text-gray-800 whitespace-pre-line mb-4">{{ msg.message }}</p>
+
+                <div class="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                  @if (msg.senderPhone) {
+                    <span>Phone: {{ msg.senderPhone }}</span>
+                  }
+                  <a [href]="'mailto:' + msg.senderEmail" class="text-primary-600 hover:text-primary-700 font-medium">
+                    Reply to {{ msg.senderEmail }}
+                  </a>
+                  <button
+                    (click)="markRead(msg, !msg.isRead)"
+                    class="ml-auto text-gray-500 hover:text-gray-700 underline"
+                  >
+                    {{ msg.isRead ? 'Mark as unread' : 'Mark as read' }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div class="mt-6 flex items-center justify-between">
+          <p class="text-sm text-gray-600">Page {{ page() }} of {{ totalPages() }}</p>
+          <div class="flex gap-2">
+            <button
+              (click)="onPageChange(page() - 1)"
+              [disabled]="page() <= 1"
+              class="px-3 py-1.5 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >Previous</button>
+            <button
+              (click)="onPageChange(page() + 1)"
+              [disabled]="page() >= totalPages()"
+              class="px-3 py-1.5 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >Next</button>
+          </div>
+        </div>
+      }
+    }
+
+  </div>
+</div>
+
+<app-footer />

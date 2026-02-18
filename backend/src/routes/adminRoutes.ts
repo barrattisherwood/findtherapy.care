@@ -1,6 +1,7 @@
 import express from 'express';
 import { getDashboardMetrics, getPendingProviders, vetProvider, getPendingCount, getAllProviders, suspendProvider, deleteProvider } from '../controllers/adminController';
 import { getBlogMetrics } from '../controllers/blogController';
+import { getMessages, markMessageRead, getUnreadCount } from '../controllers/messagesController';
 import { authMiddleware } from '../middleware/auth';
 import { adminMiddleware } from '../middleware/admin';
 
@@ -19,5 +20,10 @@ router.post('/providers/:id/vet', authMiddleware, adminMiddleware, vetProvider);
 router.get('/providers', authMiddleware, adminMiddleware, getAllProviders);
 router.post('/providers/:id/suspend', authMiddleware, adminMiddleware, suspendProvider);
 router.delete('/providers/:id', authMiddleware, adminMiddleware, deleteProvider);
+
+// Messages - requires auth + admin
+router.get('/messages/unread-count', authMiddleware, adminMiddleware, getUnreadCount);
+router.get('/messages', authMiddleware, adminMiddleware, getMessages);
+router.patch('/messages/:id/read', authMiddleware, adminMiddleware, markMessageRead);
 
 export default router;
