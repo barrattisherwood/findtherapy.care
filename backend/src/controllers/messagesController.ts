@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { ContactMessage } from '../models/ContactMessage';
+import { User } from '../models/User';
+import { logAdminAction } from '../utils/adminLogger';
 
 // GET /admin/messages
 export const getMessages = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -63,6 +65,18 @@ export const markMessageRead = async (req: AuthRequest, res: Response): Promise<
     if (!message) {
       res.status(404).json({ message: 'Message not found' });
       return;
+    }
+
+    // Only log when marking as read (not toggling back to unread) to reduce noise
+    if (message.isRead) {
+      const adminUser = await User.findById(req.userId).select('email');
+      await logAdminAction({
+        action: 'mark_message_read',
+        adminId: req.userId!,
+        adminEmail: adminUser?.email || req.userId!,
+        targetId: id,
+        targetName: message.senderName,
+      });
     }
 
     res.json({ id: message._id.toString(), isRead: message.isRead });

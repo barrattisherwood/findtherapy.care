@@ -2,6 +2,8 @@ import express from 'express';
 import { getDashboardMetrics, getPendingProviders, vetProvider, getPendingCount, getAllProviders, suspendProvider, deleteProvider } from '../controllers/adminController';
 import { getBlogMetrics } from '../controllers/blogController';
 import { getMessages, markMessageRead, getUnreadCount } from '../controllers/messagesController';
+import { getAdminLogs } from '../controllers/adminLogsController';
+import { getSentryIssues } from '../controllers/sentryController';
 import { authMiddleware } from '../middleware/auth';
 import { adminMiddleware } from '../middleware/admin';
 
@@ -25,5 +27,11 @@ router.delete('/providers/:id', authMiddleware, adminMiddleware, deleteProvider)
 router.get('/messages/unread-count', authMiddleware, adminMiddleware, getUnreadCount);
 router.get('/messages', authMiddleware, adminMiddleware, getMessages);
 router.patch('/messages/:id/read', authMiddleware, adminMiddleware, markMessageRead);
+
+// Activity log - requires auth + admin
+router.get('/logs', authMiddleware, adminMiddleware, getAdminLogs);
+
+// Sentry issues proxy - requires auth + admin
+router.get('/sentry-issues', authMiddleware, adminMiddleware, getSentryIssues);
 
 export default router;

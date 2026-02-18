@@ -53,6 +53,40 @@ export interface AdminProviderListResponse {
   totalPages: number;
 }
 
+export interface AdminLog {
+  id: string;
+  action: 'vet_provider' | 'suspend_provider' | 'unsuspend_provider' | 'delete_provider' | 'mark_message_read';
+  adminId: string;
+  adminEmail: string;
+  targetId: string;
+  targetName: string;
+  details?: Record<string, any>;
+  createdAt: Date;
+}
+
+export interface AdminLogListResponse {
+  logs: AdminLog[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export interface SentryIssue {
+  id: string;
+  title: string;
+  level: 'error' | 'warning' | 'info';
+  count: string;
+  userCount: number;
+  firstSeen: string;
+  lastSeen: string;
+  permalink: string;
+}
+
+export interface SentryIssuesResponse {
+  configured: boolean;
+  issues: SentryIssue[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -124,5 +158,15 @@ export class AdminService {
     return this.http.get<{ count: number }>(`${this.apiUrl}/providers/pending-count`).pipe(
       tap(res => this.pendingCount.set(res.count))
     );
+  }
+
+  getAdminLogs(page: number = 1, action: string = ''): Observable<AdminLogListResponse> {
+    let params = new HttpParams().set('page', page.toString()).set('limit', '25');
+    if (action) params = params.set('action', action);
+    return this.http.get<AdminLogListResponse>(`${this.apiUrl}/logs`, { params });
+  }
+
+  getSentryIssues(): Observable<SentryIssuesResponse> {
+    return this.http.get<SentryIssuesResponse>(`${this.apiUrl}/sentry-issues`);
   }
 }

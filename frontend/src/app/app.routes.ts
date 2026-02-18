@@ -20,6 +20,7 @@ import { AdminProviders } from './components/admin-providers/admin-providers';
 import { BlogAdmin } from './components/blog-admin/blog-admin';
 import { BlogEditor } from './components/blog-editor/blog-editor';
 import { AdminMessages } from './components/admin-messages/admin-messages';
+import { AdminLogs } from './components/admin-logs/admin-logs';
 import { BlogList } from './components/blog-list/blog-list';
 import { BlogDetail } from './components/blog-detail/blog-detail';
 import { PrivacyComponent } from './components/privacy/privacy';
@@ -57,6 +58,7 @@ export const routes: Routes = [
   { path: 'admin/vetting', component: AdminVetting, canActivate: [adminGuard], title: 'Provider Vetting — findtherapy.care' },
   { path: 'admin/providers', component: AdminProviders, canActivate: [adminGuard], title: 'Provider Management — findtherapy.care' },
   { path: 'admin/messages', component: AdminMessages, canActivate: [adminGuard], title: 'Messages — findtherapy.care' },
+  { path: 'admin/logs', component: AdminLogs, canActivate: [adminGuard], title: 'Activity Log — findtherapy.care' },
   { path: 'admin/blog', component: BlogAdmin, canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
   { path: 'admin/blog/new', component: BlogEditor, canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
   { path: 'admin/blog/edit/:id', component: BlogEditor, canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },

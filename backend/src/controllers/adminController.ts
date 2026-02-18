@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { User } from '../models/User';
 import { Provider } from '../models/Provider';
+import { logAdminAction } from '../utils/adminLogger';
 import { SupportGroup } from '../models/SupportGroup';
 import { PaymentEvent } from '../models/PaymentEvent';
 import { SUBSCRIPTION_PRICE_ZAR, VetProviderRequest, ProviderAccessStatus } from '@findlocal/shared';
@@ -150,6 +151,16 @@ export const suspendProvider = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
+    const adminUser = await User.findById(req.userId).select('email');
+    await logAdminAction({
+      action: suspended ? 'suspend_provider' : 'unsuspend_provider',
+      adminId: req.userId!,
+      adminEmail: adminUser?.email || req.userId!,
+      targetId: id,
+      targetName: provider.displayName,
+      details: suspended ? { reason: reason || 'Suspended by admin' } : undefined,
+    });
+
     res.json({
       message: `Provider ${suspended ? 'suspended' : 'unsuspended'} successfully`,
       provider: {
@@ -178,6 +189,15 @@ export const deleteProvider = async (req: AuthRequest, res: Response): Promise<v
 
     const userId = provider.userId;
     const displayName = provider.displayName;
+
+    const adminUser = await User.findById(req.userId).select('email');
+    await logAdminAction({
+      action: 'delete_provider',
+      adminId: req.userId!,
+      adminEmail: adminUser?.email || req.userId!,
+      targetId: id,
+      targetName: displayName,
+    });
 
     // Delete the provider profile
     await Provider.findByIdAndDelete(id);
@@ -278,6 +298,16 @@ export const vetProvider = async (req: AuthRequest, res: Response): Promise<void
     }
 
     await provider.save();
+
+    const adminUser = await User.findById(req.userId).select('email');
+    await logAdminAction({
+      action: 'vet_provider',
+      adminId: req.userId!,
+      adminEmail: adminUser?.email || req.userId!,
+      targetId: id,
+      targetName: provider.displayName,
+      details: { vettingStatus: status, vettingNotes: notes },
+    });
 
     // Send email notification to the provider
     try {

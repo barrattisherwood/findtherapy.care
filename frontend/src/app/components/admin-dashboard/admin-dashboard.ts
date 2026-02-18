@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AdminService } from '../../services/admin.service';
+import { AdminService, AdminLog, SentryIssue } from '../../services/admin.service';
 import { BlogService } from '../../services/blog.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
@@ -20,6 +20,9 @@ export class AdminDashboard implements OnInit {
 
   metrics = signal<DashboardMetrics | null>(null);
   blogMetrics = signal<BlogMetrics | null>(null);
+  recentLogs = signal<AdminLog[]>([]);
+  sentryIssues = signal<SentryIssue[]>([]);
+  sentryConfigured = signal(true);
   loading = this.adminService.loading;
   blogLoading = this.blogService.loading;
   errorMessage = signal('');
@@ -36,6 +39,8 @@ export class AdminDashboard implements OnInit {
     this.loadMetrics();
     this.loadBlogMetrics();
     this.adminService.getPendingCount().subscribe();
+    this.loadRecentLogs();
+    this.loadSentryIssues();
   }
 
   loadMetrics(): void {
@@ -54,6 +59,58 @@ export class AdminDashboard implements OnInit {
       error: (error) => {
         console.error('Failed to load blog metrics:', error);
       }
+    });
+  }
+
+  loadRecentLogs(): void {
+    this.adminService.getAdminLogs(1, '').subscribe({
+      next: (res) => this.recentLogs.set(res.logs.slice(0, 5)),
+      error: () => {}
+    });
+  }
+
+  loadSentryIssues(): void {
+    this.adminService.getSentryIssues().subscribe({
+      next: (res) => {
+        this.sentryIssues.set(res.issues);
+        this.sentryConfigured.set(res.configured);
+      },
+      error: () => {}
+    });
+  }
+
+  getLogBadgeClasses(log: AdminLog): string {
+    switch (log.action) {
+      case 'vet_provider':
+        return log.details?.['vettingStatus'] === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+      case 'suspend_provider': return 'bg-orange-100 text-orange-800';
+      case 'unsuspend_provider': return 'bg-blue-100 text-blue-800';
+      case 'delete_provider': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  }
+
+  getLogBadgeLabel(log: AdminLog): string {
+    switch (log.action) {
+      case 'vet_provider': return log.details?.['vettingStatus'] === 'approved' ? 'Approved' : 'Rejected';
+      case 'suspend_provider': return 'Suspended';
+      case 'unsuspend_provider': return 'Unsuspended';
+      case 'delete_provider': return 'Deleted';
+      default: return 'Read';
+    }
+  }
+
+  getSentryLevelClasses(level: string): string {
+    switch (level) {
+      case 'error': return 'bg-red-100 text-red-800';
+      case 'warning': return 'bg-orange-100 text-orange-800';
+      default: return 'bg-blue-100 text-blue-800';
+    }
+  }
+
+  formatDate(date: Date | string): string {
+    return new Date(date).toLocaleDateString('en-ZA', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
     });
   }
 

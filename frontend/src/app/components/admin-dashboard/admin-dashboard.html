@@ -171,6 +171,66 @@
         </div>
       </div>
 
+      <!-- Recent Activity Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+          <a routerLink="/admin/logs" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+            View all &rarr;
+          </a>
+        </div>
+        @if (recentLogs().length === 0) {
+          <p class="text-sm text-gray-500">No admin actions recorded yet.</p>
+        } @else {
+          <div class="space-y-2">
+            @for (log of recentLogs(); track log.id) {
+              <div class="flex items-center gap-3 py-2">
+                <span class="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ getLogBadgeClasses(log) }}">
+                  {{ getLogBadgeLabel(log) }}
+                </span>
+                <span class="text-sm text-gray-800 flex-1 truncate">{{ log.targetName }}</span>
+                <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatDate(log.createdAt) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Sentry Errors Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">Recent Errors</h3>
+          <span class="text-xs text-gray-400">via Sentry</span>
+        </div>
+        @if (!sentryConfigured()) {
+          <p class="text-sm text-gray-500">Sentry API not configured. Add <code class="bg-gray-100 px-1 rounded text-xs">SENTRY_AUTH_TOKEN</code> and <code class="bg-gray-100 px-1 rounded text-xs">SENTRY_ORG_SLUG</code> to Railway env vars.</p>
+        } @else if (sentryIssues().length === 0) {
+          <p class="text-sm text-gray-500 flex items-center gap-2">
+            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            No unresolved errors.
+          </p>
+        } @else {
+          <div class="space-y-2">
+            @for (issue of sentryIssues(); track issue.id) {
+              <div class="flex items-start gap-3 py-2 border-b border-gray-50 last:border-0">
+                <span class="flex-shrink-0 mt-0.5 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ getSentryLevelClasses(issue.level) }}">
+                  {{ issue.level }}
+                </span>
+                <div class="flex-1 min-w-0">
+                  <a [href]="issue.permalink" target="_blank" rel="noopener noreferrer"
+                     class="text-sm text-gray-800 hover:text-primary-600 truncate block">
+                    {{ issue.title }}
+                  </a>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ issue.count }} occurrences &middot; last {{ formatDate(issue.lastSeen) }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
       <!-- Messages Section -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
         <div class="flex items-center justify-between mb-4">
