@@ -2,4 +2,4 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 echo "Running frontend production build..."
-npm run build:frontend || { echo "Frontend build failed — commit aborted."; exit 1; }
+npm run build:prod --workspace=frontend || { echo "Frontend build failed — commit aborted."; exit 1; }
