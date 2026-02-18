@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import * as Sentry from '@sentry/node';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -24,6 +25,7 @@ export const authMiddleware = (
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
 
     req.userId = decoded.userId;
+    Sentry.setUser({ id: decoded.userId });
     next();
   } catch (error: any) {
     if (error.name === 'TokenExpiredError') {

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import * as Sentry from '@sentry/node';
 
 export class AppError extends Error {
   public readonly statusCode: number;
@@ -62,7 +63,8 @@ export function errorHandler(
     return;
   }
 
-  // Log unexpected errors
+  // Capture unexpected (non-operational) errors in Sentry
+  Sentry.captureException(err);
   console.error('Unexpected error:', err);
   res.status(500).json({ message: 'Server error' });
 }

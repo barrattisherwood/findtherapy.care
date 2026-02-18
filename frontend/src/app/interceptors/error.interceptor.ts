@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ToastService } from '../services/toast';
+import * as Sentry from '@sentry/angular';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -50,6 +51,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
+      // Send server errors and network failures to Sentry
+      if (error.status === 0 || error.status >= 500) {
+        Sentry.captureException(error);
+      }
       console.error('HTTP Error:', error);
       return throwError(() => new Error(errorMessage));
     })

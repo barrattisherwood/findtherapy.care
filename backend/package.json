@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@findlocal/shared": "file:../shared",
+    "@sentry/node": "^10.39.0",
     "@types/node-cron": "^3.0.11",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.9.0",

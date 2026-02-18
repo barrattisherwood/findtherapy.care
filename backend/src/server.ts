@@ -1,3 +1,5 @@
+import './instrument'; // Must be first — initialises Sentry before anything else
+import * as Sentry from '@sentry/node';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -60,6 +62,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/promo', promoRoutes);
+
+// Sentry error handler must be before the custom error handler
+Sentry.setupExpressErrorHandler(app);
 
 // Global error handler (must be after all routes)
 app.use(errorHandler);
