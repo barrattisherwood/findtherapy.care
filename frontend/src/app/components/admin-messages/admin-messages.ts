@@ -5,7 +5,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ToastService } from '../../services/toast';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 export interface AdminMessage {
   id: string;
