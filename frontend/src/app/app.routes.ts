@@ -2,70 +2,44 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './guards/auth-guard';
 import { adminGuard } from './guards/admin-guard';
-import { Landing } from './components/landing/landing';
-import { Login } from './components/login/login';
-import { Register } from './components/register/register';
-import { ForgotPassword } from './components/forgot-password/forgot-password';
-import { ResetPassword } from './components/reset-password/reset-password';
-import { ProviderList } from './components/provider-list/provider-list';
-import { ProviderDetail } from './components/provider-detail/provider-detail';
-import { ProviderProfile } from './components/provider-profile/provider-profile';
-import { SupportGroupList } from './components/support-group-list/support-group-list';
-import { SupportGroupDetail } from './components/support-group-detail/support-group-detail';
-import { SupportGroupForm } from './components/support-group-form/support-group-form';
-import { CityLanding } from './components/city-landing/city-landing';
-import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
-import { AdminVetting } from './components/admin-vetting/admin-vetting';
-import { AdminProviders } from './components/admin-providers/admin-providers';
-import { BlogAdmin } from './components/blog-admin/blog-admin';
-import { BlogEditor } from './components/blog-editor/blog-editor';
-import { AdminMessages } from './components/admin-messages/admin-messages';
-import { AdminLogs } from './components/admin-logs/admin-logs';
-import { BlogList } from './components/blog-list/blog-list';
-import { BlogDetail } from './components/blog-detail/blog-detail';
-import { PrivacyComponent } from './components/privacy/privacy';
-import { TermsComponent } from './components/terms/terms';
-import { TermsOfService } from './components/terms-of-service/terms-of-service';
-import { ContactComponent } from './components/contact/contact';
-import { Founders } from './components/founders/founders';
 
 export const routes: Routes = [
-  { path: '', component: Landing, title: 'findtherapy.care — Find therapists and counsellors near you' },
+  { path: '', loadComponent: () => import('./components/landing/landing').then(m => m.Landing), title: 'findtherapy.care — Find therapists and counsellors near you' },
   // City landing pages
-  { path: 'johannesburg', component: CityLanding, title: 'Therapists in Johannesburg — findtherapy.care' },
-  { path: 'cape-town', component: CityLanding, title: 'Therapists in Cape Town — findtherapy.care' },
-  { path: 'durban', component: CityLanding, title: 'Therapists in Durban — findtherapy.care' },
-  { path: 'pretoria', component: CityLanding, title: 'Therapists in Pretoria — findtherapy.care' },
-  { path: 'login', component: Login, title: 'Sign In — findtherapy.care' },
-  { path: 'register', component: Register, title: 'Create Account — findtherapy.care' },
-  { path: 'founders', component: Founders, title: 'Founding Supporter Deal — findtherapy.care' },
-  { path: 'forgot-password', component: ForgotPassword, title: 'Reset Password — findtherapy.care' },
-  { path: 'reset-password', component: ResetPassword, title: 'Reset Password — findtherapy.care' },
+  { path: 'johannesburg', loadComponent: () => import('./components/city-landing/city-landing').then(m => m.CityLanding), title: 'Therapists in Johannesburg — findtherapy.care' },
+  { path: 'cape-town', loadComponent: () => import('./components/city-landing/city-landing').then(m => m.CityLanding), title: 'Therapists in Cape Town — findtherapy.care' },
+  { path: 'durban', loadComponent: () => import('./components/city-landing/city-landing').then(m => m.CityLanding), title: 'Therapists in Durban — findtherapy.care' },
+  { path: 'pretoria', loadComponent: () => import('./components/city-landing/city-landing').then(m => m.CityLanding), title: 'Therapists in Pretoria — findtherapy.care' },
+  { path: 'login', loadComponent: () => import('./components/login/login').then(m => m.Login), title: 'Sign In — findtherapy.care' },
+  { path: 'register', loadComponent: () => import('./components/register/register').then(m => m.Register), title: 'Create Account — findtherapy.care' },
+  { path: 'founders', loadComponent: () => import('./components/founders/founders').then(m => m.Founders), title: 'Founding Supporter Deal — findtherapy.care' },
+  { path: 'forgot-password', loadComponent: () => import('./components/forgot-password/forgot-password').then(m => m.ForgotPassword), title: 'Reset Password — findtherapy.care' },
+  { path: 'reset-password', loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPassword), title: 'Reset Password — findtherapy.care' },
   // Provider routes
-  { path: 'providers', component: ProviderList, title: 'Find Providers — findtherapy.care' },
-  { path: 'providers/:id', component: ProviderDetail },
-  { path: 'provider/profile', component: ProviderProfile, canActivate: [authGuard], title: 'My Profile — findtherapy.care' },
+  { path: 'providers', loadComponent: () => import('./components/provider-list/provider-list').then(m => m.ProviderList), title: 'Find Providers — findtherapy.care' },
+  { path: 'providers/:id', loadComponent: () => import('./components/provider-detail/provider-detail').then(m => m.ProviderDetail) },
+  { path: 'provider/profile', loadComponent: () => import('./components/provider-profile/provider-profile').then(m => m.ProviderProfile), canActivate: [authGuard], title: 'My Profile — findtherapy.care' },
   // Support group routes
-  { path: 'support-groups', component: SupportGroupList, title: 'Support Groups — findtherapy.care' },
-  { path: 'support-groups/new', component: SupportGroupForm, canActivate: [authGuard], title: 'Create Support Group — findtherapy.care' },
-  { path: 'support-groups/:id/edit', component: SupportGroupForm, canActivate: [authGuard], title: 'Edit Support Group — findtherapy.care' },
-  { path: 'support-groups/:id', component: SupportGroupDetail },
+  { path: 'support-groups', loadComponent: () => import('./components/support-group-list/support-group-list').then(m => m.SupportGroupList), title: 'Support Groups — findtherapy.care' },
+  { path: 'support-groups/new', loadComponent: () => import('./components/support-group-form/support-group-form').then(m => m.SupportGroupForm), canActivate: [authGuard], title: 'Create Support Group — findtherapy.care' },
+  { path: 'support-groups/:id/edit', loadComponent: () => import('./components/support-group-form/support-group-form').then(m => m.SupportGroupForm), canActivate: [authGuard], title: 'Edit Support Group — findtherapy.care' },
+  { path: 'support-groups/:id', loadComponent: () => import('./components/support-group-detail/support-group-detail').then(m => m.SupportGroupDetail) },
   // Blog routes
-  { path: 'blog', component: BlogList, title: 'Mental Health Blog — findtherapy.care' },
-  { path: 'blog/:slug', component: BlogDetail },
+  { path: 'blog', loadComponent: () => import('./components/blog-list/blog-list').then(m => m.BlogList), title: 'Mental Health Blog — findtherapy.care' },
+  { path: 'blog/:slug', loadComponent: () => import('./components/blog-detail/blog-detail').then(m => m.BlogDetail) },
   // Admin routes
-  { path: 'admin/dashboard', component: AdminDashboard, canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
-  { path: 'admin/vetting', component: AdminVetting, canActivate: [adminGuard], title: 'Provider Vetting — findtherapy.care' },
-  { path: 'admin/providers', component: AdminProviders, canActivate: [adminGuard], title: 'Provider Management — findtherapy.care' },
-  { path: 'admin/messages', component: AdminMessages, canActivate: [adminGuard], title: 'Messages — findtherapy.care' },
-  { path: 'admin/logs', component: AdminLogs, canActivate: [adminGuard], title: 'Activity Log — findtherapy.care' },
-  { path: 'admin/blog', component: BlogAdmin, canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
-  { path: 'admin/blog/new', component: BlogEditor, canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
-  { path: 'admin/blog/edit/:id', component: BlogEditor, canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },
+  { path: 'admin/dashboard', loadComponent: () => import('./components/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard), canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
+  { path: 'admin/vetting', loadComponent: () => import('./components/admin-vetting/admin-vetting').then(m => m.AdminVetting), canActivate: [adminGuard], title: 'Provider Vetting — findtherapy.care' },
+  { path: 'admin/providers', loadComponent: () => import('./components/admin-providers/admin-providers').then(m => m.AdminProviders), canActivate: [adminGuard], title: 'Provider Management — findtherapy.care' },
+  { path: 'admin/messages', loadComponent: () => import('./components/admin-messages/admin-messages').then(m => m.AdminMessages), canActivate: [adminGuard], title: 'Messages — findtherapy.care' },
+  { path: 'admin/logs', loadComponent: () => import('./components/admin-logs/admin-logs').then(m => m.AdminLogs), canActivate: [adminGuard], title: 'Activity Log — findtherapy.care' },
+  { path: 'admin/blog', loadComponent: () => import('./components/blog-admin/blog-admin').then(m => m.BlogAdmin), canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
+  { path: 'admin/blog/new', loadComponent: () => import('./components/blog-editor/blog-editor').then(m => m.BlogEditor), canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
+  { path: 'admin/blog/edit/:id', loadComponent: () => import('./components/blog-editor/blog-editor').then(m => m.BlogEditor), canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },
   // Legal pages
-  { path: 'privacy', component: PrivacyComponent, title: 'Privacy Policy — findtherapy.care' },
-  { path: 'terms', component: TermsComponent, title: 'Terms of Service — findtherapy.care' },
-  { path: 'terms-of-service', component: TermsOfService, title: 'Terms of Service — findtherapy.care' },
-  { path: 'contact', component: ContactComponent, title: 'Contact Us — findtherapy.care' },
+  { path: 'privacy', loadComponent: () => import('./components/privacy/privacy').then(m => m.PrivacyComponent), title: 'Privacy Policy — findtherapy.care' },
+  { path: 'terms', loadComponent: () => import('./components/terms/terms').then(m => m.TermsComponent), title: 'Terms of Service — findtherapy.care' },
+  { path: 'terms-of-service', loadComponent: () => import('./components/terms-of-service/terms-of-service').then(m => m.TermsOfService), title: 'Terms of Service — findtherapy.care' },
+  { path: 'contact', loadComponent: () => import('./components/contact/contact').then(m => m.ContactComponent), title: 'Contact Us — findtherapy.care' },
   { path: '**', redirectTo: '' }
 ];
