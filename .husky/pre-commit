@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Skip pre-commit for now
+echo "Running frontend production build..."
+npm run build:frontend || { echo "Frontend build failed — commit aborted."; exit 1; }
