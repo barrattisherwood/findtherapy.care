@@ -105,12 +105,16 @@ export const SUPPORT_GROUP_CATEGORIES = [
   'HIV/AIDS',
   'LGBTQ+',
   'Mental Health',
+  "Men's Support",
   'New Parents',
+  'Parenting & Family',
   'PTSD & Trauma',
   'Relationship Support',
+  'Seniors Support',
   'Single Parents',
   'Substance Abuse',
   'Suicide Loss Survivors',
+  'Youth & Teen Support',
 ] as const;
 
 export type SupportGroupCategory = typeof SUPPORT_GROUP_CATEGORIES[number];
