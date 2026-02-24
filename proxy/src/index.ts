@@ -5,7 +5,9 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 const ARCLINK_URL = process.env.ARCLINK_URL ?? 'https://api.arclink.dev';
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? 'https://findtherapy.care';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGIN ?? 'https://findtherapy.care')
+  .split(',')
+  .map(o => o.trim());
 
 const SITE_CONTACT_TENANT_ID = process.env.SITE_CONTACT_TENANT_ID;
 const SITE_CONTACT_API_KEY = process.env.SITE_CONTACT_API_KEY;
@@ -15,8 +17,8 @@ const PROVIDER_CONTACT_API_KEY = process.env.PROVIDER_CONTACT_API_KEY;
 
 app.use(express.json());
 
-function corsHeaders(res: Response): void {
-  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+function corsHeaders(res: Response, origin: string): void {
+  res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
@@ -27,9 +29,9 @@ async function forwardToArclink(
   tenantId: string | undefined,
   apiKey: string | undefined,
 ): Promise<void> {
-  const origin = req.headers.origin;
+  const origin = req.headers.origin ?? '';
 
-  if (origin !== ALLOWED_ORIGIN) {
+  if (!ALLOWED_ORIGINS.includes(origin)) {
     res.status(403).json({ error: 'Invalid origin' });
     return;
   }
@@ -40,7 +42,7 @@ async function forwardToArclink(
     return;
   }
 
-  corsHeaders(res);
+  corsHeaders(res, origin);
 
   let arclinkRes: globalThis.Response;
   try {
@@ -49,7 +51,7 @@ async function forwardToArclink(
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'origin': ALLOWED_ORIGIN,
+        'origin': ALLOWED_ORIGINS[0],
       },
       body: JSON.stringify(req.body),
     });
@@ -64,8 +66,8 @@ async function forwardToArclink(
 }
 
 // ── Site contact form ────────────────────────────────────────────────────────
-app.options('/contact', (_req, res) => {
-  corsHeaders(res);
+app.options('/contact', (req, res) => {
+  corsHeaders(res, req.headers.origin ?? ALLOWED_ORIGINS[0]);
   res.sendStatus(204);
 });
 
@@ -74,8 +76,8 @@ app.post('/contact', (req: Request, res: Response): Promise<void> => {
 });
 
 // ── Provider contact form ────────────────────────────────────────────────────
-app.options('/provider-contact', (_req, res) => {
-  corsHeaders(res);
+app.options('/provider-contact', (req, res) => {
+  corsHeaders(res, req.headers.origin ?? ALLOWED_ORIGINS[0]);
   res.sendStatus(204);
 });
 
