@@ -10,7 +10,6 @@ import subscriptionRoutes from './routes/subscriptionRoutes';
 import supportGroupRoutes from './routes/supportGroupRoutes';
 import adminRoutes from './routes/adminRoutes';
 import blogRoutes from './routes/blogRoutes';
-import contactRoutes from './routes/contactRoutes';
 import sitemapRoutes from './routes/sitemapRoutes';
 import promoRoutes from './routes/promoRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
@@ -60,7 +59,6 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/support-groups', supportGroupRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/blog', blogRoutes);
-app.use('/api/contact', contactRoutes);
 app.use('/api/promo', promoRoutes);
 
 // Sentry error handler must be before the custom error handler

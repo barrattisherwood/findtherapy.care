@@ -1,11 +1,11 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { AnalyticsService } from '../../services/analytics.service';
+import { FormsService } from '../../services/forms.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -14,9 +14,12 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, Navbar, Footer, FormsModule, RouterModule],
   templateUrl: './contact.html',
 })
-export class ContactComponent {
-  private http = inject(HttpClient);
+export class ContactComponent implements AfterViewInit {
   private analytics = inject(AnalyticsService);
+  private formsService = inject(FormsService);
+
+  @ViewChild('turnstileWidget') turnstileWidget!: ElementRef;
+  private turnstileWidgetId: string | null = null;
 
   name = signal('');
   email = signal('');
@@ -26,29 +29,63 @@ export class ContactComponent {
   loading = signal(false);
   error = signal('');
 
+  ngAfterViewInit(): void {
+    const checkTurnstile = setInterval(() => {
+      if (typeof (window as any).turnstile !== 'undefined' && this.turnstileWidget?.nativeElement) {
+        clearInterval(checkTurnstile);
+        this.turnstileWidgetId = (window as any).turnstile.render(this.turnstileWidget.nativeElement, {
+          sitekey: environment.turnstile.siteKey,
+          theme: 'light',
+          size: 'normal',
+        });
+      }
+    }, 100);
+    setTimeout(() => clearInterval(checkTurnstile), 10000);
+  }
+
+  private getTurnstileToken(): string | null {
+    if (this.turnstileWidgetId === null) return null;
+    try {
+      return (window as any).turnstile.getResponse(this.turnstileWidgetId) || null;
+    } catch {
+      return null;
+    }
+  }
+
   async submitForm() {
     if (!this.name() || !this.email() || !this.subject() || !this.message()) {
+      return;
+    }
+
+    const token = this.getTurnstileToken();
+    if (!token) {
+      this.error.set('Please complete the security verification.');
       return;
     }
 
     this.loading.set(true);
     this.error.set('');
 
-    try {
-      await this.http.post(`${environment.apiUrl}/contact`, {
-        name: this.name(),
-        email: this.email(),
-        subject: this.subject(),
-        message: this.message(),
-      }).toPromise();
-
-      this.analytics.trackSiteContactSubmit();
-      this.submitted.set(true);
-    } catch (err: any) {
-      console.error('Contact form error:', err);
-      this.error.set(err.error?.message || 'Failed to send message. Please try again.');
-    } finally {
-      this.loading.set(false);
-    }
+    this.formsService.submit(environment.siteContactProxyUrl, {
+      name: this.name(),
+      email: this.email(),
+      subject: this.subject(),
+      message: this.message(),
+      'cf-turnstile-response': token,
+    }).subscribe({
+      next: () => {
+        this.analytics.trackSiteContactSubmit();
+        this.submitted.set(true);
+      },
+      error: (err: Error) => {
+        this.error.set(err.message);
+        if (this.turnstileWidgetId !== null) {
+          (window as any).turnstile.reset(this.turnstileWidgetId);
+        }
+      },
+      complete: () => {
+        this.loading.set(false);
+      },
+    });
   }
 }

@@ -10,7 +10,6 @@ import {
   uploadProfileImage,
   deleteProfileImage,
 } from '../controllers/providerController';
-import { contactProvider } from '../controllers/contactController';
 import { authMiddleware } from '../middleware/auth';
 
 const router = express.Router();
@@ -28,6 +27,5 @@ router.delete('/me/image', authMiddleware, deleteProfileImage);
 // Public routes
 router.get('/', searchProviders);
 router.get('/:id', getProviderById);
-router.post('/:id/contact', contactProvider);
 
 export default router;

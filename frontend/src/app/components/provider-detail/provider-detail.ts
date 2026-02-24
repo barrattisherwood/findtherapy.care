@@ -1,16 +1,17 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProviderService } from '../../services/provider.service';
-import { ContactService } from '../../services/contact.service';
+import { FormsService } from '../../services/forms.service';
 import { ToastService } from '../../services/toast';
 import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
-import { Provider, ContactProviderRequest, ProviderType, FOUNDERS_MAX_SPOTS } from '@findlocal/shared';
+import { Provider, ProviderType, FOUNDERS_MAX_SPOTS } from '@findlocal/shared';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-provider-detail',
@@ -19,13 +20,17 @@ import { Provider, ContactProviderRequest, ProviderType, FOUNDERS_MAX_SPOTS } fr
   templateUrl: './provider-detail.html',
   styleUrl: './provider-detail.scss'
 })
-export class ProviderDetail implements OnInit {
+export class ProviderDetail implements OnInit, AfterViewChecked {
   private route = inject(ActivatedRoute);
   private providerService = inject(ProviderService);
-  private contactService = inject(ContactService);
+  private formsService = inject(FormsService);
   private toast = inject(ToastService);
   private seo = inject(SeoService);
   private analytics = inject(AnalyticsService);
+
+  @ViewChild('turnstileWidget') turnstileWidget?: ElementRef;
+  private turnstileWidgetId: string | null = null;
+  private turnstileRendered = false;
 
   provider = signal<Provider | null>(null);
   loading = signal<boolean>(true);
@@ -48,6 +53,28 @@ export class ProviderDetail implements OnInit {
     }
   }
 
+  ngAfterViewChecked(): void {
+    if (this.showContactModal() && !this.turnstileRendered && this.turnstileWidget?.nativeElement) {
+      if (typeof (window as any).turnstile !== 'undefined') {
+        this.turnstileRendered = true;
+        this.turnstileWidgetId = (window as any).turnstile.render(this.turnstileWidget.nativeElement, {
+          sitekey: environment.turnstile.siteKey,
+          theme: 'light',
+          size: 'normal',
+        });
+      }
+    }
+  }
+
+  private getTurnstileToken(): string | null {
+    if (this.turnstileWidgetId === null) return null;
+    try {
+      return (window as any).turnstile.getResponse(this.turnstileWidgetId) || null;
+    } catch {
+      return null;
+    }
+  }
+
   private loadProvider(id: string): void {
     this.loading.set(true);
     this.error.set(null);
@@ -65,8 +92,8 @@ export class ProviderDetail implements OnInit {
         });
 
         // Add structured data for better SEO
-        const priceRange = p.pricing.individualCounsellingRate 
-          ? `R${p.pricing.individualCounsellingRate}` 
+        const priceRange = p.pricing.individualCounsellingRate
+          ? `R${p.pricing.individualCounsellingRate}`
           : undefined;
 
         this.seo.setStructuredData({
@@ -136,11 +163,15 @@ export class ProviderDetail implements OnInit {
   }
 
   openContactModal(): void {
+    this.turnstileRendered = false;
+    this.turnstileWidgetId = null;
     this.showContactModal.set(true);
   }
 
   closeContactModal(): void {
     this.showContactModal.set(false);
+    this.turnstileRendered = false;
+    this.turnstileWidgetId = null;
     this.contactName.set('');
     this.contactEmail.set('');
     this.contactPhone.set('');
@@ -162,21 +193,27 @@ export class ProviderDetail implements OnInit {
       return;
     }
 
-    const providerId = this.provider()?.id;
-    if (!providerId) return;
+    const token = this.getTurnstileToken();
+    if (!token) {
+      this.toast.error('Verification Required', 'Please complete the security verification.');
+      return;
+    }
+
+    const p = this.provider();
+    if (!p) return;
 
     this.submitting.set(true);
 
-    const data: ContactProviderRequest = {
+    this.formsService.submit(environment.providerContactProxyUrl, {
       name,
       email,
-      phone: this.contactPhone().trim() || undefined,
+      phone: this.contactPhone().trim(),
       message,
-    };
-
-    this.contactService.contactProvider(providerId, data).subscribe({
+      provider_email: p.contactEmail,
+      'cf-turnstile-response': token,
+    }).subscribe({
       next: () => {
-        this.analytics.trackContactFormSubmit(providerId, this.provider()?.displayName || 'Unknown');
+        this.analytics.trackContactFormSubmit(p.id, p.displayName);
         this.toast.success('Message Sent', 'Your message has been sent successfully. The provider will contact you soon.');
         this.submitting.set(false);
         if (this.showContactModal()) {
@@ -185,8 +222,11 @@ export class ProviderDetail implements OnInit {
           this.toggleContactForm();
         }
       },
-      error: (err) => {
-        this.toast.error('Error', err.error?.message || 'Failed to send message. Please try again.');
+      error: (err: Error) => {
+        this.toast.error('Error', err.message);
+        if (this.turnstileWidgetId !== null) {
+          (window as any).turnstile.reset(this.turnstileWidgetId);
+        }
         this.submitting.set(false);
       }
     });
