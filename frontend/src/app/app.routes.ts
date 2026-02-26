@@ -15,7 +15,6 @@ export const routes: Routes = [
   { path: 'founders', loadComponent: () => import('./components/founders/founders').then(m => m.Founders), title: 'Founding Supporter Deal — findtherapy.care' },
   { path: 'forgot-password', loadComponent: () => import('./components/forgot-password/forgot-password').then(m => m.ForgotPassword), title: 'Reset Password — findtherapy.care' },
   { path: 'reset-password', loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPassword), title: 'Reset Password — findtherapy.care' },
-  { path: 'verify-email', loadComponent: () => import('./components/verify-email/verify-email').then(m => m.VerifyEmail), title: 'Verify Email — findtherapy.care' },
   // Provider routes
   { path: 'providers', loadComponent: () => import('./components/provider-list/provider-list').then(m => m.ProviderList), title: 'Find Providers — findtherapy.care' },
   { path: 'providers/:id', loadComponent: () => import('./components/provider-detail/provider-detail').then(m => m.ProviderDetail) },

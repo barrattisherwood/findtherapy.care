@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { Provider } from '../models/Provider';
-import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import {
   CreateProviderRequest,
@@ -98,12 +97,6 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId!;
     const data: CreateProviderRequest = req.body;
-
-    // Check email is verified before allowing profile submission
-    const user = await User.findById(userId);
-    if (!user?.isEmailVerified) {
-      return res.status(403).json({ message: 'Please verify your email address before submitting your profile.' });
-    }
 
     // Check if user already has a provider profile
     const existingProvider = await Provider.findOne({ userId });

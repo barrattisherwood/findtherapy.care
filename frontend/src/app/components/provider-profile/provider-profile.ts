@@ -7,7 +7,6 @@ import { SubscriptionService } from '../../services/subscription.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { PromoService } from '../../services/promo.service';
 import { ToastService } from '../../services/toast';
-import { AuthService } from '../../services/auth.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
@@ -30,10 +29,6 @@ export class ProviderProfile implements OnInit {
   private analytics = inject(AnalyticsService);
   private promoService = inject(PromoService);
   private toast = inject(ToastService);
-  private authService = inject(AuthService);
-
-  currentUser = this.authService.currentUser;
-  resendingVerification = signal<boolean>(false);
 
   myProvider = this.providerService.myProvider;
   subscriptionStatus = this.subscriptionService.subscriptionStatus;
@@ -521,19 +516,5 @@ export class ProviderProfile implements OnInit {
       return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
     }
     return count.toString();
-  }
-
-  resendVerificationEmail(): void {
-    this.resendingVerification.set(true);
-    this.authService.resendVerification().subscribe({
-      next: () => {
-        this.toast.success('Email sent', 'Check your inbox for a new verification link.');
-        this.resendingVerification.set(false);
-      },
-      error: (err) => {
-        this.toast.error('Error', err.error?.message || 'Failed to send verification email.');
-        this.resendingVerification.set(false);
-      }
-    });
   }
 }

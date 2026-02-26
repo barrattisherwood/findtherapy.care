@@ -2,7 +2,6 @@ export interface User {
   id: string;
   email: string;
   isAdmin?: boolean;
-  isEmailVerified?: boolean;
   profile?: {
     bio?: string;
     avatar?: string;

@@ -7,8 +7,6 @@ export interface IUser extends Omit<SharedUser, 'id'>, Document {
   password: string;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
-  emailVerificationToken?: string;
-  emailVerificationExpires?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -39,18 +37,6 @@ const userSchema = new Schema<IUser>(
       select: false,
     },
     passwordResetExpires: {
-      type: Date,
-      select: false,
-    },
-    isEmailVerified: {
-      type: Boolean,
-      default: false,
-    },
-    emailVerificationToken: {
-      type: String,
-      select: false,
-    },
-    emailVerificationExpires: {
       type: Date,
       select: false,
     },
