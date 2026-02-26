@@ -19,6 +19,9 @@ export class Login {
   password = '';
   error = signal<string | null>(null);
   loading = signal(false);
+  unverified = signal(false);
+  resendLoading = signal(false);
+  resendSent = signal(false);
 
   private destroy$ = takeUntilDestroyed();
   private analytics = inject(AnalyticsService);
@@ -36,6 +39,8 @@ export class Login {
 
     this.loading.set(true);
     this.error.set(null);
+    this.unverified.set(false);
+    this.resendSent.set(false);
 
     this.authService.login(this.email, this.password)
       .pipe(this.destroy$)
@@ -46,8 +51,27 @@ export class Login {
       },
       error: (err) => {
         this.loading.set(false);
-        this.error.set(err.error?.message || 'Login failed');
+        if (err.status === 403) {
+          this.unverified.set(true);
+        } else {
+          this.error.set(err.error?.message || 'Login failed');
+        }
       }
     });
+  }
+
+  resendVerification(): void {
+    this.resendLoading.set(true);
+    this.authService.resendVerification(this.email)
+      .pipe(this.destroy$)
+      .subscribe({
+        next: () => {
+          this.resendLoading.set(false);
+          this.resendSent.set(true);
+        },
+        error: () => {
+          this.resendLoading.set(false);
+        }
+      });
   }
 }

@@ -22,6 +22,8 @@ export class Register implements OnInit {
   confirmPassword = '';
   error = signal<string | null>(null);
   loading = signal(false);
+  registered = signal(false);
+  registeredEmail = '';
   trialMonths = Math.round(TRIAL_PERIOD_DAYS / 30);
   subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
   
@@ -77,7 +79,8 @@ export class Register implements OnInit {
       .subscribe({
       next: () => {
         this.analytics.trackRegistration('provider');
-        this.router.navigate(['/provider/profile']);
+        this.registeredEmail = this.email;
+        this.registered.set(true);
       },
       error: (err) => {
         this.loading.set(false);

@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { User, AuthResponse, LoginRequest, RegisterRequest } from '@findlocal/shared';
+import { User, AuthResponse, LoginRequest, RegisterRequest, MessageResponse } from '@findlocal/shared';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -35,12 +35,19 @@ export class AuthService {
     }
   }
 
-  register(email: string, password: string): Observable<AuthResponse> {
+  register(email: string, password: string): Observable<MessageResponse> {
     const body: RegisterRequest = { email, password };
+    return this.http.post<MessageResponse>(`${this.apiUrl}/register`, body);
+  }
 
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, body).pipe(
+  verifyEmail(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-email`, { token }).pipe(
       tap(response => this.handleAuthResponse(response))
     );
+  }
+
+  resendVerification(email: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/resend-verification`, { email });
   }
 
   login(email: string, password: string): Observable<AuthResponse> {

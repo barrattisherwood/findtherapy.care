@@ -5,6 +5,9 @@ import { User as SharedUser } from '@findlocal/shared';
 export interface IUser extends Omit<SharedUser, 'id'>, Document {
   _id: mongoose.Types.ObjectId;
   password: string;
+  emailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationExpires?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -27,6 +30,18 @@ const userSchema = new Schema<IUser>(
     isAdmin: {
       type: Boolean,
       default: false,
+    },
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+      select: false,
+    },
+    emailVerificationExpires: {
+      type: Date,
+      select: false,
     },
     profile: {
       bio: String,

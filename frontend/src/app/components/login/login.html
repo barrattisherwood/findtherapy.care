@@ -60,6 +60,24 @@
         </div>
       }
 
+      @if (unverified()) {
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm space-y-3">
+          <p class="text-amber-800 font-medium">Please verify your email before signing in.</p>
+          @if (resendSent()) {
+            <p class="text-green-700">Verification email sent! Check your inbox.</p>
+          } @else {
+            <button
+              type="button"
+              (click)="resendVerification()"
+              [disabled]="resendLoading()"
+              class="text-amber-700 underline hover:text-amber-900 disabled:opacity-50"
+            >
+              {{ resendLoading() ? 'Sending…' : 'Resend verification email' }}
+            </button>
+          }
+        </div>
+      }
+
       <button
         type="submit"
         [disabled]="loading()"

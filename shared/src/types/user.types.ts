@@ -2,12 +2,17 @@ export interface User {
   id: string;
   email: string;
   isAdmin?: boolean;
+  emailVerified?: boolean;
   profile?: {
     bio?: string;
     avatar?: string;
   };
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface MessageResponse {
+  message: string;
 }
 
 export interface AuthResponse {

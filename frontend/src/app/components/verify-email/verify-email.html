@@ -1,0 +1,82 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-8">
+  <div class="max-w-md w-full space-y-8 text-center">
+    <!-- Logo -->
+    <div>
+      <a routerLink="/" class="inline-block">
+        <img src="assets/images/logo.png" alt="findtherapy.care" class="h-10 sm:h-12 mx-auto hover:opacity-80 transition-opacity" />
+      </a>
+    </div>
+
+    @if (state() === 'verifying') {
+      <div class="space-y-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full">
+          <svg class="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Verifying your email…</h2>
+        <p class="text-gray-500">Just a moment.</p>
+      </div>
+    }
+
+    @if (state() === 'success') {
+      <div class="space-y-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Email verified!</h2>
+        <p class="text-gray-600">Your email has been confirmed. Taking you to your profile…</p>
+      </div>
+    }
+
+    @if (state() === 'error') {
+      <div class="space-y-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full">
+          <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Link invalid or expired</h2>
+          <p class="mt-2 text-gray-600">This verification link is no longer valid. Enter your email below to get a new one.</p>
+        </div>
+
+        @if (resendSent()) {
+          <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            Verification email sent! Check your inbox.
+          </div>
+        } @else {
+          <div class="space-y-3 text-left">
+            <label for="resend-email" class="block text-sm font-medium text-gray-700">Email address</label>
+            <input
+              id="resend-email"
+              type="email"
+              [(ngModel)]="resendEmail"
+              placeholder="you@example.com"
+              class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+            />
+            @if (resendError()) {
+              <p class="text-red-600 text-sm">{{ resendError() }}</p>
+            }
+            <button
+              (click)="onResend()"
+              [disabled]="resendLoading() || !resendEmail"
+              class="w-full bg-primary-600 text-white py-2.5 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {{ resendLoading() ? 'Sending…' : 'Resend verification email' }}
+            </button>
+          </div>
+        }
+
+        <p class="text-sm text-gray-500">
+          <a routerLink="/login" class="text-primary-600 hover:text-primary-700 font-medium">Back to sign in</a>
+        </p>
+      </div>
+    }
+  </div>
+</div>
+
+<app-footer />
