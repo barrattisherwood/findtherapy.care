@@ -32,6 +32,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             router.navigate(['/login']);
             break;
           case 403:
+            // Auth endpoints handle 403 themselves (e.g. email not verified at login)
+            if (req.url.includes('/auth/')) {
+              return throwError(() => error);
+            }
             errorMessage = 'You do not have permission to perform this action';
             toastService.error('Access Denied', errorMessage);
             break;
