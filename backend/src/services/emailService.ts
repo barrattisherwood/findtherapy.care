@@ -202,6 +202,53 @@ export const sendVettingRejectedEmail = async (
   console.log('✅ Vetting rejected email sent:', result);
 };
 
+export const sendEmailVerificationEmail = async (
+  email: string,
+  verificationToken: string
+): Promise<void> => {
+  const verifyUrl = `${APP_URL}/verify-email?token=${verificationToken}`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== EMAIL VERIFICATION ==========');
+    console.log(`Email: ${email}`);
+    console.log(`Verify URL: ${verifyUrl}`);
+    console.log('========================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: email,
+    subject: 'Verify Your Email Address - findtherapy.care',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">Verify Your Email Address</h2>
+        <p>Thanks for registering on findtherapy.care. Please verify your email address to submit your profile for review.</p>
+        <div style="margin: 30px 0; text-align: center;">
+          <a href="${verifyUrl}"
+             style="background-color: #2563eb; color: white; padding: 12px 32px;
+                    text-decoration: none; border-radius: 8px; display: inline-block;
+                    font-weight: 600;">
+            Verify Email Address
+          </a>
+        </div>
+        <p style="color: #666; font-size: 14px;">
+          This link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.
+        </p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #999; font-size: 12px;">findtherapy.care admin notification</p>
+      </div>
+    `,
+    text: `Verify Your Email Address\n\nThanks for registering on findtherapy.care. Please verify your email address to submit your profile for review.\n\nVerify here: ${verifyUrl}\n\nThis link will expire in 24 hours. If you didn't create an account, you can safely ignore this email.`,
+  });
+
+  console.log('✅ Email verification sent:', result);
+};
+
 export const sendPasswordResetEmail = async (
   email: string,
   resetToken: string

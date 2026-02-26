@@ -87,4 +87,19 @@ export class AuthService {
   resetPassword(token: string, password: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/reset-password`, { token, password });
   }
+
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/verify-email`, { token }).pipe(
+      tap(() => {
+        const user = this.currentUser();
+        if (user) {
+          this.updateCurrentUser({ ...user, isEmailVerified: true });
+        }
+      })
+    );
+  }
+
+  resendVerification(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/resend-verification`, {});
+  }
 }
