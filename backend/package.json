@@ -13,7 +13,8 @@
     "migrate": "ts-node src/scripts/migrate-provider-types.ts",
     "admin": "ts-node src/scripts/set-admin.ts",
     "list-accounts": "ts-node src/scripts/list-accounts.ts",
-    "cleanup": "ts-node src/scripts/cleanup-test-data.ts"
+    "cleanup": "ts-node src/scripts/cleanup-test-data.ts",
+    "migrate:email-verified": "ts-node src/scripts/migrate-email-verified.ts"
   },
   "dependencies": {
     "@findlocal/shared": "file:../shared",
