@@ -62,16 +62,9 @@ export class BlogEditor implements OnInit {
   }
 
   loadPost(id: string): void {
-    // For now, we'll use the admin endpoint to get the post
-    // In a real implementation, you might want a separate endpoint for editing
-    this.blogService.getAdminBlogPosts(1, 1, {}).subscribe({
-      next: (response) => {
-        const post = response.posts.find(p => p._id === id);
-        if (post) {
-          this.populateForm(post);
-        } else {
-          this.errorMessage.set('Blog post not found');
-        }
+    this.blogService.getAdminBlogPostById(id).subscribe({
+      next: (post) => {
+        this.populateForm(post);
       },
       error: (error) => {
         this.errorMessage.set(error.error?.message || 'Failed to load blog post');

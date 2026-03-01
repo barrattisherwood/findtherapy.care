@@ -4,6 +4,7 @@ import {
   getBlogPosts,
   getBlogPostBySlug,
   getAdminBlogPosts,
+  getAdminBlogPostById,
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
@@ -38,6 +39,7 @@ router.get('/:slug', getBlogPostBySlug);
 
 // Admin routes - require authentication and admin privileges
 router.get('/admin/posts', authMiddleware, adminMiddleware, getAdminBlogPosts);
+router.get('/admin/posts/:id', authMiddleware, adminMiddleware, getAdminBlogPostById);
 router.get('/admin/metrics', authMiddleware, adminMiddleware, getBlogMetrics);
 router.post('/admin/posts', authMiddleware, adminMiddleware, createBlogPost);
 router.put('/admin/posts/:id', authMiddleware, adminMiddleware, updateBlogPost);

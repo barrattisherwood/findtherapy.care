@@ -99,6 +99,26 @@ export const getBlogPostBySlug = async (req: Request, res: Response): Promise<vo
 
 // Admin endpoints below - require authentication and admin rights
 
+// Get single post by ID for admin (includes drafts, scheduled, etc.)
+export const getAdminBlogPostById = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const post = await BlogPost.findById(id).populate('author', 'name email');
+
+    if (!post) {
+      res.status(404).json({ message: 'Blog post not found' });
+      return;
+    }
+
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({
+      message: 'Failed to fetch blog post',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
 // Get all posts for admin (includes drafts, scheduled, etc.)
 export const getAdminBlogPosts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

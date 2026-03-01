@@ -94,6 +94,17 @@ export class BlogService {
     );
   }
 
+  getAdminBlogPostById(id: string): Observable<BlogPost> {
+    this.loading.set(true);
+    this.error.set(null);
+    return this.http.get<BlogPost>(`${this.apiUrl}/admin/posts/${id}`).pipe(
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false)
+      })
+    );
+  }
+
   getBlogMetrics(): Observable<BlogMetrics> {
     return this.http.get<BlogMetrics>(`${this.apiUrl}/admin/metrics`);
   }
