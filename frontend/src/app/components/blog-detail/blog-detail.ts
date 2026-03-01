@@ -97,7 +97,7 @@ export class BlogDetail implements OnInit {
 
     // Article tags
     this.metaService.updateTag({ property: 'article:published_time', content: post.publishedAt?.toString() || '' });
-    this.metaService.updateTag({ property: 'article:author', content: post.author.name });
+    this.metaService.updateTag({ property: 'article:author', content: post.authorDisplayName || 'Staff writer' });
     
     // Add tags for categories
     post.categories.forEach(category => {

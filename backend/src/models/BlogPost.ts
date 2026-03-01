@@ -14,6 +14,7 @@ export interface IBlogPost extends Document {
   tags: string[];
   seoTitle?: string;
   seoDescription?: string;
+  authorDisplayName?: string;
   readingTime: number;
   views: number;
   likes: number;
@@ -84,6 +85,10 @@ const blogPostSchema = new Schema<IBlogPost>({
   seoDescription: {
     type: String,
     maxlength: 160,
+    trim: true
+  },
+  authorDisplayName: {
+    type: String,
     trim: true
   },
   readingTime: {

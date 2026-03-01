@@ -20,6 +20,7 @@ export interface BlogPost {
   readingTime: number;
   views: number;
   likes: number;
+  authorDisplayName?: string;
   commentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -36,6 +37,7 @@ export interface CreateBlogPostRequest {
   tags: string[];
   seoTitle?: string;
   seoDescription?: string;
+  authorDisplayName?: string;
   commentsEnabled?: boolean;
 }
 
@@ -50,6 +52,7 @@ export interface UpdateBlogPostRequest {
   tags?: string[];
   seoTitle?: string;
   seoDescription?: string;
+  authorDisplayName?: string;
   commentsEnabled?: boolean;
 }
 

@@ -47,6 +47,7 @@ export class BlogEditor implements OnInit {
       tags: [''],
       seoTitle: ['', [Validators.maxLength(60)]],
       seoDescription: ['', [Validators.maxLength(160)]],
+      authorDisplayName: ['Staff writer'],
       commentsEnabled: [true]
     });
   }
@@ -90,6 +91,7 @@ export class BlogEditor implements OnInit {
       tags: post.tags.join(', '),
       seoTitle: post.seoTitle || '',
       seoDescription: post.seoDescription || '',
+      authorDisplayName: post.authorDisplayName ?? 'Staff writer',
       commentsEnabled: post.commentsEnabled
     });
 
@@ -214,6 +216,7 @@ export class BlogEditor implements OnInit {
         tags: formValue.tags ? formValue.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
         seoTitle: formValue.seoTitle,
         seoDescription: formValue.seoDescription,
+        authorDisplayName: formValue.authorDisplayName || 'Staff writer',
         commentsEnabled: formValue.commentsEnabled
       };
 
