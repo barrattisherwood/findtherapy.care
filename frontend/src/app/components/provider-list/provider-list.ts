@@ -8,7 +8,7 @@ import { ProviderCard } from '../provider-card/provider-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
-import { ProviderType, ProviderSearchParams } from '@findlocal/shared';
+import { ProviderType, ProviderSearchParams, CITY_CONFIGS, MAJOR_CITIES } from '@findlocal/shared';
 import { PROVIDER_SPECIALTIES } from '@findlocal/shared';
 
 @Component({
@@ -40,6 +40,7 @@ export class ProviderList implements OnInit {
   freeConsultation = signal<boolean>(false);
 
   specialties = PROVIDER_SPECIALTIES;
+  cities = MAJOR_CITIES.map(slug => CITY_CONFIGS[slug]);
 
   ngOnInit(): void {
     // Only update SEO if not embedded
@@ -110,6 +111,7 @@ export class ProviderList implements OnInit {
 
   onCityChange(value: string): void {
     this.selectedCity.set(value);
+    this.search();
   }
 
   onSpecialtyChange(value: string): void {

@@ -15,6 +15,7 @@ import {
   getProviderAccessStatus,
   hasProviderAccess,
   createProvider,
+  searchProviders,
 } from '../../controllers/providerController';
 import {
   FOUNDERS_MAX_SPOTS,
@@ -500,6 +501,80 @@ describe('Provider Controller - Subscription Logic', () => {
       // Provider is created but NOT as founder
       expect(response.provider.isFounder).toBe(false);
       expect(response.provider.founderNumber).toBeUndefined();
+    });
+  });
+
+  describe('City Filter (searchProviders)', () => {
+    let mockResponse: Partial<Response>;
+    let responseJson: jest.Mock;
+
+    beforeEach(() => {
+      responseJson = jest.fn();
+      mockResponse = {
+        json: responseJson,
+        status: jest.fn().mockReturnThis(),
+      };
+    });
+
+    const makeRequest = (city: string) =>
+      ({ query: { city } }) as unknown as import('../../middleware/auth').AuthRequest;
+
+    it('returns providers matching the city name', async () => {
+      const user1 = await createTestUser();
+      const user2 = await createTestUser();
+
+      await createProviderWithActiveTrial(user1._id.toString(), 30); // default city: Cape Town
+      await createTestProvider({
+        userId: user2._id.toString(),
+        location: { city: 'Johannesburg', postcode: '2000' },
+        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      await searchProviders(makeRequest('Cape Town'), mockResponse as Response);
+
+      const { providers } = responseJson.mock.calls[0][0];
+      expect(providers.length).toBe(1);
+      expect(providers[0].location.city).toBe('Cape Town');
+    });
+
+    it('matches city name case-insensitively', async () => {
+      const user = await createTestUser();
+      await createProviderWithActiveTrial(user._id.toString(), 30); // Cape Town
+
+      await searchProviders(makeRequest('cape town'), mockResponse as Response);
+
+      const { providers } = responseJson.mock.calls[0][0];
+      expect(providers.length).toBe(1);
+    });
+
+    it('does not match slug format "cape-town" against stored value "Cape Town"', async () => {
+      // This documents the bug that was present in city-landing.html before the fix:
+      // passing cityConfig.slug ("cape-town") to the city filter would return 0 results
+      // because the regex /cape-town/i does not match the string "Cape Town".
+      const user = await createTestUser();
+      await createProviderWithActiveTrial(user._id.toString(), 30); // Cape Town
+
+      await searchProviders(makeRequest('cape-town'), mockResponse as Response);
+
+      const { providers } = responseJson.mock.calls[0][0];
+      expect(providers.length).toBe(0);
+    });
+
+    it('returns all providers when no city filter is provided', async () => {
+      const user1 = await createTestUser();
+      const user2 = await createTestUser();
+
+      await createProviderWithActiveTrial(user1._id.toString(), 30);
+      await createTestProvider({
+        userId: user2._id.toString(),
+        location: { city: 'Johannesburg', postcode: '2000' },
+        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      await searchProviders(makeRequest(''), mockResponse as Response);
+
+      const { providers } = responseJson.mock.calls[0][0];
+      expect(providers.length).toBe(2);
     });
   });
 
