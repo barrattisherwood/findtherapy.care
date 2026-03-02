@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { PromoService } from '../../services/promo.service';
 import { Footer } from '../footer/footer';
-import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR, FOUNDERS_TRIAL_DAYS } from '@findlocal/shared';
+import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR, FOUNDERS_TRIAL_DAYS, FOUNDERS_PROMO_CODE } from '@findlocal/shared';
 
 @Component({
   selector: 'app-register',
@@ -51,6 +51,10 @@ export class Register implements OnInit {
       this.promoService.setPromoCode(promoFromUrl);
       this.isFounderDeal.set(true);
     } else if (storedPromo) {
+      this.isFounderDeal.set(true);
+    } else {
+      // Founders deal is always active while the special is running
+      this.promoService.setPromoCode(FOUNDERS_PROMO_CODE);
       this.isFounderDeal.set(true);
     }
   }
