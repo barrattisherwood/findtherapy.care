@@ -181,6 +181,7 @@ export interface UpdateSupportGroupRequest extends Partial<CreateSupportGroupReq
 }
 
 export interface SupportGroupSearchParams {
+  query?: string;
   category?: string;
   city?: string;
   meetingType?: MeetingType;

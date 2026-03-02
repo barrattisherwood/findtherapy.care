@@ -34,6 +34,7 @@ export class SupportGroupList implements OnInit {
   isAdmin = computed(() => this.authService.currentUser()?.isAdmin === true);
 
   // Filter values
+  selectedQuery = signal<string>('');
   selectedCategory = signal<string>('');
   selectedCity = signal<string>('');
   selectedMeetingType = signal<MeetingType | ''>('');
@@ -55,6 +56,7 @@ export class SupportGroupList implements OnInit {
       limit: 12,
     };
 
+    if (this.selectedQuery()) params.query = this.selectedQuery();
     if (this.selectedCategory()) params.category = this.selectedCategory();
     if (this.selectedCity()) params.city = this.selectedCity();
     if (this.selectedMeetingType()) params.meetingType = this.selectedMeetingType() as MeetingType;
@@ -68,6 +70,7 @@ export class SupportGroupList implements OnInit {
       limit: 12,
     };
 
+    if (this.selectedQuery()) params.query = this.selectedQuery();
     if (this.selectedCategory()) params.category = this.selectedCategory();
     if (this.selectedCity()) params.city = this.selectedCity();
     if (this.selectedMeetingType()) params.meetingType = this.selectedMeetingType() as MeetingType;
@@ -76,10 +79,15 @@ export class SupportGroupList implements OnInit {
   }
 
   clearFilters(): void {
+    this.selectedQuery.set('');
     this.selectedCategory.set('');
     this.selectedCity.set('');
     this.selectedMeetingType.set('');
     this.search();
+  }
+
+  onQueryChange(value: string): void {
+    this.selectedQuery.set(value);
   }
 
   onCategoryChange(value: string): void {

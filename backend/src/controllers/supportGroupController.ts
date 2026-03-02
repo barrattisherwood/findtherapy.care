@@ -111,6 +111,7 @@ export const deleteSupportGroup = async (req: AuthRequest, res: Response) => {
 export const searchSupportGroups = async (req: AuthRequest, res: Response) => {
   try {
     const params: SupportGroupSearchParams = {
+      query: req.query.query as string,
       category: req.query.category as string,
       city: req.query.city as string,
       meetingType: req.query.meetingType as any,
@@ -127,6 +128,10 @@ export const searchSupportGroups = async (req: AuthRequest, res: Response) => {
       isActive: true,
     };
 
+    if (params.query) {
+      const regex = new RegExp(params.query, 'i');
+      query.$or = [{ name: regex }, { description: regex }];
+    }
     if (params.category) {
       query.category = params.category;
     }

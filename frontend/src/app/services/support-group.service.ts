@@ -29,6 +29,7 @@ export class SupportGroupService {
     this.loading.set(true);
 
     let httpParams = new HttpParams();
+    if (params.query) httpParams = httpParams.set('query', params.query);
     if (params.category) httpParams = httpParams.set('category', params.category);
     if (params.city) httpParams = httpParams.set('city', params.city);
     if (params.meetingType) httpParams = httpParams.set('meetingType', params.meetingType);
