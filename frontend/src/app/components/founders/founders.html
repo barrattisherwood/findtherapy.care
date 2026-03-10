@@ -24,7 +24,7 @@
         </h1>
 
         <p class="text-xl sm:text-2xl text-primary-100 max-w-3xl mx-auto mb-8">
-          Be among the first {{ dealStatus()?.totalSpots || 50 }} therapists to join findtherapy.care and lock in our exclusive founding rate — forever.
+          Be among the first {{ dealStatus()?.totalSpots || 50 }} therapists to join findtherapy.care and enjoy our exclusive founding rate.
         </p>
 
         <!-- Key Benefits -->
@@ -39,7 +39,7 @@
             <svg class="w-6 h-6 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
             </svg>
-            <span class="text-lg">R99/month forever</span>
+            <span class="text-lg">R99/month — cancel anytime</span>
           </div>
           <div class="flex items-center gap-2">
             <svg class="w-6 h-6 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
@@ -175,7 +175,7 @@
                 <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                <span><strong class="text-primary-700">R99/month forever</strong> (grandfathered)</span>
+                <span><strong class="text-primary-700">R99/month</strong> for the duration of your membership</span>
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-primary-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -261,8 +261,8 @@
 
       <div class="max-w-3xl mx-auto space-y-6">
         <div class="bg-gray-50 rounded-lg border border-gray-100 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">What does "grandfathered pricing" mean?</h3>
-          <p class="text-gray-600">Your R99/month rate is locked in permanently. Even as we raise prices in the future, you'll always pay R99/month as long as your subscription remains active.</p>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">How does the fixed pricing work?</h3>
+          <p class="text-gray-600">Your R99/month rate stays the same for the duration of your membership. Even as we raise prices in the future, you'll continue paying R99/month until you choose to cancel.</p>
         </div>
 
         <div class="bg-gray-50 rounded-lg border border-gray-100 p-6">
@@ -296,7 +296,7 @@
           <h2 class="text-3xl font-bold mb-4">Don't miss your chance</h2>
           <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
             Only <strong class="text-yellow-300">{{ dealStatus()!.spotsRemaining }} spots</strong> left.
-            Lock in R99/month forever and get 6 months free.
+            Get 6 months free, then R99/month — cancel anytime.
           </p>
           <button
             (click)="claimFounderSpot()"
