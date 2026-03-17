@@ -216,7 +216,7 @@ describe('PayFast Service', () => {
       expect(result!.item_name).toBe('findtherapy.care Provider Subscription');
     });
 
-    it('extracts first name from display name', async () => {
+    it('splits display name into first and last name', async () => {
       setPayFastEnvVars();
       payfastService = await import('../../services/payfastService');
 
@@ -231,6 +231,25 @@ describe('PayFast Service', () => {
       );
 
       expect(result!.name_first).toBe('John');
+      expect(result!.name_last).toBe('Michael Doe');
+    });
+
+    it('omits name_last when display name is a single word', async () => {
+      setPayFastEnvVars();
+      payfastService = await import('../../services/payfastService');
+
+      const result = payfastService.createSubscriptionPaymentData(
+        'test@example.com',
+        'John',
+        'payment_123',
+        150,
+        'http://localhost/success',
+        'http://localhost/cancel',
+        'http://localhost/notify'
+      );
+
+      expect(result!.name_first).toBe('John');
+      expect(result!.name_last).toBeUndefined();
     });
 
     it('formats amount with 2 decimal places', async () => {

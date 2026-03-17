@@ -41,6 +41,7 @@ export interface PayFastPaymentData {
   cancel_url: string;
   notify_url: string;
   name_first: string;
+  name_last?: string;
   email_address: string;
   m_payment_id: string;
   amount: string;
@@ -118,6 +119,7 @@ export const createSubscriptionPaymentData = (
     cancel_url: cancelUrl,
     notify_url: notifyUrl,
     name_first: name.split(' ')[0],
+    name_last: name.split(' ').slice(1).join(' ') || undefined,
     email_address: email,
     m_payment_id: paymentId,
     amount: '0.00', // No initial charge - free trial period (PayFast may require min R1 - will notify user if so)
