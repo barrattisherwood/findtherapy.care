@@ -14,7 +14,7 @@ export interface TestProviderOptions {
   };
   contactEmail?: string;
   contactPhone?: string;
-  subscriptionStatus?: 'none' | 'active' | 'past_due' | 'canceled';
+  subscriptionStatus?: 'none' | 'active' | 'past_due' | 'canceled' | 'paused';
   subscriptionEndsAt?: Date;
   trialEndsAt?: Date;
   payfastPaymentId?: string;
@@ -110,6 +110,15 @@ export const createProviderWithCanceledSubscription = async (userId: string): Pr
   return createTestProvider({
     userId,
     subscriptionStatus: 'canceled',
+  });
+};
+
+export const createProviderWithPausedSubscription = async (userId: string): Promise<any> => {
+  return createTestProvider({
+    userId,
+    subscriptionStatus: 'paused',
+    isPublished: false,
+    payfastSubscriptionToken: 'token_123',
   });
 };
 

@@ -341,6 +341,132 @@ describe('PayFast Service', () => {
     });
   });
 
+  describe('cancelPayFastSubscription', () => {
+    const token = 'sub_token_abc';
+
+    beforeEach(async () => {
+      setPayFastEnvVars();
+      payfastService = await import('../../services/payfastService');
+    });
+
+    it('returns false when PayFast is not configured', async () => {
+      clearPayFastEnvVars();
+      jest.resetModules();
+      payfastService = await import('../../services/payfastService');
+
+      const result = await payfastService.cancelPayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+
+    it('returns true on successful API response', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+      const result = await payfastService.cancelPayFastSubscription(token);
+      expect(result).toBe(true);
+    });
+
+    it('calls the correct PayFast cancel URL', async () => {
+      const fetchMock = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+      global.fetch = fetchMock;
+      await payfastService.cancelPayFastSubscription(token);
+      const calledUrl = fetchMock.mock.calls[0][0] as string;
+      expect(calledUrl).toContain(`/subscriptions/${token}/cancel`);
+    });
+
+    it('returns false on non-ok API response', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 422, text: () => Promise.resolve('Error') }) as jest.Mock;
+      const result = await payfastService.cancelPayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+
+    it('returns false on network error', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('Network error')) as jest.Mock;
+      const result = await payfastService.cancelPayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('pausePayFastSubscription', () => {
+    const token = 'sub_token_abc';
+
+    beforeEach(async () => {
+      setPayFastEnvVars();
+      payfastService = await import('../../services/payfastService');
+    });
+
+    it('returns false when PayFast is not configured', async () => {
+      clearPayFastEnvVars();
+      jest.resetModules();
+      payfastService = await import('../../services/payfastService');
+
+      const result = await payfastService.pausePayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+
+    it('returns true on successful API response', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+      const result = await payfastService.pausePayFastSubscription(token);
+      expect(result).toBe(true);
+    });
+
+    it('calls the correct PayFast pause URL', async () => {
+      const fetchMock = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+      global.fetch = fetchMock;
+      await payfastService.pausePayFastSubscription(token);
+      const calledUrl = fetchMock.mock.calls[0][0] as string;
+      expect(calledUrl).toContain(`/subscriptions/${token}/pause`);
+    });
+
+    it('returns false on non-ok API response', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 422, text: () => Promise.resolve('Error') }) as jest.Mock;
+      const result = await payfastService.pausePayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+
+    it('returns false on network error', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('Network error')) as jest.Mock;
+      const result = await payfastService.pausePayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('unpausePayFastSubscription', () => {
+    const token = 'sub_token_abc';
+
+    beforeEach(async () => {
+      setPayFastEnvVars();
+      payfastService = await import('../../services/payfastService');
+    });
+
+    it('returns false when PayFast is not configured', async () => {
+      clearPayFastEnvVars();
+      jest.resetModules();
+      payfastService = await import('../../services/payfastService');
+
+      const result = await payfastService.unpausePayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+
+    it('returns true on successful API response', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+      const result = await payfastService.unpausePayFastSubscription(token);
+      expect(result).toBe(true);
+    });
+
+    it('calls the correct PayFast unpause URL', async () => {
+      const fetchMock = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+      global.fetch = fetchMock;
+      await payfastService.unpausePayFastSubscription(token);
+      const calledUrl = fetchMock.mock.calls[0][0] as string;
+      expect(calledUrl).toContain(`/subscriptions/${token}/unpause`);
+    });
+
+    it('returns false on network error', async () => {
+      global.fetch = jest.fn().mockRejectedValue(new Error('Network error')) as jest.Mock;
+      const result = await payfastService.unpausePayFastSubscription(token);
+      expect(result).toBe(false);
+    });
+  });
+
   describe('validateITN', () => {
     beforeEach(async () => {
       setPayFastEnvVars();

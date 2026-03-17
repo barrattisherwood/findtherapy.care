@@ -8,6 +8,7 @@ import {
   createProviderWithActiveSubscription,
   createProviderWithActiveTrial,
   createFounderProvider,
+  createProviderWithPausedSubscription,
 } from '../fixtures/providers';
 import { createTestUser } from '../fixtures/users';
 import {
@@ -24,6 +25,8 @@ import {
   handleITN,
   getSubscriptionStatus,
   cancelSubscription,
+  pauseSubscription,
+  unpauseSubscription,
 } from '../../controllers/subscriptionController';
 
 describe('Subscription Controller', () => {
@@ -427,6 +430,184 @@ describe('Subscription Controller', () => {
       await cancelSubscription(mockRequest as AuthRequest, mockResponse as Response);
 
       expect(responseJson).toHaveBeenCalledWith({ message: 'Subscription canceled' });
+    });
+  });
+
+  describe('pauseSubscription', () => {
+    beforeEach(() => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('returns 404 when provider not found', async () => {
+      const user = await createTestUser();
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(404);
+      expect(responseJson).toHaveBeenCalledWith({ message: 'Provider not found' });
+    });
+
+    it('returns 400 when subscription is not active', async () => {
+      const user = await createTestUser();
+      await createTestProvider({ userId: user._id.toString(), subscriptionStatus: 'none' });
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(400);
+      expect(responseJson).toHaveBeenCalledWith({ message: 'Only active subscriptions can be paused' });
+    });
+
+    it('sets subscription status to paused', async () => {
+      const user = await createTestUser();
+      const provider = await createProviderWithActiveSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.subscriptionStatus).toBe('paused');
+    });
+
+    it('hides the listing (isPublished = false)', async () => {
+      const user = await createTestUser();
+      const provider = await createProviderWithActiveSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.isPublished).toBe(false);
+    });
+
+    it('calls PayFast pause API when token exists', async () => {
+      const user = await createTestUser();
+      await createProviderWithActiveSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const calledUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+      expect(calledUrl).toContain('/pause');
+    });
+
+    it('still pauses locally even if PayFast API call fails', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, text: () => Promise.resolve('Error') }) as jest.Mock;
+      const user = await createTestUser();
+      const provider = await createProviderWithActiveSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.subscriptionStatus).toBe('paused');
+      expect(updated?.isPublished).toBe(false);
+    });
+
+    it('returns success message', async () => {
+      const user = await createTestUser();
+      await createProviderWithActiveSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await pauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseJson).toHaveBeenCalledWith({
+        message: 'Subscription paused. Your profile has been hidden from search results.',
+      });
+    });
+  });
+
+  describe('unpauseSubscription', () => {
+    beforeEach(() => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, text: () => Promise.resolve('') }) as jest.Mock;
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('returns 404 when provider not found', async () => {
+      const user = await createTestUser();
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(404);
+      expect(responseJson).toHaveBeenCalledWith({ message: 'Provider not found' });
+    });
+
+    it('returns 400 when subscription is not paused', async () => {
+      const user = await createTestUser();
+      await createProviderWithActiveSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(400);
+      expect(responseJson).toHaveBeenCalledWith({ message: 'Subscription is not paused' });
+    });
+
+    it('sets subscription status back to active', async () => {
+      const user = await createTestUser();
+      const provider = await createProviderWithPausedSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.subscriptionStatus).toBe('active');
+    });
+
+    it('restores the listing (isPublished = true)', async () => {
+      const user = await createTestUser();
+      const provider = await createProviderWithPausedSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.isPublished).toBe(true);
+    });
+
+    it('calls PayFast unpause API when token exists', async () => {
+      const user = await createTestUser();
+      await createProviderWithPausedSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const calledUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string;
+      expect(calledUrl).toContain('/unpause');
+    });
+
+    it('still unpauses locally even if PayFast API call fails', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500, text: () => Promise.resolve('Error') }) as jest.Mock;
+      const user = await createTestUser();
+      const provider = await createProviderWithPausedSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.subscriptionStatus).toBe('active');
+      expect(updated?.isPublished).toBe(true);
+    });
+
+    it('returns success message', async () => {
+      const user = await createTestUser();
+      await createProviderWithPausedSubscription(user._id.toString());
+      mockRequest.userId = user._id.toString();
+
+      await unpauseSubscription(mockRequest as AuthRequest, mockResponse as Response);
+
+      expect(responseJson).toHaveBeenCalledWith({
+        message: 'Subscription resumed. Your profile is now visible in search results.',
+      });
     });
   });
 
