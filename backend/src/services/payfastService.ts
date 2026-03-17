@@ -15,6 +15,10 @@ const PAYFAST_VALIDATE_URL = PAYFAST_SANDBOX
   ? 'https://sandbox.payfast.co.za/eng/query/validate'
   : 'https://www.payfast.co.za/eng/query/validate';
 
+const PAYFAST_API_URL = PAYFAST_SANDBOX
+  ? 'https://api.sandbox.payfast.co.za'
+  : 'https://api.payfast.co.za';
+
 export interface PayFastSubscriptionData {
   merchantId: string;
   merchantKey: string;
@@ -229,6 +233,53 @@ export const getPayFastUrl = (): string => {
 // Parse amount from PayFast (comes as string with 2 decimal places)
 export const parseAmount = (amount: string): number => {
   return parseFloat(amount);
+};
+
+// Cancel a PayFast subscription via their API
+// Returns true if cancelled successfully, false if it failed (caller should log and continue)
+export const cancelPayFastSubscription = async (subscriptionToken: string): Promise<boolean> => {
+  if (!isPayFastConfigured()) {
+    console.warn('[PayFast] Cannot cancel subscription — PayFast not configured');
+    return false;
+  }
+
+  const timestamp = new Date().toISOString();
+  const url = `${PAYFAST_API_URL}/subscriptions/${subscriptionToken}/cancel`;
+
+  // PayFast API auth headers
+  const headers: Record<string, string> = {
+    'merchant-id': PAYFAST_MERCHANT_ID!,
+    'version': 'v1',
+    'timestamp': timestamp,
+    'Content-Type': 'application/json',
+  };
+
+  // Generate API signature: concatenate sorted header key=value pairs + passphrase
+  const sigParts = Object.entries(headers)
+    .filter(([key]) => key !== 'Content-Type')
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}=${encodeURIComponent(value.trim())}`)
+    .join('&');
+
+  const sigString = PAYFAST_PASSPHRASE
+    ? `${sigParts}&passphrase=${encodeURIComponent(PAYFAST_PASSPHRASE.trim())}`
+    : sigParts;
+
+  headers['signature'] = crypto.createHash('md5').update(sigString).digest('hex');
+
+  try {
+    const response = await fetch(url, { method: 'PUT', headers });
+    const body = await response.text();
+    if (response.ok) {
+      console.log(`[PayFast] Subscription ${subscriptionToken} cancelled successfully`);
+      return true;
+    }
+    console.error(`[PayFast] Failed to cancel subscription ${subscriptionToken}: ${response.status} ${body}`);
+    return false;
+  } catch (error) {
+    console.error(`[PayFast] Error cancelling subscription ${subscriptionToken}:`, error);
+    return false;
+  }
 };
 
 // Map PayFast payment status to our subscription status

@@ -9,6 +9,7 @@ import {
   validateITN,
   getPayFastUrl,
   mapPaymentStatus,
+  cancelPayFastSubscription,
 } from '../services/payfastService';
 import { SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR } from '@findlocal/shared';
 import { getProviderAccessStatus } from './providerController';
@@ -208,8 +209,14 @@ export const cancelSubscription = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'No active subscription to cancel' });
     }
 
-    // Mark subscription as canceled
-    // Note: In production, you would also cancel via PayFast API
+    if (provider.payfastSubscriptionToken) {
+      const cancelled = await cancelPayFastSubscription(provider.payfastSubscriptionToken);
+      if (!cancelled) {
+        console.error(`[cancelSubscription] Failed to cancel PayFast subscription for provider ${provider._id}`);
+        // Continue — mark canceled locally so the user isn't billed again on our side
+      }
+    }
+
     provider.subscriptionStatus = 'canceled';
     await provider.save();
 

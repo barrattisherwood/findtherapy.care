@@ -14,6 +14,7 @@ import {
   isTrialEnabled,
 } from '@findlocal/shared';
 import { uploadImage, deleteImage, isCloudinaryConfigured } from '../services/cloudinaryService';
+import { cancelPayFastSubscription } from '../services/payfastService';
 import multer from 'multer';
 
 // Helper to calculate trial end date
@@ -314,11 +315,20 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
 export const deleteProvider = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.userId!;
-    const provider = await Provider.findOneAndDelete({ userId });
+    const provider = await Provider.findOne({ userId });
 
     if (!provider) {
       return res.status(404).json({ message: 'Provider profile not found' });
     }
+
+    if (provider.subscriptionStatus === 'active' && provider.payfastSubscriptionToken) {
+      const cancelled = await cancelPayFastSubscription(provider.payfastSubscriptionToken);
+      if (!cancelled) {
+        console.error(`[deleteProvider] Failed to cancel PayFast subscription for provider ${provider._id} — proceeding with deletion anyway`);
+      }
+    }
+
+    await provider.deleteOne();
 
     res.json({ message: 'Provider profile deleted' });
   } catch (error: any) {

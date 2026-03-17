@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import { User } from '../models/User';
 import { Provider } from '../models/Provider';
 import { logAdminAction } from '../utils/adminLogger';
+import { cancelPayFastSubscription } from '../services/payfastService';
 import { SupportGroup } from '../models/SupportGroup';
 import { PaymentEvent } from '../models/PaymentEvent';
 import { SUBSCRIPTION_PRICE_ZAR, VetProviderRequest, ProviderAccessStatus } from '@findlocal/shared';
@@ -198,6 +199,14 @@ export const deleteProvider = async (req: AuthRequest, res: Response): Promise<v
       targetId: id,
       targetName: displayName,
     });
+
+    // Cancel PayFast subscription if active
+    if (provider.subscriptionStatus === 'active' && provider.payfastSubscriptionToken) {
+      const cancelled = await cancelPayFastSubscription(provider.payfastSubscriptionToken);
+      if (!cancelled) {
+        console.error(`[admin:deleteProvider] Failed to cancel PayFast subscription for provider ${id} — proceeding with deletion anyway`);
+      }
+    }
 
     // Delete the provider profile
     await Provider.findByIdAndDelete(id);
