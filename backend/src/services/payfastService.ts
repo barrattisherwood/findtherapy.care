@@ -235,18 +235,16 @@ export const parseAmount = (amount: string): number => {
   return parseFloat(amount);
 };
 
-// Cancel a PayFast subscription via their API
-// Returns true if cancelled successfully, false if it failed (caller should log and continue)
-export const cancelPayFastSubscription = async (subscriptionToken: string): Promise<boolean> => {
+// Call PayFast subscriptions API (cancel / pause / unpause)
+const callPayFastSubscriptionApi = async (subscriptionToken: string, action: 'cancel' | 'pause' | 'unpause'): Promise<boolean> => {
   if (!isPayFastConfigured()) {
-    console.warn('[PayFast] Cannot cancel subscription — PayFast not configured');
+    console.warn(`[PayFast] Cannot ${action} subscription — PayFast not configured`);
     return false;
   }
 
   const timestamp = new Date().toISOString();
-  const url = `${PAYFAST_API_URL}/subscriptions/${subscriptionToken}/cancel`;
+  const url = `${PAYFAST_API_URL}/subscriptions/${subscriptionToken}/${action}`;
 
-  // PayFast API auth headers
   const headers: Record<string, string> = {
     'merchant-id': PAYFAST_MERCHANT_ID!,
     'version': 'v1',
@@ -254,7 +252,6 @@ export const cancelPayFastSubscription = async (subscriptionToken: string): Prom
     'Content-Type': 'application/json',
   };
 
-  // Generate API signature: concatenate sorted header key=value pairs + passphrase
   const sigParts = Object.entries(headers)
     .filter(([key]) => key !== 'Content-Type')
     .sort(([a], [b]) => a.localeCompare(b))
@@ -271,16 +268,28 @@ export const cancelPayFastSubscription = async (subscriptionToken: string): Prom
     const response = await fetch(url, { method: 'PUT', headers });
     const body = await response.text();
     if (response.ok) {
-      console.log(`[PayFast] Subscription ${subscriptionToken} cancelled successfully`);
+      console.log(`[PayFast] Subscription ${subscriptionToken} ${action}d successfully`);
       return true;
     }
-    console.error(`[PayFast] Failed to cancel subscription ${subscriptionToken}: ${response.status} ${body}`);
+    console.error(`[PayFast] Failed to ${action} subscription ${subscriptionToken}: ${response.status} ${body}`);
     return false;
   } catch (error) {
-    console.error(`[PayFast] Error cancelling subscription ${subscriptionToken}:`, error);
+    console.error(`[PayFast] Error during ${action} for subscription ${subscriptionToken}:`, error);
     return false;
   }
 };
+
+// Cancel a PayFast subscription via their API
+export const cancelPayFastSubscription = (subscriptionToken: string): Promise<boolean> =>
+  callPayFastSubscriptionApi(subscriptionToken, 'cancel');
+
+// Pause a PayFast subscription via their API
+export const pausePayFastSubscription = (subscriptionToken: string): Promise<boolean> =>
+  callPayFastSubscriptionApi(subscriptionToken, 'pause');
+
+// Unpause a PayFast subscription via their API
+export const unpausePayFastSubscription = (subscriptionToken: string): Promise<boolean> =>
+  callPayFastSubscriptionApi(subscriptionToken, 'unpause');
 
 // Map PayFast payment status to our subscription status
 export const mapPaymentStatus = (status: string): 'active' | 'canceled' | 'none' => {

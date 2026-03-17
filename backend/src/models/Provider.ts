@@ -187,7 +187,7 @@ const providerSchema = new Schema<IProvider>(
     },
     subscriptionStatus: {
       type: String,
-      enum: ['none', 'active', 'past_due', 'canceled'] as SubscriptionStatus[],
+      enum: ['none', 'active', 'past_due', 'canceled', 'paused'] as SubscriptionStatus[],
       default: 'none',
     },
     subscriptionEndsAt: {

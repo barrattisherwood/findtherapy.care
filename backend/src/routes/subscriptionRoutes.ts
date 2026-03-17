@@ -4,6 +4,8 @@ import {
   handleITN,
   getSubscriptionStatus,
   cancelSubscription,
+  pauseSubscription,
+  unpauseSubscription,
 } from '../controllers/subscriptionController';
 import { authMiddleware } from '../middleware/auth';
 import { payfastIpWhitelist } from '../middleware/payfastIpWhitelist';
@@ -19,5 +21,7 @@ router.post('/notify', itnRateLimiter, payfastIpWhitelist, handleITN);
 router.post('/create-checkout', authMiddleware, checkoutRateLimiter, createCheckout);
 router.get('/status', authMiddleware, getSubscriptionStatus);
 router.post('/cancel', authMiddleware, cancelSubscription);
+router.post('/pause', authMiddleware, pauseSubscription);
+router.post('/unpause', authMiddleware, unpauseSubscription);
 
 export default router;

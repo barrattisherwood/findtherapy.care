@@ -10,6 +10,8 @@ import {
   getPayFastUrl,
   mapPaymentStatus,
   cancelPayFastSubscription,
+  pausePayFastSubscription,
+  unpausePayFastSubscription,
 } from '../services/payfastService';
 import { SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR } from '@findlocal/shared';
 import { getProviderAccessStatus } from './providerController';
@@ -223,6 +225,70 @@ export const cancelSubscription = async (req: AuthRequest, res: Response) => {
     res.json({ message: 'Subscription canceled' });
   } catch (error: any) {
     console.error('Cancel subscription error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Pause subscription
+export const pauseSubscription = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId!;
+    const provider = await Provider.findOne({ userId });
+
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider not found' });
+    }
+
+    if (provider.subscriptionStatus !== 'active') {
+      return res.status(400).json({ message: 'Only active subscriptions can be paused' });
+    }
+
+    if (provider.payfastSubscriptionToken) {
+      const paused = await pausePayFastSubscription(provider.payfastSubscriptionToken);
+      if (!paused) {
+        console.error(`[pauseSubscription] Failed to pause PayFast subscription for provider ${provider._id}`);
+      }
+    }
+
+    provider.subscriptionStatus = 'paused';
+    provider.isPublished = false;
+    await provider.save();
+
+    res.json({ message: 'Subscription paused. Your profile has been hidden from search results.' });
+  } catch (error: any) {
+    console.error('Pause subscription error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Unpause subscription
+export const unpauseSubscription = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId!;
+    const provider = await Provider.findOne({ userId });
+
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider not found' });
+    }
+
+    if (provider.subscriptionStatus !== 'paused') {
+      return res.status(400).json({ message: 'Subscription is not paused' });
+    }
+
+    if (provider.payfastSubscriptionToken) {
+      const unpaused = await unpausePayFastSubscription(provider.payfastSubscriptionToken);
+      if (!unpaused) {
+        console.error(`[unpauseSubscription] Failed to unpause PayFast subscription for provider ${provider._id}`);
+      }
+    }
+
+    provider.subscriptionStatus = 'active';
+    provider.isPublished = true;
+    await provider.save();
+
+    res.json({ message: 'Subscription resumed. Your profile is now visible in search results.' });
+  } catch (error: any) {
+    console.error('Unpause subscription error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

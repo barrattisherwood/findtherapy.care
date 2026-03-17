@@ -83,6 +83,34 @@ export class SubscriptionService {
     );
   }
 
+  // Pause subscription
+  pauseSubscription(): Observable<{ message: string }> {
+    this.loading.set(true);
+    return this.http.post<{ message: string }>(`${this.apiUrl}/pause`, {}).pipe(
+      tap({
+        next: () => {
+          this.loading.set(false);
+          this.subscriptionStatus.set('paused');
+        },
+        error: () => this.loading.set(false)
+      })
+    );
+  }
+
+  // Unpause subscription
+  unpauseSubscription(): Observable<{ message: string }> {
+    this.loading.set(true);
+    return this.http.post<{ message: string }>(`${this.apiUrl}/unpause`, {}).pipe(
+      tap({
+        next: () => {
+          this.loading.set(false);
+          this.subscriptionStatus.set('active');
+        },
+        error: () => this.loading.set(false)
+      })
+    );
+  }
+
   // Redirect to PayFast Checkout using form POST
   redirectToCheckout(): void {
     this.loading.set(true);

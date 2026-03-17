@@ -47,6 +47,16 @@ export class SubscriptionStatus {
     }
   }
 
+  pauseSubscription(): void {
+    if (confirm('Pause your subscription? Billing will stop and your profile will be hidden from search results. You can resume anytime.')) {
+      this.subscriptionService.pauseSubscription().subscribe();
+    }
+  }
+
+  unpauseSubscription(): void {
+    this.subscriptionService.unpauseSubscription().subscribe();
+  }
+
   get statusLabel(): string {
     // Access status takes precedence for display
     if (this.accessStatus === 'trial') {
@@ -61,6 +71,8 @@ export class SubscriptionStatus {
         return 'Active';
       case 'past_due':
         return 'Past Due';
+      case 'paused':
+        return 'Paused';
       case 'canceled':
         return 'Canceled';
       default:
@@ -82,6 +94,8 @@ export class SubscriptionStatus {
         return 'bg-success-100 text-success-700';
       case 'past_due':
         return 'bg-warning-100 text-warning-700';
+      case 'paused':
+        return 'bg-gray-100 text-gray-600';
       case 'canceled':
         return 'bg-error-100 text-error-700';
       default:

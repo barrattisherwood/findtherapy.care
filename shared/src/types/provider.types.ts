@@ -37,7 +37,7 @@ export interface ProviderPricing {
   offersIntroductoryConsultation: boolean;
 }
 
-export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'canceled';
+export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'canceled' | 'paused';
 
 export interface ProviderLocation {
   address?: string;
