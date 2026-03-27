@@ -9,7 +9,6 @@ import {
   ProviderAccessStatus,
   TRIAL_PERIOD_DAYS,
   FOUNDERS_TRIAL_DAYS,
-  FOUNDERS_MAX_SPOTS,
   isTrialEnabled,
 } from '@findlocal/shared';
 import { uploadImage, deleteImage, isCloudinaryConfigured } from '../services/cloudinaryService';
@@ -151,18 +150,9 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Auto-apply founder status while spots are available
-    let isFounder = false;
-    let founderNumber: number | undefined;
-
-    const founderCount = await Provider.countDocuments({ isFounder: true });
-    if (founderCount < FOUNDERS_MAX_SPOTS) {
-      isFounder = true;
-      founderNumber = founderCount + 1;
-    }
-
     // NOTE: trialEndsAt is NOT set here — it starts on vetting approval
     // so the vetting delay doesn't eat into the provider's trial period.
+    // Founder status is also assigned at vetting approval, not registration.
     const provider = await Provider.create({
       userId,
       type: data.type,
@@ -180,9 +170,6 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       isPublished: true,
       vettingStatus: 'pending',
       subscriptionStatus: 'none',
-      isFounder,
-      founderNumber,
-      founderSince: isFounder ? new Date() : undefined,
     });
 
     // Notify admin of new provider pending vetting

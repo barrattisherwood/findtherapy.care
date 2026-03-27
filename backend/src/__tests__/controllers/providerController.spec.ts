@@ -381,47 +381,28 @@ describe('Provider Controller - Subscription Logic', () => {
       };
     });
 
-    it('creates a founder provider when valid promo code is provided', async () => {
+    it('creates a provider with pending vetting and no founder status at registration', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
-        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+        body: { ...validProviderData },
       } as unknown as AuthRequest;
 
       await createProvider(mockRequest, mockResponse as Response);
 
       expect(responseStatus).toHaveBeenCalledWith(201);
       const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(true);
-      expect(response.provider.founderNumber).toBe(1);
-      expect(response.provider.founderSince).toBeDefined();
-    });
-
-    it('assigns sequential founder numbers', async () => {
-      // Create 3 existing founders
-      for (let i = 0; i < 3; i++) {
-        const existingUser = await createTestUser();
-        await createFounderProvider(existingUser._id.toString(), i + 1);
-      }
-
-      const user = await createTestUser();
-      const mockRequest = {
-        userId: user._id.toString(),
-        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
-      } as unknown as AuthRequest;
-
-      await createProvider(mockRequest, mockResponse as Response);
-
-      const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(true);
-      expect(response.provider.founderNumber).toBe(4);
+      // Founder status is NOT assigned at registration — deferred to vetting approval
+      expect(response.provider.isFounder).toBe(false);
+      expect(response.provider.founderNumber).toBeUndefined();
+      expect(response.provider.vettingStatus).toBe('pending');
     });
 
     it('does not start trial at creation (deferred to vetting approval)', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
-        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+        body: { ...validProviderData },
       } as unknown as AuthRequest;
 
       await createProvider(mockRequest, mockResponse as Response);
@@ -429,59 +410,26 @@ describe('Provider Controller - Subscription Logic', () => {
       const response = responseJson.mock.calls[0][0];
       // Trial should NOT be set at creation — it starts when admin approves
       expect(response.provider.trialEndsAt).toBeUndefined();
-      // But founder status should still be recorded
-      expect(response.provider.isFounder).toBe(true);
       expect(response.provider.vettingStatus).toBe('pending');
     });
 
-    it('auto-applies founder status when spots are available (no promo code needed)', async () => {
+    it('creates provider without founder status regardless of promo code at registration', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
-        body: { ...validProviderData },
+        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
       } as unknown as AuthRequest;
 
       await createProvider(mockRequest, mockResponse as Response);
 
       expect(responseStatus).toHaveBeenCalledWith(201);
       const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(true);
-      expect(response.provider.founderNumber).toBeDefined();
-
-      // Trial should NOT be set at creation — starts on vetting approval
-      expect(response.provider.trialEndsAt).toBeUndefined();
-      expect(response.provider.vettingStatus).toBe('pending');
+      // Founder status assigned at vetting approval, not registration
+      expect(response.provider.isFounder).toBe(false);
+      expect(response.provider.founderNumber).toBeUndefined();
     });
 
-    it('auto-applies founder status regardless of promo code value', async () => {
-      const user = await createTestUser();
-      const mockRequest = {
-        userId: user._id.toString(),
-        body: { ...validProviderData, promoCode: 'INVALID' },
-      } as unknown as AuthRequest;
-
-      await createProvider(mockRequest, mockResponse as Response);
-
-      expect(responseStatus).toHaveBeenCalledWith(201);
-      const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(true);
-      expect(response.provider.founderNumber).toBeDefined();
-    });
-
-    it('auto-applies founder status to all new providers while spots available', async () => {
-      const user = await createTestUser();
-      const mockRequest = {
-        userId: user._id.toString(),
-        body: { ...validProviderData },
-      } as unknown as AuthRequest;
-
-      await createProvider(mockRequest, mockResponse as Response);
-
-      const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(true);
-    });
-
-    it('does not grant founder status when all spots are taken', async () => {
+    it('does not grant founder status when all spots are taken (checked at vetting)', async () => {
       // Fill all founder spots
       for (let i = 0; i < FOUNDERS_MAX_SPOTS; i++) {
         const existingUser = await createTestUser();
@@ -491,14 +439,15 @@ describe('Provider Controller - Subscription Logic', () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
-        body: { ...validProviderData, promoCode: FOUNDERS_PROMO_CODE },
+        body: { ...validProviderData },
       } as unknown as AuthRequest;
 
       await createProvider(mockRequest, mockResponse as Response);
 
       expect(responseStatus).toHaveBeenCalledWith(201);
       const response = responseJson.mock.calls[0][0];
-      // Provider is created but NOT as founder
+      // Provider is created but NOT as founder (spots are full, and founder status
+      // is assigned at vetting approval anyway)
       expect(response.provider.isFounder).toBe(false);
       expect(response.provider.founderNumber).toBeUndefined();
     });

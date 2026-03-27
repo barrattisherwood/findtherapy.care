@@ -14,7 +14,8 @@
     "admin": "ts-node src/scripts/set-admin.ts",
     "list-accounts": "ts-node src/scripts/list-accounts.ts",
     "cleanup": "ts-node src/scripts/cleanup-test-data.ts",
-    "migrate:email-verified": "ts-node src/scripts/migrate-email-verified.ts"
+    "migrate:email-verified": "ts-node src/scripts/migrate-email-verified.ts",
+    "fix-founders": "ts-node src/scripts/fix-founders.ts"
   },
   "dependencies": {
     "@findlocal/shared": "file:../shared",

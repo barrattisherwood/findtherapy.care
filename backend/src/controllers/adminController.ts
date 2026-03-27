@@ -295,6 +295,17 @@ export const vetProvider = async (req: AuthRequest, res: Response): Promise<void
     provider.vettedAt = new Date();
     provider.vettedBy = req.userId!;
 
+    // Assign founder status on approval if spots remain and not already a founder
+    if (status === 'approved' && !provider.isFounder) {
+      const { FOUNDERS_MAX_SPOTS } = await import('@findlocal/shared');
+      const founderCount = await Provider.countDocuments({ isFounder: true });
+      if (founderCount < FOUNDERS_MAX_SPOTS) {
+        provider.isFounder = true;
+        provider.founderNumber = founderCount + 1;
+        provider.founderSince = new Date();
+      }
+    }
+
     // Start trial on approval — founders get extended trial
     if (status === 'approved' && !provider.trialEndsAt) {
       const { TRIAL_PERIOD_DAYS, FOUNDERS_TRIAL_DAYS, isTrialEnabled } = await import('@findlocal/shared');
