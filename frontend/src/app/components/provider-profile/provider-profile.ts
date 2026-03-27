@@ -132,6 +132,7 @@ export class ProviderProfile implements OnInit {
 
   save(): void {
     if (!this.validateAllFields()) {
+      this.scrollToFirstError();
       this.toast.error('Validation Error', 'Please fix the errors in the form before saving.');
       return;
     }
@@ -501,6 +502,35 @@ export class ProviderProfile implements OnInit {
 
     this.pricingError.set('');
     return true;
+  }
+
+  private scrollToFirstError(): void {
+    // Map each error signal to the id of the field/section to focus
+    const errorMap: { error: () => string; id: string }[] = [
+      { error: this.displayNameError, id: 'displayName' },
+      { error: this.bioError, id: 'bio' },
+      { error: this.professionalBodiesError, id: 'professional-bodies-section' },
+      { error: this.certificationsError, id: 'certifications-section' },
+      { error: this.cityError, id: 'city' },
+      { error: this.postcodeError, id: 'postcode' },
+      { error: this.contactEmailError, id: 'contactEmail' },
+      { error: this.contactPhoneError, id: 'contactPhone' },
+      { error: this.websiteError, id: 'website' },
+      { error: this.pricingError, id: 'pricing-section' },
+    ];
+
+    for (const { error, id } of errorMap) {
+      if (error()) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (typeof (el as HTMLElement & { focus?: () => void }).focus === 'function') {
+            (el as HTMLInputElement).focus();
+          }
+        }
+        return;
+      }
+    }
   }
 
   validateAllFields(): boolean {
