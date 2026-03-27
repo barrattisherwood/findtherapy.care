@@ -27,8 +27,8 @@
     } @else if (provider()) {
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-8 py-6 text-white">
-          <div class="flex gap-6 items-start">
+        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-4 sm:px-8 py-6 text-white">
+          <div class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
             <!-- Profile Image -->
             @if (provider()!.profileImage) {
               <img
@@ -45,9 +45,9 @@
             }
 
             <!-- Provider Info -->
-            <div class="flex-1">
-              <div class="flex justify-between items-start gap-6">
-                <div class="flex-1">
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-6">
+                <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-3 flex-wrap">
                     <h1 class="text-2xl font-bold">{{ provider()!.displayName }}</h1>
                     @if (provider()!.isFounder) {
@@ -85,7 +85,7 @@
                     }
                   </div>
                 </div>
-                <div class="flex flex-col items-end justify-between self-stretch flex-shrink-0">
+                <div class="flex flex-row sm:flex-col items-center sm:items-end justify-start sm:justify-between sm:self-stretch flex-shrink-0 gap-3 sm:gap-0">
                   <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20">
                     {{ providerTypeLabel }}
                   </span>
