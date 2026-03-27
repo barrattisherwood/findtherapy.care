@@ -242,30 +242,42 @@ const callPayFastSubscriptionApi = async (subscriptionToken: string, action: 'ca
     return false;
   }
 
-  const timestamp = new Date().toISOString();
+  // PayFast requires ISO 8601 without milliseconds or trailing Z
+  const timestamp = new Date().toISOString().split('.')[0];
   const url = `${PAYFAST_API_URL}/subscriptions/${subscriptionToken}/${action}`;
+
+  // Build signature fields — passphrase is included as a field in the signature,
+  // not appended separately. All fields sorted alphabetically.
+  const sigFields: Record<string, string> = {
+    'merchant-id': PAYFAST_MERCHANT_ID!,
+    'timestamp': timestamp,
+    'version': 'v1',
+  };
+
+  if (PAYFAST_PASSPHRASE) {
+    sigFields['passphrase'] = PAYFAST_PASSPHRASE.trim();
+  }
+
+  const sigString = Object.keys(sigFields)
+    .sort()
+    .map(key => `${key}=${encodeURIComponent(sigFields[key]).replace(/%20/g, '+')}`)
+    .join('&');
+
+  const signature = crypto.createHash('md5').update(sigString).digest('hex');
 
   const headers: Record<string, string> = {
     'merchant-id': PAYFAST_MERCHANT_ID!,
     'version': 'v1',
     'timestamp': timestamp,
-    'Content-Type': 'application/json',
+    'signature': signature,
   };
 
-  const sigParts = Object.entries(headers)
-    .filter(([key]) => key !== 'Content-Type')
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${encodeURIComponent(value.trim())}`)
-    .join('&');
-
-  const sigString = PAYFAST_PASSPHRASE
-    ? `${sigParts}&passphrase=${encodeURIComponent(PAYFAST_PASSPHRASE.trim())}`
-    : sigParts;
-
-  headers['signature'] = crypto.createHash('md5').update(sigString).digest('hex');
+  // PayFast uses GET for unpause, PUT for cancel/pause
+  const method = action === 'unpause' ? 'GET' : 'PUT';
 
   try {
-    const response = await fetch(url, { method: 'PUT', headers });
+    console.log(`[PayFast] ${action} subscription ${subscriptionToken} via ${method} ${url}`);
+    const response = await fetch(url, { method, headers });
     const body = await response.text();
     if (response.ok) {
       console.log(`[PayFast] Subscription ${subscriptionToken} ${action}d successfully`);
