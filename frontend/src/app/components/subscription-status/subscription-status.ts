@@ -20,6 +20,7 @@ export class SubscriptionStatus {
   @Input() endsAt: Date | null = null;
   @Input() trialEndsAt: Date | null = null;
   @Input() isFounder: boolean = false;
+  @Input() vettingStatus: string = 'pending';
 
   loading = this.subscriptionService.loading;
   

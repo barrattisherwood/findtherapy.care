@@ -36,6 +36,11 @@ export const createCheckout = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Please create a provider profile first' });
     }
 
+    // Block checkout until provider has been approved
+    if (provider.vettingStatus !== 'approved') {
+      return res.status(400).json({ message: 'Your profile must be approved before you can subscribe. We\'ll notify you once it\'s been reviewed.' });
+    }
+
     // Check if already subscribed
     if (provider.subscriptionStatus === 'active') {
       return res.status(400).json({ message: 'You already have an active subscription' });
