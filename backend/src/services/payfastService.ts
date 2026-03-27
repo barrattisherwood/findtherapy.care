@@ -114,6 +114,11 @@ export const createSubscriptionPaymentData = (
   const billingDate = trialEndDate && trialEndDate > new Date() ? trialEndDate : new Date();
   const billingDateStr = billingDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
+  // Strip honorifics so PayFast receives an actual first name, not "Dr"
+  const HONORIFICS = /^(dr|prof|mr|mrs|ms|miss|rev|sir)\.?\s+/i;
+  const cleanName = name.replace(HONORIFICS, '').trim();
+  const nameParts = cleanName.split(' ');
+
   // Build payment data in exact field order for signature generation
   // This order must match the HTML form order
   const data: PayFastPaymentData = {
@@ -122,8 +127,8 @@ export const createSubscriptionPaymentData = (
     return_url: returnUrl,
     cancel_url: cancelUrl,
     notify_url: notifyUrl,
-    name_first: name.split(' ')[0],
-    name_last: name.split(' ').slice(1).join(' ') || undefined,
+    name_first: nameParts[0],
+    name_last: nameParts.slice(1).join(' ') || undefined,
     email_address: email,
     m_payment_id: paymentId,
     amount: '0.00', // No initial charge - free trial period (PayFast may require min R1 - will notify user if so)
