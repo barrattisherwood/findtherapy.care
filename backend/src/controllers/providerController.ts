@@ -135,6 +135,10 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
         return res.status(400).json({ message: 'Please specify the professional body name when selecting "Other"' });
       }
     }
+    const seenCreate = new Set(data.professionalBodies.map(pb => `${pb.body}:${pb.registrationNumber.trim().toLowerCase()}`));
+    if (seenCreate.size !== data.professionalBodies.length) {
+      return res.status(400).json({ message: 'Duplicate professional body registration entries are not allowed' });
+    }
 
     // Validate pricing - at least one rate should be specified
     if (data.pricing) {
@@ -242,6 +246,10 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
         if (pb.body === 'Other' && !pb.otherBodyName?.trim()) {
           return res.status(400).json({ message: 'Please specify the professional body name when selecting "Other"' });
         }
+      }
+      const seenUpdate = new Set(data.professionalBodies.map(pb => `${pb.body}:${pb.registrationNumber.trim().toLowerCase()}`));
+      if (seenUpdate.size !== data.professionalBodies.length) {
+        return res.status(400).json({ message: 'Duplicate professional body registration entries are not allowed' });
       }
     }
 

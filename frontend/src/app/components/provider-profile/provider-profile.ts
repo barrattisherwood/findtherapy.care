@@ -470,6 +470,17 @@ export class ProviderProfile implements OnInit {
       }
     }
 
+    // Check for duplicate body + registration number combinations
+    const seen = new Set<string>();
+    for (const pb of bodies) {
+      const key = `${pb.body}:${pb.registrationNumber?.trim().toLowerCase()}`;
+      if (seen.has(key)) {
+        this.professionalBodiesError.set('Duplicate professional body registration detected — please remove the duplicate entry');
+        return false;
+      }
+      seen.add(key);
+    }
+
     this.professionalBodiesError.set('');
     return true;
   }

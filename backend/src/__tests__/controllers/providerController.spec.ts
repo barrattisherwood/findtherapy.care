@@ -15,6 +15,7 @@ import {
   getProviderAccessStatus,
   hasProviderAccess,
   createProvider,
+  updateProvider,
   searchProviders,
 } from '../../controllers/providerController';
 import {
@@ -524,6 +525,152 @@ describe('Provider Controller - Subscription Logic', () => {
 
       const { providers } = responseJson.mock.calls[0][0];
       expect(providers.length).toBe(2);
+    });
+  });
+
+  describe('Duplicate Professional Body Validation', () => {
+    let mockResponse: Partial<Response>;
+    let responseJson: jest.Mock;
+    let responseStatus: jest.Mock;
+
+    const baseProviderData = {
+      type: 'psychologist',
+      displayName: 'Dr. Dup Test',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: ['PhD Psychology'],
+      specialties: ['Anxiety & Stress'],
+      pricing: { individualCounsellingRate: 800, offersIntroductoryConsultation: false },
+      location: { city: 'Cape Town', postcode: '8001' },
+      contactEmail: 'duptest@example.com',
+    };
+
+    beforeEach(() => {
+      responseJson = jest.fn();
+      responseStatus = jest.fn().mockReturnThis();
+      mockResponse = { json: responseJson, status: responseStatus };
+    });
+
+    describe('createProvider', () => {
+      it('rejects duplicate body + registration number combinations', async () => {
+        const user = await createTestUser();
+        const mockRequest = {
+          userId: user._id.toString(),
+          body: {
+            ...baseProviderData,
+            professionalBodies: [
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+            ],
+          },
+        } as unknown as AuthRequest;
+
+        await createProvider(mockRequest, mockResponse as Response);
+
+        expect(responseStatus).toHaveBeenCalledWith(400);
+        expect(responseJson).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.stringMatching(/duplicate/i) })
+        );
+      });
+
+      it('rejects duplicates that differ only in case', async () => {
+        const user = await createTestUser();
+        const mockRequest = {
+          userId: user._id.toString(),
+          body: {
+            ...baseProviderData,
+            professionalBodies: [
+              { body: 'HPCSA', registrationNumber: 'ps 0123456' },
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+            ],
+          },
+        } as unknown as AuthRequest;
+
+        await createProvider(mockRequest, mockResponse as Response);
+
+        expect(responseStatus).toHaveBeenCalledWith(400);
+        expect(responseJson).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.stringMatching(/duplicate/i) })
+        );
+      });
+
+      it('allows same registration number under different bodies', async () => {
+        const user = await createTestUser();
+        const mockRequest = {
+          userId: user._id.toString(),
+          body: {
+            ...baseProviderData,
+            professionalBodies: [
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+              { body: 'ASCHP', registrationNumber: 'PS 0123456' },
+            ],
+          },
+        } as unknown as AuthRequest;
+
+        await createProvider(mockRequest, mockResponse as Response);
+
+        expect(responseStatus).toHaveBeenCalledWith(201);
+      });
+
+      it('allows multiple unique entries', async () => {
+        const user = await createTestUser();
+        const mockRequest = {
+          userId: user._id.toString(),
+          body: {
+            ...baseProviderData,
+            professionalBodies: [
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+              { body: 'ASCHP', registrationNumber: 'SWC24/6006' },
+            ],
+          },
+        } as unknown as AuthRequest;
+
+        await createProvider(mockRequest, mockResponse as Response);
+
+        expect(responseStatus).toHaveBeenCalledWith(201);
+      });
+    });
+
+    describe('updateProvider', () => {
+      it('rejects duplicate body + registration number on update', async () => {
+        const user = await createTestUser();
+        const provider = await createTestProvider({ userId: user._id.toString() });
+        const mockRequest = {
+          userId: user._id.toString(),
+          params: { id: provider._id.toString() },
+          body: {
+            professionalBodies: [
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+            ],
+          },
+        } as unknown as AuthRequest;
+
+        await updateProvider(mockRequest, mockResponse as Response);
+
+        expect(responseStatus).toHaveBeenCalledWith(400);
+        expect(responseJson).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.stringMatching(/duplicate/i) })
+        );
+      });
+
+      it('allows updating with unique professional body entries', async () => {
+        const user = await createTestUser();
+        const provider = await createTestProvider({ userId: user._id.toString() });
+        const mockRequest = {
+          userId: user._id.toString(),
+          params: { id: provider._id.toString() },
+          body: {
+            professionalBodies: [
+              { body: 'HPCSA', registrationNumber: 'PS 0123456' },
+              { body: 'ASCHP', registrationNumber: 'SWC24/6006' },
+            ],
+          },
+        } as unknown as AuthRequest;
+
+        await updateProvider(mockRequest, mockResponse as Response);
+
+        expect(responseStatus).not.toHaveBeenCalledWith(400);
+      });
     });
   });
 
