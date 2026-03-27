@@ -434,7 +434,7 @@ describe('Provider Controller - Subscription Logic', () => {
       expect(response.provider.vettingStatus).toBe('pending');
     });
 
-    it('creates regular provider without promo code (no trial until approved)', async () => {
+    it('auto-applies founder status when spots are available (no promo code needed)', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
@@ -445,15 +445,15 @@ describe('Provider Controller - Subscription Logic', () => {
 
       expect(responseStatus).toHaveBeenCalledWith(201);
       const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(false);
-      expect(response.provider.founderNumber).toBeUndefined();
+      expect(response.provider.isFounder).toBe(true);
+      expect(response.provider.founderNumber).toBeDefined();
 
       // Trial should NOT be set at creation — starts on vetting approval
       expect(response.provider.trialEndsAt).toBeUndefined();
       expect(response.provider.vettingStatus).toBe('pending');
     });
 
-    it('ignores invalid promo code and creates regular provider', async () => {
+    it('auto-applies founder status regardless of promo code value', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
@@ -464,15 +464,15 @@ describe('Provider Controller - Subscription Logic', () => {
 
       expect(responseStatus).toHaveBeenCalledWith(201);
       const response = responseJson.mock.calls[0][0];
-      expect(response.provider.isFounder).toBe(false);
-      expect(response.provider.founderNumber).toBeUndefined();
+      expect(response.provider.isFounder).toBe(true);
+      expect(response.provider.founderNumber).toBeDefined();
     });
 
-    it('is case-insensitive for promo code', async () => {
+    it('auto-applies founder status to all new providers while spots available', async () => {
       const user = await createTestUser();
       const mockRequest = {
         userId: user._id.toString(),
-        body: { ...validProviderData, promoCode: 'founder50' },
+        body: { ...validProviderData },
       } as unknown as AuthRequest;
 
       await createProvider(mockRequest, mockResponse as Response);
