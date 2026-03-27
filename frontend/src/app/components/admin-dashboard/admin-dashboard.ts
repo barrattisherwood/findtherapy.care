@@ -86,6 +86,8 @@ export class AdminDashboard implements OnInit {
       case 'suspend_provider': return 'bg-orange-100 text-orange-800';
       case 'unsuspend_provider': return 'bg-blue-100 text-blue-800';
       case 'delete_provider': return 'bg-red-100 text-red-800';
+      case 'set_founder': return 'bg-amber-100 text-amber-800';
+      case 'remove_founder': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   }
@@ -96,6 +98,8 @@ export class AdminDashboard implements OnInit {
       case 'suspend_provider': return 'Suspended';
       case 'unsuspend_provider': return 'Unsuspended';
       case 'delete_provider': return 'Deleted';
+      case 'set_founder': return 'Founder';
+      case 'remove_founder': return 'Unfounder';
       default: return 'Read';
     }
   }

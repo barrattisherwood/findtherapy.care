@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as Sentry from '@sentry/node';
+import multer from 'multer';
 
 export class AppError extends Error {
   public readonly statusCode: number;
@@ -60,6 +61,22 @@ export function errorHandler(
 ): void {
   if (err instanceof AppError) {
     res.status(err.statusCode).json({ message: err.message });
+    return;
+  }
+
+  // Handle multer file upload errors
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      res.status(413).json({ message: 'File is too large. Maximum size is 5MB.' });
+      return;
+    }
+    res.status(400).json({ message: `Upload error: ${err.message}` });
+    return;
+  }
+
+  // Handle multer fileFilter rejection (e.g. non-image file)
+  if (err.message === 'Only image files are allowed') {
+    res.status(400).json({ message: err.message });
     return;
   }
 

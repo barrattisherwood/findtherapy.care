@@ -5,6 +5,8 @@ export type AdminLogAction =
   | 'suspend_provider'
   | 'unsuspend_provider'
   | 'delete_provider'
+  | 'set_founder'
+  | 'remove_founder'
   | 'mark_message_read';
 
 export interface IAdminLog extends Document {

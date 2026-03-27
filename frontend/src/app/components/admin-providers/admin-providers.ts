@@ -176,6 +176,22 @@ export class AdminProviders implements OnInit {
     });
   }
 
+  toggleFounder(provider: AdminProvider): void {
+    const newStatus = !provider.isFounder;
+    this.adminService.setFounderStatus(provider.id, newStatus).subscribe({
+      next: () => {
+        this.toast.success(
+          newStatus ? 'Founder Added' : 'Founder Removed',
+          `${provider.displayName} ${newStatus ? 'is now a founding supporter' : 'is no longer a founding supporter'}.`
+        );
+        this.loadProviders();
+      },
+      error: (err) => {
+        this.toast.error('Error', err.error?.message || 'Failed to update founder status');
+      }
+    });
+  }
+
   formatProviderType(type: string): string {
     return type.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase());
   }

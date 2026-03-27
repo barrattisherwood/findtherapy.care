@@ -356,6 +356,65 @@ export const getPendingCount = async (req: AuthRequest, res: Response): Promise<
   }
 };
 
+// Manually set a provider as a founder
+export const setFounderStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { isFounder } = req.body;
+
+    if (typeof isFounder !== 'boolean') {
+      res.status(400).json({ message: 'isFounder must be a boolean' });
+      return;
+    }
+
+    const provider = await Provider.findById(id);
+    if (!provider) {
+      res.status(404).json({ message: 'Provider not found' });
+      return;
+    }
+
+    if (isFounder && !provider.isFounder) {
+      const { FOUNDERS_MAX_SPOTS } = await import('@findlocal/shared');
+      const founderCount = await Provider.countDocuments({ isFounder: true });
+      if (founderCount >= FOUNDERS_MAX_SPOTS) {
+        res.status(400).json({ message: 'All founding supporter spots have been claimed' });
+        return;
+      }
+      provider.isFounder = true;
+      provider.founderNumber = founderCount + 1;
+      provider.founderSince = new Date();
+    } else if (!isFounder) {
+      provider.isFounder = false;
+      provider.founderNumber = undefined;
+      provider.founderSince = undefined;
+    }
+
+    await provider.save();
+
+    const adminUser = await User.findById(req.userId).select('email');
+    await logAdminAction({
+      action: isFounder ? 'set_founder' : 'remove_founder',
+      adminId: req.userId!,
+      adminEmail: adminUser?.email || req.userId!,
+      targetId: id,
+      targetName: provider.displayName,
+    });
+
+    res.json({
+      message: `Provider ${isFounder ? 'set as' : 'removed as'} founding supporter`,
+      provider: {
+        id: provider._id.toString(),
+        displayName: provider.displayName,
+        isFounder: provider.isFounder,
+        founderNumber: provider.founderNumber,
+      },
+    });
+  } catch (error) {
+    console.error('Error setting founder status:', error);
+    res.status(500).json({ message: 'Failed to update founder status' });
+  }
+};
+
 export const getDashboardMetrics = async (
   req: AuthRequest,
   res: Response

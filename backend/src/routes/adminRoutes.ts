@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDashboardMetrics, getPendingProviders, vetProvider, getPendingCount, getAllProviders, suspendProvider, deleteProvider } from '../controllers/adminController';
+import { getDashboardMetrics, getPendingProviders, vetProvider, getPendingCount, getAllProviders, suspendProvider, deleteProvider, setFounderStatus } from '../controllers/adminController';
 import { getBlogMetrics } from '../controllers/blogController';
 import { getMessages, markMessageRead, getUnreadCount } from '../controllers/messagesController';
 import { getAdminLogs } from '../controllers/adminLogsController';
@@ -21,6 +21,7 @@ router.post('/providers/:id/vet', authMiddleware, adminMiddleware, vetProvider);
 // Provider management - requires auth + admin
 router.get('/providers', authMiddleware, adminMiddleware, getAllProviders);
 router.post('/providers/:id/suspend', authMiddleware, adminMiddleware, suspendProvider);
+router.post('/providers/:id/founder', authMiddleware, adminMiddleware, setFounderStatus);
 router.delete('/providers/:id', authMiddleware, adminMiddleware, deleteProvider);
 
 // Messages - requires auth + admin

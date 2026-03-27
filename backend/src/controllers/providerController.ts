@@ -10,7 +10,6 @@ import {
   TRIAL_PERIOD_DAYS,
   FOUNDERS_TRIAL_DAYS,
   FOUNDERS_MAX_SPOTS,
-  FOUNDERS_PROMO_CODE,
   isTrialEnabled,
 } from '@findlocal/shared';
 import { uploadImage, deleteImage, isCloudinaryConfigured } from '../services/cloudinaryService';
@@ -152,17 +151,14 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Check if founder promo code was provided
-    const promoCode = (req.body as any).promoCode;
+    // Auto-apply founder status while spots are available
     let isFounder = false;
     let founderNumber: number | undefined;
 
-    if (promoCode && promoCode.toUpperCase() === FOUNDERS_PROMO_CODE) {
-      const founderCount = await Provider.countDocuments({ isFounder: true });
-      if (founderCount < FOUNDERS_MAX_SPOTS) {
-        isFounder = true;
-        founderNumber = founderCount + 1;
-      }
+    const founderCount = await Provider.countDocuments({ isFounder: true });
+    if (founderCount < FOUNDERS_MAX_SPOTS) {
+      isFounder = true;
+      founderNumber = founderCount + 1;
     }
 
     // NOTE: trialEndsAt is NOT set here — it starts on vetting approval

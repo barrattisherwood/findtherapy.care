@@ -55,7 +55,7 @@ export interface AdminProviderListResponse {
 
 export interface AdminLog {
   id: string;
-  action: 'vet_provider' | 'suspend_provider' | 'unsuspend_provider' | 'delete_provider' | 'mark_message_read';
+  action: 'vet_provider' | 'suspend_provider' | 'unsuspend_provider' | 'delete_provider' | 'set_founder' | 'remove_founder' | 'mark_message_read';
   adminId: string;
   adminEmail: string;
   targetId: string;
@@ -152,6 +152,10 @@ export class AdminService {
 
   deleteProvider(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/providers/${id}`);
+  }
+
+  setFounderStatus(id: string, isFounder: boolean): Observable<any> {
+    return this.http.post(`${this.apiUrl}/providers/${id}/founder`, { isFounder });
   }
 
   getPendingCount(): Observable<{ count: number }> {

@@ -207,6 +207,19 @@
                   <!-- Actions -->
                   <td class="px-4 py-3 whitespace-nowrap text-right">
                     <div class="flex items-center justify-end gap-2">
+                      <!-- Founder Toggle -->
+                      <button
+                        (click)="toggleFounder(provider)"
+                        class="text-sm font-medium"
+                        [class.text-amber-600]="!provider.isFounder"
+                        [class.hover:text-amber-800]="!provider.isFounder"
+                        [class.text-gray-400]="provider.isFounder"
+                        [class.hover:text-gray-600]="provider.isFounder"
+                        [title]="provider.isFounder ? 'Remove founder status' : 'Set as founder'"
+                      >
+                        {{ provider.isFounder ? 'Unfounder' : 'Founder' }}
+                      </button>
+
                       <!-- Suspend / Unsuspend -->
                       <button
                         (click)="openSuspend(provider)"
