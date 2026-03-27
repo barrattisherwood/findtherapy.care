@@ -27,6 +27,7 @@ export const PROVIDER_DEGREES = [
   'BSc',
   'BSoSci (Hons)',
   'BPsych (Hons)',
+  'BA Psychology (Hons)',
   'MA',
   'MSocSci',
   'MHSc',
@@ -83,7 +84,8 @@ export const PROVIDER_SPECIALTIES = [
   'Self-esteem & confidence',
   'Sleep issues',
   'Suicide & Suicidal ideation',
-  'Trauma, PTSD & Complex PTSD',
+  'Trauma',
+  'PTSD & Complex PTSD',
   'Workplace issues & Employee wellness',
 ] as const;
 
