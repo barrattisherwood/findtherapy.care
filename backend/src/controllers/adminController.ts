@@ -6,7 +6,7 @@ import { logAdminAction } from '../utils/adminLogger';
 import { cancelPayFastSubscription } from '../services/payfastService';
 import { SupportGroup } from '../models/SupportGroup';
 import { PaymentEvent } from '../models/PaymentEvent';
-import { SUBSCRIPTION_PRICE_ZAR, VetProviderRequest, ProviderAccessStatus } from '@findlocal/shared';
+import { SUBSCRIPTION_PRICE_ZAR, FOUNDERS_PRICE_ZAR, VetProviderRequest, ProviderAccessStatus } from '@findlocal/shared';
 import {
   DashboardMetrics,
   UserMetrics,
@@ -603,10 +603,16 @@ async function getRevenueMetrics(
   startDate: Date,
   endDate: Date
 ): Promise<RevenueMetrics> {
-  const [activeSubscriptionCount, recentPayments] = await Promise.all([
+  const [activeSubscriptionCount, activeFounderCount, recentPayments] = await Promise.all([
     // Active subscriptions
     Provider.countDocuments({
       subscriptionStatus: 'active',
+    }),
+
+    // Active founder subscriptions (subset of above)
+    Provider.countDocuments({
+      subscriptionStatus: 'active',
+      isFounder: true,
     }),
 
     // Total revenue from PaymentEvents in period
@@ -628,7 +634,9 @@ async function getRevenueMetrics(
     ]),
   ]);
 
-  const monthlyRecurringRevenue = activeSubscriptionCount * SUBSCRIPTION_PRICE_ZAR;
+  const activeStandardCount = activeSubscriptionCount - activeFounderCount;
+  const monthlyRecurringRevenue =
+    (activeStandardCount * SUBSCRIPTION_PRICE_ZAR) + (activeFounderCount * FOUNDERS_PRICE_ZAR);
   const totalRevenueCollected = recentPayments[0]?.totalRevenue || 0;
   const averageRevenuePerProvider =
     activeSubscriptionCount > 0 ? monthlyRecurringRevenue / activeSubscriptionCount : 0;
