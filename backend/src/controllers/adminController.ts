@@ -380,16 +380,23 @@ export const setFounderStatus = async (req: AuthRequest, res: Response): Promise
         res.status(400).json({ message: 'All founding supporter spots have been claimed' });
         return;
       }
+      await Provider.findByIdAndUpdate(id, {
+        $set: {
+          isFounder: true,
+          founderNumber: founderCount + 1,
+          founderSince: new Date(),
+        },
+      }, { runValidators: false });
       provider.isFounder = true;
       provider.founderNumber = founderCount + 1;
-      provider.founderSince = new Date();
     } else if (!isFounder) {
+      await Provider.findByIdAndUpdate(id, {
+        $set: { isFounder: false },
+        $unset: { founderNumber: '', founderSince: '' },
+      }, { runValidators: false });
       provider.isFounder = false;
       provider.founderNumber = undefined;
-      provider.founderSince = undefined;
     }
-
-    await provider.save();
 
     const adminUser = await User.findById(req.userId).select('email');
     await logAdminAction({
