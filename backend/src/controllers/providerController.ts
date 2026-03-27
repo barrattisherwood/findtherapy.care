@@ -379,7 +379,7 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     }
 
     const [providers, total] = await Promise.all([
-      Provider.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }),
+      Provider.find(query).skip(skip).limit(limit).sort({ createdAt: 1 }),
       Provider.countDocuments(query),
     ]);
 
