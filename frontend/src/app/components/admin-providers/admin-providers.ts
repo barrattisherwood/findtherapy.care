@@ -48,6 +48,7 @@ export class AdminProviders implements OnInit {
     { value: 'counsellor', label: 'Counsellor' },
     { value: 'social-worker', label: 'Social Worker' },
     { value: 'coach', label: 'Coach' },
+    { value: 'psychometrist', label: 'Psychometrist' },
   ];
 
   vettingOptions = [

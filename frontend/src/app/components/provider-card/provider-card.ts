@@ -19,6 +19,7 @@ export class ProviderCard {
       'counsellor': 'Counsellor',
       'social-worker': 'Social Worker',
       'coach': 'Coach',
+      'psychometrist': 'Psychometrist',
     };
     return labels[this.provider.type] || this.provider.type;
   }

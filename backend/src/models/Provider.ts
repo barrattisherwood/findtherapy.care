@@ -15,7 +15,7 @@ const providerSchema = new Schema<IProvider>(
     },
     type: {
       type: String,
-      enum: ['psychologist', 'counsellor', 'social-worker', 'coach'] as ProviderType[],
+      enum: ['psychologist', 'counsellor', 'social-worker', 'coach', 'psychometrist'] as ProviderType[],
       required: true,
     },
     displayName: {

@@ -136,6 +136,7 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
       'counsellor': 'Counsellor',
       'social-worker': 'Social Worker',
       'coach': 'Coach',
+      'psychometrist': 'Psychometrist',
     };
     return labels[type] || type;
   }
