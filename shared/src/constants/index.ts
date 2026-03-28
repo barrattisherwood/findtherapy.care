@@ -53,6 +53,15 @@ export const PROFESSIONAL_BODIES = [
 // Keep backward-compatible alias
 export const PROVIDER_REGISTRATIONS = PROFESSIONAL_BODIES;
 
+// Counsellor sub-types (for providers with type === 'counsellor')
+export const COUNSELLOR_TYPES = [
+  { value: 'registered',                    label: 'Registered' },
+  { value: 'wellness',                       label: 'Wellness' },
+  { value: 'other-registrations',            label: 'Other Registrations' },
+  { value: 'specialist-wellness',            label: 'Specialist Wellness Counsellor' },
+  { value: 'specialist-other-registrations', label: 'Specialist Counsellor (Other Registrations)' },
+] as const;
+
 // Provider specialties (expanded list)
 export const PROVIDER_SPECIALTIES = [
   'Abortion & Miscarriage',

@@ -56,6 +56,7 @@ const toProviderResponse = (doc: any): ProviderType => ({
   id: doc._id.toString(),
   userId: doc.userId,
   type: doc.type,
+  counsellorTypes: doc.counsellorTypes?.length ? doc.counsellorTypes : undefined,
   displayName: doc.displayName,
   bio: doc.bio,
   // Professional credentials
@@ -160,6 +161,7 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
     const provider = await Provider.create({
       userId,
       type: data.type,
+      counsellorTypes: data.counsellorTypes || [],
       displayName: data.displayName,
       bio: data.bio,
       degrees: data.degrees || [],
@@ -269,6 +271,7 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
 
     // Update fields
     if (data.type !== undefined) provider.type = data.type;
+    if (data.counsellorTypes !== undefined) (provider as any).counsellorTypes = data.counsellorTypes;
     if (data.displayName !== undefined) provider.displayName = data.displayName;
     if (data.bio !== undefined) provider.bio = data.bio;
     if (data.degrees !== undefined) provider.degrees = data.degrees;

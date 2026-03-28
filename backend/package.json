@@ -16,7 +16,8 @@
     "cleanup": "ts-node src/scripts/cleanup-test-data.ts",
     "migrate:email-verified": "ts-node src/scripts/migrate-email-verified.ts",
     "fix-founders": "railway run ts-node src/scripts/fix-founders.ts",
-    "migrate:trauma-ptsd": "railway run ts-node src/scripts/migrate-trauma-ptsd-specialty.ts"
+    "migrate:trauma-ptsd": "railway run ts-node src/scripts/migrate-trauma-ptsd-specialty.ts",
+    "migrate:counsellor-types": "railway run ts-node src/scripts/migrate-counsellor-types.ts"
   },
   "dependencies": {
     "@findlocal/shared": "file:../shared",

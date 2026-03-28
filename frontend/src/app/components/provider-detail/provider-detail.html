@@ -91,6 +91,13 @@
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 flex-shrink-0">
                   {{ providerTypeLabel }}
                 </span>
+                @if (counsellorTypeLabels.length > 0) {
+                  @for (label of counsellorTypeLabels; track label) {
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 flex-shrink-0">
+                      {{ label }}
+                    </span>
+                  }
+                }
                 <button
                   (click)="openContactModal()"
                   class="inline-flex items-center px-4 py-2 bg-white text-primary-700 rounded-lg text-sm font-semibold hover:bg-primary-50 transition-colors shadow-sm flex-shrink-0"

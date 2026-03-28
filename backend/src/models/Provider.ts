@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { Provider as SharedProvider, ProviderType, SubscriptionStatus, VettingStatus } from '@findlocal/shared';
+import { Provider as SharedProvider, ProviderType, CounsellorType, SubscriptionStatus, VettingStatus } from '@findlocal/shared';
 
 export interface IProvider extends Omit<SharedProvider, 'id'>, Document {
   _id: mongoose.Types.ObjectId;
@@ -18,6 +18,10 @@ const providerSchema = new Schema<IProvider>(
       enum: ['psychologist', 'counsellor', 'social-worker', 'coach', 'psychometrist'] as ProviderType[],
       required: true,
     },
+    counsellorTypes: [{
+      type: String,
+      enum: ['registered', 'wellness', 'other-registrations', 'specialist-wellness', 'specialist-other-registrations'] as CounsellorType[],
+    }],
     displayName: {
       type: String,
       required: true,

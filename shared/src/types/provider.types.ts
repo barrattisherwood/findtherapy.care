@@ -1,6 +1,14 @@
 // Provider Types
 export type ProviderType = 'psychologist' | 'counsellor' | 'social-worker' | 'coach' | 'psychometrist';
 
+// Counsellor sub-types (only applicable when type === 'counsellor')
+export type CounsellorType =
+  | 'registered'
+  | 'wellness'
+  | 'other-registrations'
+  | 'specialist-wellness'
+  | 'specialist-other-registrations';
+
 // Professional body names
 export type ProfessionalBodyName =
   | 'HPCSA'
@@ -49,6 +57,7 @@ export interface Provider {
   id: string;
   userId: string;
   type: ProviderType;
+  counsellorTypes?: CounsellorType[];
   displayName: string;
   bio: string;
 
@@ -99,6 +108,7 @@ export type ProviderAccessStatus = 'trial' | 'active' | 'expired' | 'none';
 
 export interface CreateProviderRequest {
   type: ProviderType;
+  counsellorTypes?: CounsellorType[];
   displayName: string;
   bio: string;
   degrees: string[];

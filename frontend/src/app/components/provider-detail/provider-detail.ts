@@ -10,7 +10,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
-import { Provider, ProviderType, FOUNDERS_MAX_SPOTS } from '@findlocal/shared';
+import { Provider, ProviderType, COUNSELLOR_TYPES, FOUNDERS_MAX_SPOTS } from '@findlocal/shared';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -84,7 +84,11 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
         this.provider.set(response.provider);
         this.loading.set(false);
         const p = response.provider;
-        const type = this.getTypeLabel(p.type);
+        const baseType = this.getTypeLabel(p.type);
+        const firstSubType = p.type === 'counsellor' && p.counsellorTypes?.length
+          ? (COUNSELLOR_TYPES.find(ct => ct.value === p.counsellorTypes![0])?.label ?? null)
+          : null;
+        const type = firstSubType ? `${firstSubType} Counsellor` : baseType;
         this.seo.update({
           title: `${p.displayName} — ${type} in ${p.location.city}`,
           description: `${p.displayName} is a ${type.toLowerCase()} in ${p.location.city}. Specialties: ${p.specialties.slice(0, 4).join(', ')}. View profile and get in touch.`,
@@ -139,6 +143,12 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
       'psychometrist': 'Psychometrist',
     };
     return labels[type] || type;
+  }
+
+  get counsellorTypeLabels(): string[] {
+    const p = this.provider();
+    if (!p || p.type !== 'counsellor' || !p.counsellorTypes?.length) return [];
+    return p.counsellorTypes.map(v => COUNSELLOR_TYPES.find(ct => ct.value === v)?.label ?? v);
   }
 
   get providerTypeLabel(): string {

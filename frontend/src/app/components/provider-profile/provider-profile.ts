@@ -12,8 +12,8 @@ import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { ImageUpload } from '../image-upload/image-upload';
-import { CreateProviderRequest, ProviderType, Certification, ProfessionalBodyMembership, ProfessionalBodyName, ProviderPricing, VettingStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
-import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROFESSIONAL_BODIES } from '@findlocal/shared';
+import { CreateProviderRequest, ProviderType, CounsellorType, Certification, ProfessionalBodyMembership, ProfessionalBodyName, ProviderPricing, VettingStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROFESSIONAL_BODIES, COUNSELLOR_TYPES } from '@findlocal/shared';
 
 @Component({
   selector: 'app-provider-profile',
@@ -44,6 +44,7 @@ export class ProviderProfile implements OnInit {
   uploadingImage = signal<boolean>(false);
 
   // Validation errors
+  counsellorTypesError = signal<string>('');
   displayNameError = signal<string>('');
   bioError = signal<string>('');
   cityError = signal<string>('');
@@ -57,6 +58,7 @@ export class ProviderProfile implements OnInit {
 
   // Form fields
   type = signal<ProviderType>('psychologist');
+  counsellorTypes = signal<CounsellorType[]>([]);
   displayName = signal<string>('');
   bio = signal<string>('');
   degrees = signal<string[]>([]);
@@ -78,6 +80,7 @@ export class ProviderProfile implements OnInit {
   availableSpecialties = PROVIDER_SPECIALTIES;
   availableDegrees = PROVIDER_DEGREES;
   availableProfessionalBodies = PROFESSIONAL_BODIES;
+  availableCounsellorTypes = COUNSELLOR_TYPES;
 
   currentYear = new Date().getFullYear();
 
@@ -103,6 +106,7 @@ export class ProviderProfile implements OnInit {
         const p = response.provider;
         this.hasProfile.set(true);
         this.type.set(p.type);
+        this.counsellorTypes.set([...(p.counsellorTypes ?? [])]);
         this.displayName.set(p.displayName);
         this.bio.set(p.bio);
         this.degrees.set([...(p.degrees || [])]);
@@ -141,6 +145,7 @@ export class ProviderProfile implements OnInit {
 
     const data: CreateProviderRequest = {
       type: this.type(),
+      counsellorTypes: this.type() === 'counsellor' ? this.counsellorTypes() : undefined,
       displayName: this.displayName(),
       bio: this.bio(),
       degrees: this.degrees(),
@@ -509,6 +514,7 @@ export class ProviderProfile implements OnInit {
     const errorMap: { error: () => string; id: string }[] = [
       { error: this.displayNameError, id: 'displayName' },
       { error: this.bioError, id: 'bio' },
+      { error: this.counsellorTypesError, id: 'counsellor-type-section' },
       { error: this.professionalBodiesError, id: 'professional-bodies-section' },
       { error: this.certificationsError, id: 'certifications-section' },
       { error: this.cityError, id: 'city' },
@@ -533,9 +539,45 @@ export class ProviderProfile implements OnInit {
     }
   }
 
+  validateCounsellorTypes(): boolean {
+    if (this.type() !== 'counsellor') {
+      this.counsellorTypesError.set('');
+      return true;
+    }
+    if (this.counsellorTypes().length === 0) {
+      this.counsellorTypesError.set('Please select at least one counsellor type');
+      return false;
+    }
+    this.counsellorTypesError.set('');
+    return true;
+  }
+
+  setType(value: ProviderType): void {
+    this.type.set(value);
+    if (value !== 'counsellor') {
+      this.counsellorTypes.set([]);
+      this.counsellorTypesError.set('');
+    }
+  }
+
+  toggleCounsellorType(value: CounsellorType): void {
+    const current = this.counsellorTypes();
+    if (current.includes(value)) {
+      this.counsellorTypes.set(current.filter(v => v !== value));
+    } else {
+      this.counsellorTypes.set([...current, value]);
+    }
+    this.counsellorTypesError.set('');
+  }
+
+  isCounsellorTypeSelected(value: CounsellorType): boolean {
+    return this.counsellorTypes().includes(value);
+  }
+
   validateAllFields(): boolean {
     const displayNameValid = this.validateDisplayName();
     const bioValid = this.validateBio();
+    const counsellorTypesValid = this.validateCounsellorTypes();
     const cityValid = this.validateCity();
     const postcodeValid = this.validatePostcode();
     const emailValid = this.validateContactEmail();
@@ -545,7 +587,7 @@ export class ProviderProfile implements OnInit {
     const professionalBodiesValid = this.validateProfessionalBodies();
     const pricingValid = this.validatePricing();
 
-    return displayNameValid && bioValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid && certificationsValid && professionalBodiesValid && pricingValid;
+    return displayNameValid && bioValid && counsellorTypesValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid && certificationsValid && professionalBodiesValid && pricingValid;
   }
 
   formatViewCount(): string {

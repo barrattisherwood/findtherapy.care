@@ -23,6 +23,7 @@ import {
   FOUNDERS_PROMO_CODE,
   FOUNDERS_TRIAL_DAYS,
   TRIAL_PERIOD_DAYS,
+  COUNSELLOR_TYPES,
 } from '@findlocal/shared';
 
 describe('Provider Controller - Subscription Logic', () => {
@@ -725,6 +726,380 @@ describe('Provider Controller - Subscription Logic', () => {
       const status = getProviderAccessStatus(provider);
       expect(status).toBe('active');
       expect(provider.isFounder).toBe(true);
+    });
+  });
+});
+
+describe('COUNSELLOR_TYPES constant', () => {
+  it('exports exactly 5 counsellor type entries', () => {
+    expect(COUNSELLOR_TYPES).toHaveLength(5);
+  });
+
+  it('contains the correct value slugs', () => {
+    const values = COUNSELLOR_TYPES.map(ct => ct.value);
+    expect(values).toContain('registered');
+    expect(values).toContain('wellness');
+    expect(values).toContain('other-registrations');
+    expect(values).toContain('specialist-wellness');
+    expect(values).toContain('specialist-other-registrations');
+  });
+
+  it('contains the correct display labels', () => {
+    const labelMap = Object.fromEntries(COUNSELLOR_TYPES.map(ct => [ct.value, ct.label]));
+    expect(labelMap['registered']).toBe('Registered');
+    expect(labelMap['wellness']).toBe('Wellness');
+    expect(labelMap['other-registrations']).toBe('Other Registrations');
+    expect(labelMap['specialist-wellness']).toBe('Specialist Wellness Counsellor');
+    expect(labelMap['specialist-other-registrations']).toBe('Specialist Counsellor (Other Registrations)');
+  });
+
+  it('has unique value slugs', () => {
+    const values = COUNSELLOR_TYPES.map(ct => ct.value);
+    expect(new Set(values).size).toBe(values.length);
+  });
+});
+
+describe('Counsellor Types — Provider Schema', () => {
+  it('persists a single counsellorType on a counsellor provider', async () => {
+    const user = await createTestUser();
+    const provider = await Provider.create({
+      userId: user._id.toString(),
+      type: 'counsellor',
+      counsellorTypes: ['wellness'],
+      displayName: 'Test Counsellor',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: [],
+      professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-0001' }],
+      certifications: [],
+      specialties: [],
+      pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+      location: { city: 'Cape Town', postcode: '8001' },
+      contactEmail: 'counsellor@example.com',
+      isPublished: true,
+      vettingStatus: 'approved',
+      subscriptionStatus: 'none',
+    });
+
+    expect(provider.counsellorTypes).toEqual(['wellness']);
+  });
+
+  it('persists multiple counsellorTypes on a counsellor provider', async () => {
+    const user = await createTestUser();
+    const provider = await Provider.create({
+      userId: user._id.toString(),
+      type: 'counsellor',
+      counsellorTypes: ['wellness', 'registered'],
+      displayName: 'Multi-type Counsellor',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: [],
+      professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-0002' }],
+      certifications: [],
+      specialties: [],
+      pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+      location: { city: 'Cape Town', postcode: '8001' },
+      contactEmail: 'multi@example.com',
+      isPublished: true,
+      vettingStatus: 'approved',
+      subscriptionStatus: 'none',
+    });
+
+    expect(provider.counsellorTypes).toHaveLength(2);
+    expect(provider.counsellorTypes).toContain('wellness');
+    expect(provider.counsellorTypes).toContain('registered');
+  });
+
+  it('persists all five counsellorType values', async () => {
+    const user = await createTestUser();
+    const allTypes = COUNSELLOR_TYPES.map(ct => ct.value);
+    const provider = await Provider.create({
+      userId: user._id.toString(),
+      type: 'counsellor',
+      counsellorTypes: allTypes,
+      displayName: 'All Types Counsellor',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: [],
+      professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-0003' }],
+      certifications: [],
+      specialties: [],
+      pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+      location: { city: 'Cape Town', postcode: '8001' },
+      contactEmail: 'all@example.com',
+      isPublished: true,
+      vettingStatus: 'approved',
+      subscriptionStatus: 'none',
+    });
+
+    expect(provider.counsellorTypes).toHaveLength(5);
+  });
+
+  it('allows counsellorTypes to be omitted (backward-compat)', async () => {
+    const user = await createTestUser();
+    const provider = await Provider.create({
+      userId: user._id.toString(),
+      type: 'counsellor',
+      displayName: 'Legacy Counsellor',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: [],
+      professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-0004' }],
+      certifications: [],
+      specialties: [],
+      pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+      location: { city: 'Cape Town', postcode: '8001' },
+      contactEmail: 'legacy@example.com',
+      isPublished: true,
+      vettingStatus: 'approved',
+      subscriptionStatus: 'none',
+    });
+
+    // Should save successfully with no counsellorTypes set
+    expect(provider._id).toBeDefined();
+    expect(provider.counsellorTypes ?? []).toHaveLength(0);
+  });
+
+  it('rejects an invalid counsellorType enum value', async () => {
+    const user = await createTestUser();
+    await expect(
+      Provider.create({
+        userId: user._id.toString(),
+        type: 'counsellor',
+        counsellorTypes: ['not-a-valid-type'],
+        displayName: 'Bad Type Counsellor',
+        bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+        degrees: [],
+        professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-0005' }],
+        certifications: [],
+        specialties: [],
+        pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+        location: { city: 'Cape Town', postcode: '8001' },
+        contactEmail: 'bad@example.com',
+        isPublished: true,
+        vettingStatus: 'approved',
+        subscriptionStatus: 'none',
+      })
+    ).rejects.toThrow();
+  });
+
+  it('allows non-counsellor providers to have no counsellorTypes', async () => {
+    const user = await createTestUser();
+    const provider = await Provider.create({
+      userId: user._id.toString(),
+      type: 'psychologist',
+      displayName: 'Test Psychologist',
+      bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+      degrees: ['PhD Psychology'],
+      professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0123456' }],
+      certifications: [],
+      specialties: [],
+      pricing: { individualCounsellingRate: 900, offersIntroductoryConsultation: false },
+      location: { city: 'Cape Town', postcode: '8001' },
+      contactEmail: 'psych@example.com',
+      isPublished: true,
+      vettingStatus: 'approved',
+      subscriptionStatus: 'none',
+    });
+
+    expect(provider._id).toBeDefined();
+    expect(provider.counsellorTypes ?? []).toHaveLength(0);
+  });
+});
+
+describe('Counsellor Types — Controller Integration', () => {
+  let mockResponse: Partial<Response>;
+  let responseJson: jest.Mock;
+  let responseStatus: jest.Mock;
+
+  const baseCounsellorData = {
+    type: 'counsellor',
+    displayName: 'Dr. Counsellor Test',
+    bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+    degrees: [],
+    professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-9001' }],
+    certifications: [],
+    specialties: ['Anxiety & Stress'],
+    pricing: { individualCounsellingRate: 700, offersIntroductoryConsultation: false },
+    location: { city: 'Cape Town', postcode: '8001' },
+    contactEmail: 'counsellortest@example.com',
+  };
+
+  beforeEach(() => {
+    responseJson = jest.fn();
+    responseStatus = jest.fn().mockReturnThis();
+    mockResponse = { json: responseJson, status: responseStatus };
+  });
+
+  describe('createProvider with counsellorTypes', () => {
+    it('creates a counsellor with a single sub-type and returns it', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...baseCounsellorData, counsellorTypes: ['wellness'] },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const { provider } = responseJson.mock.calls[0][0];
+      expect(provider.type).toBe('counsellor');
+      expect(provider.counsellorTypes).toEqual(['wellness']);
+    });
+
+    it('creates a counsellor with multiple sub-types and returns all of them', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...baseCounsellorData, counsellorTypes: ['registered', 'specialist-wellness'] },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const { provider } = responseJson.mock.calls[0][0];
+      expect(provider.counsellorTypes).toHaveLength(2);
+      expect(provider.counsellorTypes).toContain('registered');
+      expect(provider.counsellorTypes).toContain('specialist-wellness');
+    });
+
+    it('creates a counsellor with no counsellorTypes (optional field)', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: { ...baseCounsellorData },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const { provider } = responseJson.mock.calls[0][0];
+      expect(provider.type).toBe('counsellor');
+      // counsellorTypes absent means undefined in response
+      expect(provider.counsellorTypes).toBeUndefined();
+    });
+
+    it('does not include counsellorTypes in response for non-counsellor provider', async () => {
+      const user = await createTestUser();
+      const mockRequest = {
+        userId: user._id.toString(),
+        body: {
+          type: 'psychologist',
+          displayName: 'Dr. No Subtypes',
+          bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+          degrees: ['PhD Psychology'],
+          professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 9999' }],
+          certifications: [],
+          specialties: ['Anxiety & Stress'],
+          pricing: { individualCounsellingRate: 900, offersIntroductoryConsultation: false },
+          location: { city: 'Cape Town', postcode: '8001' },
+          contactEmail: 'nosubtypes@example.com',
+        },
+      } as unknown as AuthRequest;
+
+      await createProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).toHaveBeenCalledWith(201);
+      const { provider } = responseJson.mock.calls[0][0];
+      expect(provider.type).toBe('psychologist');
+      expect(provider.counsellorTypes).toBeUndefined();
+    });
+  });
+
+  describe('updateProvider with counsellorTypes', () => {
+    it('updates counsellorTypes on an existing counsellor provider', async () => {
+      const user = await createTestUser();
+      // Create with one sub-type
+      const existing = await Provider.create({
+        userId: user._id.toString(),
+        type: 'counsellor',
+        counsellorTypes: ['wellness'],
+        displayName: 'Update Test Counsellor',
+        bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+        degrees: [],
+        professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-UPD1' }],
+        certifications: [],
+        specialties: [],
+        pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+        location: { city: 'Cape Town', postcode: '8001' },
+        contactEmail: 'update1@example.com',
+        isPublished: true,
+        vettingStatus: 'approved',
+        subscriptionStatus: 'none',
+      });
+
+      const mockRequest = {
+        userId: existing.userId,
+        body: { counsellorTypes: ['registered', 'other-registrations'] },
+      } as unknown as AuthRequest;
+
+      await updateProvider(mockRequest, mockResponse as Response);
+
+      expect(responseStatus).not.toHaveBeenCalledWith(400);
+      const { provider } = responseJson.mock.calls[0][0];
+      expect(provider.counsellorTypes).toHaveLength(2);
+      expect(provider.counsellorTypes).toContain('registered');
+      expect(provider.counsellorTypes).toContain('other-registrations');
+    });
+
+    it('clears counsellorTypes when updated to an empty array', async () => {
+      const user = await createTestUser();
+      const existing = await Provider.create({
+        userId: user._id.toString(),
+        type: 'counsellor',
+        counsellorTypes: ['wellness'],
+        displayName: 'Clear Types Counsellor',
+        bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+        degrees: [],
+        professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-CLR1' }],
+        certifications: [],
+        specialties: [],
+        pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+        location: { city: 'Cape Town', postcode: '8001' },
+        contactEmail: 'clear1@example.com',
+        isPublished: true,
+        vettingStatus: 'approved',
+        subscriptionStatus: 'none',
+      });
+
+      const mockRequest = {
+        userId: existing.userId,
+        body: { counsellorTypes: [] },
+      } as unknown as AuthRequest;
+
+      await updateProvider(mockRequest, mockResponse as Response);
+
+      const { provider } = responseJson.mock.calls[0][0];
+      // Empty array → toProviderResponse returns undefined (no sub-types)
+      expect(provider.counsellorTypes).toBeUndefined();
+    });
+
+    it('preserves existing counsellorTypes when update does not include that field', async () => {
+      const user = await createTestUser();
+      const existing = await Provider.create({
+        userId: user._id.toString(),
+        type: 'counsellor',
+        counsellorTypes: ['specialist-wellness'],
+        displayName: 'Preserve Types Counsellor',
+        bio: 'A test provider bio that is at least 50 characters long for validation purposes.',
+        degrees: [],
+        professionalBodies: [{ body: 'ASCHP', registrationNumber: 'ASCHP-PRV1' }],
+        certifications: [],
+        specialties: [],
+        pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
+        location: { city: 'Cape Town', postcode: '8001' },
+        contactEmail: 'preserve1@example.com',
+        isPublished: true,
+        vettingStatus: 'approved',
+        subscriptionStatus: 'none',
+      });
+
+      // Update only the bio — counsellorTypes not included
+      const mockRequest = {
+        userId: existing.userId,
+        body: { bio: 'Updated bio that is at least 50 characters long for validation purposes. Extra text.' },
+      } as unknown as AuthRequest;
+
+      await updateProvider(mockRequest, mockResponse as Response);
+
+      const { provider } = responseJson.mock.calls[0][0];
+      expect(provider.counsellorTypes).toContain('specialist-wellness');
     });
   });
 });
