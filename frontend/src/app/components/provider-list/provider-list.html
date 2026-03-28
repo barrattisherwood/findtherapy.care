@@ -76,25 +76,70 @@
 
           <!-- Specialty filter -->
           <div>
-            <label for="specialty" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Specialty</label>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Specialty</label>
             <div class="relative">
-              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-              </svg>
-              <select
-                id="specialty"
-                [ngModel]="selectedSpecialty()"
-                (ngModelChange)="onSpecialtyChange($event)"
-                class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:bg-white focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition-all appearance-none cursor-pointer"
+              <!-- Trigger button -->
+              <button
+                type="button"
+                (click)="toggleSpecialtyDropdown($event)"
+                class="w-full flex items-center gap-2 pl-10 pr-4 py-2.5 rounded-lg border text-sm transition-all text-left"
+                [class.border-primary-400]="specialtyDropdownOpen()"
+                [class.ring-2]="specialtyDropdownOpen()"
+                [class.ring-primary-100]="specialtyDropdownOpen()"
+                [class.bg-white]="specialtyDropdownOpen() || selectedSpecialties().length > 0"
+                [class.border-gray-200]="!specialtyDropdownOpen()"
+                [class.bg-gray-50]="!specialtyDropdownOpen() && selectedSpecialties().length === 0"
+                [class.text-gray-700]="selectedSpecialties().length === 0"
+                [class.text-primary-700]="selectedSpecialties().length > 0"
+                [class.font-medium]="selectedSpecialties().length > 0"
               >
-                <option value="">All specialties</option>
-                @for (specialty of specialties; track specialty) {
-                  <option [value]="specialty">{{ specialty }}</option>
-                }
-              </select>
-              <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-              </svg>
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+                </svg>
+                <span class="truncate flex-1">{{ specialtyButtonLabel }}</span>
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0 transition-transform"
+                     [class.rotate-180]="specialtyDropdownOpen()"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+
+              <!-- Dropdown panel -->
+              @if (specialtyDropdownOpen()) {
+                <div
+                  (click)="$event.stopPropagation()"
+                  class="absolute left-0 right-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+                >
+                  <div class="max-h-60 overflow-y-auto py-1">
+                    @for (specialty of specialties; track specialty) {
+                      <label
+                        class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                        [class.bg-primary-50]="isSpecialtySelected(specialty)"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="isSpecialtySelected(specialty)"
+                          (change)="toggleSpecialty(specialty)"
+                          class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 focus:ring-offset-0 cursor-pointer flex-shrink-0"
+                        />
+                        <span class="text-sm text-gray-700 leading-tight">{{ specialty }}</span>
+                      </label>
+                    }
+                  </div>
+                  @if (selectedSpecialties().length > 0) {
+                    <div class="border-t border-gray-100 px-3 py-2 flex items-center justify-between bg-gray-50">
+                      <span class="text-xs text-gray-500">{{ selectedSpecialties().length }} selected</span>
+                      <button
+                        type="button"
+                        (click)="selectedSpecialties.set([]); specialtyDropdownOpen.set(false); search()"
+                        class="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
             </div>
           </div>
 

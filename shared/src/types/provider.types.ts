@@ -134,7 +134,7 @@ export interface VetProviderRequest {
 export interface ProviderSearchParams {
   type?: ProviderType;
   city?: string;
-  specialty?: string;
+  specialties?: string[];
   maxRate?: number;
   freeConsultation?: boolean;
   page?: number;

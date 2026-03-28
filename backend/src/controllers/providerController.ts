@@ -334,10 +334,15 @@ export const deleteProvider = async (req: AuthRequest, res: Response) => {
 // Search/list providers (public)
 export const searchProviders = async (req: AuthRequest, res: Response) => {
   try {
+    const rawSpecialties = req.query.specialties;
+    const specialtiesArray: string[] = rawSpecialties
+      ? (Array.isArray(rawSpecialties) ? rawSpecialties as string[] : [rawSpecialties as string])
+      : [];
+
     const params: ProviderSearchParams = {
       type: req.query.type as any,
       city: req.query.city as string,
-      specialty: req.query.specialty as string,
+      specialties: specialtiesArray.length ? specialtiesArray : undefined,
       maxRate: req.query.maxRate ? Number(req.query.maxRate) : undefined,
       freeConsultation: req.query.freeConsultation === 'true',
       page: req.query.page ? Number(req.query.page) : 1,
@@ -366,8 +371,8 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     if (params.city) {
       query['location.city'] = new RegExp(params.city, 'i');
     }
-    if (params.specialty) {
-      query.specialties = params.specialty;
+    if (params.specialties && params.specialties.length) {
+      query.specialties = { $in: params.specialties };
     }
     if (params.maxRate !== undefined) {
       query['pricing.individualCounsellingRate'] = { $lte: params.maxRate };

@@ -61,7 +61,11 @@ export class ProviderService {
     let httpParams = new HttpParams();
     if (params.type) httpParams = httpParams.set('type', params.type);
     if (params.city) httpParams = httpParams.set('city', params.city);
-    if (params.specialty) httpParams = httpParams.set('specialty', params.specialty);
+    if (params.specialties?.length) {
+      for (const s of params.specialties) {
+        httpParams = httpParams.append('specialties', s);
+      }
+    }
     if (params.maxRate !== undefined) httpParams = httpParams.set('maxRate', params.maxRate.toString());
     if (params.freeConsultation) httpParams = httpParams.set('freeConsultation', 'true');
     if (params.page) httpParams = httpParams.set('page', params.page.toString());

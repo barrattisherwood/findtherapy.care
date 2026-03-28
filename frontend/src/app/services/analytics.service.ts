@@ -73,9 +73,9 @@ export class AnalyticsService {
     this.trackEvent('contact_site');
   }
 
-  trackSearch(specialty: string, city: string, type?: string, freeConsultation?: boolean): void {
+  trackSearch(specialties: string[], city: string, type?: string, freeConsultation?: boolean): void {
     this.trackEvent('search', {
-      specialty: specialty || undefined,
+      specialty: specialties.join(', ') || undefined,
       city: city || undefined,
       provider_type: type,
       free_consultation: freeConsultation

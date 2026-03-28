@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, inject, signal } from '@angular/core';
+import { Component, OnInit, Input, inject, signal, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProviderService } from '../../services/provider.service';
@@ -26,6 +26,7 @@ export class ProviderList implements OnInit {
   private providerService = inject(ProviderService);
   private seo = inject(SeoService);
   private analytics = inject(AnalyticsService);
+  private elementRef = inject(ElementRef);
 
   providers = this.providerService.providers;
   loading = this.providerService.loading;
@@ -36,7 +37,8 @@ export class ProviderList implements OnInit {
   // Filter values
   selectedType = signal<ProviderType | ''>('');
   selectedCity = signal<string>('');
-  selectedSpecialty = signal<string>('');
+  selectedSpecialties = signal<string[]>([]);
+  specialtyDropdownOpen = signal<boolean>(false);
   freeConsultation = signal<boolean>(false);
 
   specialties = PROVIDER_SPECIALTIES;
@@ -68,12 +70,12 @@ export class ProviderList implements OnInit {
 
     if (this.selectedType()) params.type = this.selectedType() as ProviderType;
     if (this.selectedCity()) params.city = this.selectedCity();
-    if (this.selectedSpecialty()) params.specialty = this.selectedSpecialty();
+    if (this.selectedSpecialties().length) params.specialties = this.selectedSpecialties();
     if (this.freeConsultation()) params.freeConsultation = true;
 
     // Track search event
     this.analytics.trackSearch(
-      this.selectedSpecialty(),
+      this.selectedSpecialties(),
       this.selectedCity(),
       this.selectedType() || undefined,
       this.freeConsultation()
@@ -90,7 +92,7 @@ export class ProviderList implements OnInit {
 
     if (this.selectedType()) params.type = this.selectedType() as ProviderType;
     if (this.selectedCity()) params.city = this.selectedCity();
-    if (this.selectedSpecialty()) params.specialty = this.selectedSpecialty();
+    if (this.selectedSpecialties().length) params.specialties = this.selectedSpecialties();
     if (this.freeConsultation()) params.freeConsultation = true;
 
     this.providerService.search(params).subscribe();
@@ -99,7 +101,8 @@ export class ProviderList implements OnInit {
   clearFilters(): void {
     this.selectedType.set('');
     this.selectedCity.set('');
-    this.selectedSpecialty.set('');
+    this.selectedSpecialties.set([]);
+    this.specialtyDropdownOpen.set(false);
     this.freeConsultation.set(false);
     this.search();
   }
@@ -114,9 +117,37 @@ export class ProviderList implements OnInit {
     this.search();
   }
 
-  onSpecialtyChange(value: string): void {
-    this.selectedSpecialty.set(value);
+  toggleSpecialtyDropdown(event: Event): void {
+    event.stopPropagation();
+    this.specialtyDropdownOpen.update(v => !v);
+  }
+
+  toggleSpecialty(specialty: string): void {
+    const current = this.selectedSpecialties();
+    if (current.includes(specialty)) {
+      this.selectedSpecialties.set(current.filter(s => s !== specialty));
+    } else {
+      this.selectedSpecialties.set([...current, specialty]);
+    }
     this.search();
+  }
+
+  isSpecialtySelected(specialty: string): boolean {
+    return this.selectedSpecialties().includes(specialty);
+  }
+
+  get specialtyButtonLabel(): string {
+    const selected = this.selectedSpecialties();
+    if (selected.length === 0) return 'All specialties';
+    if (selected.length === 1) return selected[0];
+    return `${selected.length} selected`;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.specialtyDropdownOpen.set(false);
+    }
   }
 
   onFreeConsultationChange(value: boolean): void {
