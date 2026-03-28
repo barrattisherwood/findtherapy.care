@@ -372,7 +372,7 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
       query['location.city'] = new RegExp(params.city, 'i');
     }
     if (params.specialties && params.specialties.length) {
-      query.specialties = { $in: params.specialties };
+      query.specialties = { $all: params.specialties };
     }
     if (params.maxRate !== undefined) {
       query['pricing.individualCounsellingRate'] = { $lte: params.maxRate };
