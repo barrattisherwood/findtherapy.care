@@ -392,57 +392,24 @@
             <div class="border-t pt-8">
               <h2 class="text-xl font-semibold text-gray-900 mb-6">Location & Contact</h2>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label for="city" class="block text-sm font-medium text-gray-700 mb-2">City *</label>
-                <input
-                  id="city"
-                  type="text"
-                  [ngModel]="city()"
-                  (ngModelChange)="city.set($event); validateCity()"
-                  name="city"
-                  required
-                  [class.border-red-500]="cityError()"
-                  [class.border-gray-300]="!cityError()"
-                  class="w-full rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                  placeholder="Cape Town"
+              <!-- Location picker -->
+              <div id="location-section" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">Where do you practice? *</label>
+                <app-location-input
+                  [value]="location()"
+                  [error]="locationError()"
+                  (valueChange)="location.set($event); validateLocation()"
                 />
-                @if (cityError()) {
-                  <p class="mt-1 text-sm text-red-600">{{ cityError() }}</p>
-                }
-                </div>
-                <div>
-                  <label for="postcode" class="block text-sm font-medium text-gray-700 mb-2">Postcode *</label>
-                <input
-                  id="postcode"
-                  type="text"
-                  [ngModel]="postcode()"
-                  (ngModelChange)="postcode.set($event); validatePostcode()"
-                  name="postcode"
-                  required
-                  [class.border-red-500]="postcodeError()"
-                  [class.border-gray-300]="!postcodeError()"
-                  class="w-full rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                  placeholder="8001"
-                  maxlength="4"
-                />
-                @if (postcodeError()) {
-                  <p class="mt-1 text-sm text-red-600">{{ postcodeError() }}</p>
-                }
-                </div>
               </div>
 
-              <div class="mb-6">
-                <label for="address" class="block text-sm font-medium text-gray-700 mb-2">Address (optional)</label>
-              <input
-                id="address"
-                type="text"
-                [ngModel]="address()"
-                (ngModelChange)="address.set($event)"
-                name="address"
-                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                placeholder="123 Main Street, Gardens"
-              />
+              <!-- Session formats -->
+              <div id="session-formats-section" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">How do you offer sessions? *</label>
+                <app-session-formats-input
+                  [value]="sessionFormats()"
+                  [error]="sessionFormatsError()"
+                  (valueChange)="sessionFormats.set($event); validateSessionFormats()"
+                />
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">

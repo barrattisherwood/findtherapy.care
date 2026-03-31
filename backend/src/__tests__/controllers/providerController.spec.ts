@@ -367,9 +367,15 @@ describe('Provider Controller - Subscription Logic', () => {
         offersIntroductoryConsultation: false,
       },
       location: {
-        city: 'Cape Town',
-        postcode: '8001',
+        type: 'physical',
+        province: 'western-cape',
+        provinceDisplay: 'Western Cape',
+        city: 'cape-town',
+        cityDisplay: 'Cape Town',
+        fullLocation: 'Cape Town, Western Cape',
+        shortLocation: 'Cape Town',
       },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'founder@example.com',
     };
 
@@ -455,9 +461,37 @@ describe('Provider Controller - Subscription Logic', () => {
     });
   });
 
-  describe('City Filter (searchProviders)', () => {
+  describe('Location Filter (searchProviders)', () => {
     let mockResponse: Partial<Response>;
     let responseJson: jest.Mock;
+
+    const capeToLocation = {
+      type: 'physical',
+      province: 'western-cape',
+      provinceDisplay: 'Western Cape',
+      city: 'cape-town',
+      cityDisplay: 'Cape Town',
+      fullLocation: 'Cape Town, Western Cape',
+      shortLocation: 'Cape Town',
+    };
+
+    const joBurgLocation = {
+      type: 'physical',
+      province: 'gauteng',
+      provinceDisplay: 'Gauteng',
+      city: 'johannesburg',
+      cityDisplay: 'Johannesburg',
+      fullLocation: 'Johannesburg, Gauteng',
+      shortLocation: 'Johannesburg',
+    };
+
+    const onlineLocation = {
+      type: 'online-only',
+      city: 'online',
+      cityDisplay: 'Online Only',
+      fullLocation: 'Online Only',
+      shortLocation: 'Online',
+    };
 
     beforeEach(() => {
       responseJson = jest.fn();
@@ -467,62 +501,117 @@ describe('Provider Controller - Subscription Logic', () => {
       };
     });
 
-    const makeRequest = (city: string) =>
-      ({ query: { city } }) as unknown as import('../../middleware/auth').AuthRequest;
+    const makeRequest = (query: Record<string, string>) =>
+      ({ query }) as unknown as import('../../middleware/auth').AuthRequest;
 
-    it('returns providers matching the city name', async () => {
+    it('filters by city slug (exact match)', async () => {
       const user1 = await createTestUser();
       const user2 = await createTestUser();
 
-      await createProviderWithActiveTrial(user1._id.toString(), 30); // default city: Cape Town
+      await createProviderWithActiveTrial(user1._id.toString(), 30); // default: cape-town
       await createTestProvider({
         userId: user2._id.toString(),
-        location: { city: 'Johannesburg', postcode: '2000' },
+        location: joBurgLocation,
+        sessionFormats: { inPerson: true, online: false },
         trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
 
-      await searchProviders(makeRequest('Cape Town'), mockResponse as Response);
+      await searchProviders(makeRequest({ city: 'cape-town' }), mockResponse as Response);
 
       const { providers } = responseJson.mock.calls[0][0];
       expect(providers.length).toBe(1);
-      expect(providers[0].location.city).toBe('Cape Town');
+      expect(providers[0].location.city).toBe('cape-town');
     });
 
-    it('matches city name case-insensitively', async () => {
-      const user = await createTestUser();
-      await createProviderWithActiveTrial(user._id.toString(), 30); // Cape Town
+    it('filters by province slug', async () => {
+      const user1 = await createTestUser();
+      const user2 = await createTestUser();
 
-      await searchProviders(makeRequest('cape town'), mockResponse as Response);
+      await createProviderWithActiveTrial(user1._id.toString(), 30); // western-cape
+      await createTestProvider({
+        userId: user2._id.toString(),
+        location: joBurgLocation,
+        sessionFormats: { inPerson: true, online: false },
+        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      await searchProviders(makeRequest({ province: 'western-cape' }), mockResponse as Response);
 
       const { providers } = responseJson.mock.calls[0][0];
       expect(providers.length).toBe(1);
+      expect(providers[0].location.province).toBe('western-cape');
     });
 
-    it('does not match slug format "cape-town" against stored value "Cape Town"', async () => {
-      // This documents the bug that was present in city-landing.html before the fix:
-      // passing cityConfig.slug ("cape-town") to the city filter would return 0 results
-      // because the regex /cape-town/i does not match the string "Cape Town".
-      const user = await createTestUser();
-      await createProviderWithActiveTrial(user._id.toString(), 30); // Cape Town
+    it('filters online-only providers', async () => {
+      const user1 = await createTestUser();
+      const user2 = await createTestUser();
 
-      await searchProviders(makeRequest('cape-town'), mockResponse as Response);
+      await createProviderWithActiveTrial(user1._id.toString(), 30); // in-person only
+      await createTestProvider({
+        userId: user2._id.toString(),
+        location: onlineLocation,
+        sessionFormats: { inPerson: false, online: true },
+        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      await searchProviders(makeRequest({ online: 'true' }), mockResponse as Response);
 
       const { providers } = responseJson.mock.calls[0][0];
-      expect(providers.length).toBe(0);
+      expect(providers.length).toBe(1);
+      expect(providers[0].location.type).toBe('online-only');
     });
 
-    it('returns all providers when no city filter is provided', async () => {
+    it('city filter includes online providers when no inPerson param set', async () => {
+      const user1 = await createTestUser();
+      const user2 = await createTestUser();
+
+      await createProviderWithActiveTrial(user1._id.toString(), 30); // cape-town in-person
+      await createTestProvider({
+        userId: user2._id.toString(),
+        location: onlineLocation,
+        sessionFormats: { inPerson: false, online: true },
+        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      await searchProviders(makeRequest({ city: 'cape-town' }), mockResponse as Response);
+
+      const { providers } = responseJson.mock.calls[0][0];
+      // Both the cape-town in-person provider AND the online provider should appear
+      expect(providers.length).toBe(2);
+    });
+
+    it('inPerson filter excludes online-only providers', async () => {
+      const user1 = await createTestUser();
+      const user2 = await createTestUser();
+
+      await createProviderWithActiveTrial(user1._id.toString(), 30); // cape-town in-person
+      await createTestProvider({
+        userId: user2._id.toString(),
+        location: onlineLocation,
+        sessionFormats: { inPerson: false, online: true },
+        trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      });
+
+      await searchProviders(makeRequest({ inPerson: 'true' }), mockResponse as Response);
+
+      const { providers } = responseJson.mock.calls[0][0];
+      expect(providers.length).toBe(1);
+      expect(providers[0].sessionFormats.inPerson).toBe(true);
+    });
+
+    it('returns all providers when no location filter provided', async () => {
       const user1 = await createTestUser();
       const user2 = await createTestUser();
 
       await createProviderWithActiveTrial(user1._id.toString(), 30);
       await createTestProvider({
         userId: user2._id.toString(),
-        location: { city: 'Johannesburg', postcode: '2000' },
+        location: joBurgLocation,
+        sessionFormats: { inPerson: true, online: false },
         trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
 
-      await searchProviders(makeRequest(''), mockResponse as Response);
+      await searchProviders(makeRequest({}), mockResponse as Response);
 
       const { providers } = responseJson.mock.calls[0][0];
       expect(providers.length).toBe(2);
@@ -541,7 +630,8 @@ describe('Provider Controller - Subscription Logic', () => {
       degrees: ['PhD Psychology'],
       specialties: ['Anxiety & Stress'],
       pricing: { individualCounsellingRate: 800, offersIntroductoryConsultation: false },
-      location: { city: 'Cape Town', postcode: '8001' },
+      location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'duptest@example.com',
     };
 
@@ -773,7 +863,8 @@ describe('Counsellor Types — Provider Schema', () => {
       certifications: [],
       specialties: [],
       pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-      location: { city: 'Cape Town', postcode: '8001' },
+      location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'counsellor@example.com',
       isPublished: true,
       vettingStatus: 'approved',
@@ -796,7 +887,8 @@ describe('Counsellor Types — Provider Schema', () => {
       certifications: [],
       specialties: [],
       pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-      location: { city: 'Cape Town', postcode: '8001' },
+      location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'multi@example.com',
       isPublished: true,
       vettingStatus: 'approved',
@@ -822,7 +914,8 @@ describe('Counsellor Types — Provider Schema', () => {
       certifications: [],
       specialties: [],
       pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-      location: { city: 'Cape Town', postcode: '8001' },
+      location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'all@example.com',
       isPublished: true,
       vettingStatus: 'approved',
@@ -844,7 +937,8 @@ describe('Counsellor Types — Provider Schema', () => {
       certifications: [],
       specialties: [],
       pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-      location: { city: 'Cape Town', postcode: '8001' },
+      location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'legacy@example.com',
       isPublished: true,
       vettingStatus: 'approved',
@@ -870,7 +964,8 @@ describe('Counsellor Types — Provider Schema', () => {
         certifications: [],
         specialties: [],
         pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-        location: { city: 'Cape Town', postcode: '8001' },
+        location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
         contactEmail: 'bad@example.com',
         isPublished: true,
         vettingStatus: 'approved',
@@ -891,7 +986,8 @@ describe('Counsellor Types — Provider Schema', () => {
       certifications: [],
       specialties: [],
       pricing: { individualCounsellingRate: 900, offersIntroductoryConsultation: false },
-      location: { city: 'Cape Town', postcode: '8001' },
+      location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
       contactEmail: 'psych@example.com',
       isPublished: true,
       vettingStatus: 'approved',
@@ -917,7 +1013,8 @@ describe('Counsellor Types — Controller Integration', () => {
     certifications: [],
     specialties: ['Anxiety & Stress'],
     pricing: { individualCounsellingRate: 700, offersIntroductoryConsultation: false },
-    location: { city: 'Cape Town', postcode: '8001' },
+    location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+    sessionFormats: { inPerson: true, online: false },
     contactEmail: 'counsellortest@example.com',
   };
 
@@ -988,7 +1085,8 @@ describe('Counsellor Types — Controller Integration', () => {
           certifications: [],
           specialties: ['Anxiety & Stress'],
           pricing: { individualCounsellingRate: 900, offersIntroductoryConsultation: false },
-          location: { city: 'Cape Town', postcode: '8001' },
+          location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
           contactEmail: 'nosubtypes@example.com',
         },
       } as unknown as AuthRequest;
@@ -1017,7 +1115,8 @@ describe('Counsellor Types — Controller Integration', () => {
         certifications: [],
         specialties: [],
         pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-        location: { city: 'Cape Town', postcode: '8001' },
+        location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
         contactEmail: 'update1@example.com',
         isPublished: true,
         vettingStatus: 'approved',
@@ -1051,7 +1150,8 @@ describe('Counsellor Types — Controller Integration', () => {
         certifications: [],
         specialties: [],
         pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-        location: { city: 'Cape Town', postcode: '8001' },
+        location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
         contactEmail: 'clear1@example.com',
         isPublished: true,
         vettingStatus: 'approved',
@@ -1083,7 +1183,8 @@ describe('Counsellor Types — Controller Integration', () => {
         certifications: [],
         specialties: [],
         pricing: { individualCounsellingRate: 600, offersIntroductoryConsultation: false },
-        location: { city: 'Cape Town', postcode: '8001' },
+        location: { type: 'physical', province: 'western-cape', provinceDisplay: 'Western Cape', city: 'cape-town', cityDisplay: 'Cape Town', fullLocation: 'Cape Town, Western Cape', shortLocation: 'Cape Town', searchTerms: ['cape-town', 'western-cape'] },
+      sessionFormats: { inPerson: true, online: false },
         contactEmail: 'preserve1@example.com',
         isPublished: true,
         vettingStatus: 'approved',

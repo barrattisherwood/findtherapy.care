@@ -7,11 +7,8 @@ export interface TestProviderOptions {
   displayName?: string;
   type?: string;
   bio?: string;
-  location?: {
-    city: string;
-    postcode: string;
-    province?: string;
-  };
+  location?: Record<string, any>;
+  sessionFormats?: { inPerson: boolean; online: boolean };
   contactEmail?: string;
   contactPhone?: string;
   subscriptionStatus?: 'none' | 'active' | 'past_due' | 'canceled' | 'paused';
@@ -45,10 +42,16 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
       offersIntroductoryConsultation: false,
     },
     location: options.location || {
-      city: 'Cape Town',
-      postcode: '8001',
-      province: 'Western Cape',
+      type: 'physical',
+      province: 'western-cape',
+      provinceDisplay: 'Western Cape',
+      city: 'cape-town',
+      cityDisplay: 'Cape Town',
+      fullLocation: 'Cape Town, Western Cape',
+      shortLocation: 'Cape Town',
+      searchTerms: ['cape-town', 'western-cape'],
     },
+    sessionFormats: options.sessionFormats || { inPerson: true, online: false },
     contactEmail: options.contactEmail || 'provider@example.com',
     contactPhone: options.contactPhone || '+27123456789',
     isPublished: options.isPublished ?? true,

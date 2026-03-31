@@ -47,10 +47,32 @@ export interface ProviderPricing {
 
 export type SubscriptionStatus = 'none' | 'active' | 'past_due' | 'canceled' | 'paused';
 
+// DEPRECATED — kept for backward compat during migration
 export interface ProviderLocation {
   address?: string;
   city: string;
   postcode: string;
+}
+
+// NEW — structured location
+export interface StructuredLocation {
+  type: 'physical' | 'online-only';
+  // Physical fields (required when type === 'physical')
+  province?: string;          // slug e.g. "western-cape"
+  provinceDisplay?: string;   // e.g. "Western Cape"
+  city: string;               // slug e.g. "stellenbosch" | "online"
+  cityDisplay: string;        // e.g. "Stellenbosch" | "Online Only"
+  suburb?: string;            // optional e.g. "Die Boord"
+  // Auto-computed display strings (set by backend pre-save hook)
+  fullLocation: string;       // e.g. "Die Boord, Stellenbosch, Western Cape" | "Online Only"
+  shortLocation: string;      // e.g. "Stellenbosch" | "Online"
+  searchTerms?: string[];     // slugs for indexed search
+  coordinates?: { lat: number; lng: number };
+}
+
+export interface SessionFormats {
+  inPerson: boolean;
+  online: boolean;
 }
 
 export interface Provider {
@@ -76,7 +98,9 @@ export interface Provider {
   pricing: ProviderPricing;
 
   specialties: string[];
-  location: ProviderLocation;
+  location: StructuredLocation;
+  sessionFormats: SessionFormats;
+  servesNationwide: boolean;
   contactEmail: string;
   contactPhone?: string;
   website?: string;
@@ -116,7 +140,8 @@ export interface CreateProviderRequest {
   certifications: Certification[];
   specialties: string[];
   pricing: ProviderPricing;
-  location: ProviderLocation;
+  location: StructuredLocation;
+  sessionFormats: SessionFormats;
   contactEmail: string;
   contactPhone?: string;
   website?: string;
@@ -133,7 +158,10 @@ export interface VetProviderRequest {
 
 export interface ProviderSearchParams {
   type?: ProviderType;
-  city?: string;
+  city?: string;       // city slug
+  province?: string;   // province slug
+  online?: boolean;
+  inPerson?: boolean;
   specialties?: string[];
   maxRate?: number;
   freeConsultation?: boolean;

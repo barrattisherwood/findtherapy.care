@@ -1,0 +1,31 @@
+<div class="space-y-3">
+  <label class="flex items-start gap-3 cursor-pointer group">
+    <input
+      type="checkbox"
+      [ngModel]="value.inPerson"
+      (ngModelChange)="toggle('inPerson', $event)"
+      class="mt-0.5 h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+    />
+    <span class="text-sm">
+      <span class="font-medium text-gray-800">In-person at my practice</span>
+      <span class="block text-gray-500">Face-to-face sessions at your office</span>
+    </span>
+  </label>
+
+  <label class="flex items-start gap-3 cursor-pointer group">
+    <input
+      type="checkbox"
+      [ngModel]="value.online"
+      (ngModelChange)="toggle('online', $event)"
+      class="mt-0.5 h-4 w-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+    />
+    <span class="text-sm">
+      <span class="font-medium text-gray-800">Online (video / telehealth)</span>
+      <span class="block text-gray-500">Available to clients across South Africa</span>
+    </span>
+  </label>
+
+  @if (error) {
+    <p class="text-sm text-red-600">{{ error }}</p>
+  }
+</div>

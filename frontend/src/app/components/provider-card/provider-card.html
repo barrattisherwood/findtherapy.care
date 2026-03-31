@@ -43,7 +43,12 @@
         </span>
       </div>
 
-      <p class="text-sm text-gray-500">{{ locationDisplay }}</p>
+      <div class="flex flex-wrap items-center gap-2 mt-0.5">
+        <p class="text-sm text-gray-500">{{ locationDisplay }}</p>
+        @if (provider.sessionFormats && provider.sessionFormats.online) {
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-700">Online</span>
+        }
+      </div>
     </div>
   </div>
 

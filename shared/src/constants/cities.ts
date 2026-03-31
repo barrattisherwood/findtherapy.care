@@ -1,6 +1,276 @@
 export const MAJOR_CITIES = ['johannesburg', 'cape-town', 'durban', 'pretoria'] as const;
 export type MajorCity = typeof MAJOR_CITIES[number];
 
+// ── SA Provinces ────────────────────────────────────────────────────────────
+
+export interface SAProvince {
+  slug: string;
+  name: string;
+}
+
+export const SA_PROVINCES: SAProvince[] = [
+  { slug: 'eastern-cape',    name: 'Eastern Cape' },
+  { slug: 'free-state',      name: 'Free State' },
+  { slug: 'gauteng',         name: 'Gauteng' },
+  { slug: 'kwazulu-natal',   name: 'KwaZulu-Natal' },
+  { slug: 'limpopo',         name: 'Limpopo' },
+  { slug: 'mpumalanga',      name: 'Mpumalanga' },
+  { slug: 'north-west',      name: 'North West' },
+  { slug: 'northern-cape',   name: 'Northern Cape' },
+  { slug: 'western-cape',    name: 'Western Cape' },
+];
+
+// ── SA Cities ────────────────────────────────────────────────────────────────
+
+export interface SACity {
+  slug: string;
+  /** Primary display name */
+  name: string;
+  /** Optional formatted name (e.g. "Mbombela (Nelspruit)") */
+  displayName?: string;
+  province: string;           // matches SAProvince.slug
+  isMetro?: boolean;
+  aliases?: string[];         // alternative names / common misspellings
+  suburbs?: string[];         // major suburbs for metro areas
+}
+
+export const SA_CITIES: SACity[] = [
+  // ── Gauteng ─────────────────────────────────────────────────────────────
+  {
+    slug: 'johannesburg',
+    name: 'Johannesburg',
+    province: 'gauteng',
+    isMetro: true,
+    aliases: ['jhb', 'joburg', 'johanesburg', 'egoli'],
+    suburbs: ['Sandton', 'Rosebank', 'Fourways', 'Randburg', 'Roodepoort', 'Soweto', 'Midrand', 'Edenvale', 'Bedfordview', 'Bryanston', 'Melville', 'Parkhurst'],
+  },
+  {
+    slug: 'pretoria',
+    name: 'Pretoria',
+    displayName: 'Pretoria (Tshwane)',
+    province: 'gauteng',
+    isMetro: true,
+    aliases: ['tshwane', 'pta'],
+    suburbs: ['Centurion', 'Menlyn', 'Brooklyn', 'Hatfield', 'Lynnwood', 'Arcadia', 'Waterkloof', 'Faerie Glen', 'Moreleta Park'],
+  },
+  {
+    slug: 'ekurhuleni',
+    name: 'Ekurhuleni',
+    province: 'gauteng',
+    isMetro: true,
+    aliases: ['east-rand', 'germiston', 'boksburg', 'benoni', 'kempton-park'],
+    suburbs: ['Germiston', 'Boksburg', 'Benoni', 'Kempton Park', 'Edenvale', 'Springs', 'Brakpan'],
+  },
+  // ── Western Cape ────────────────────────────────────────────────────────
+  {
+    slug: 'cape-town',
+    name: 'Cape Town',
+    province: 'western-cape',
+    isMetro: true,
+    aliases: ['cpt', 'cape town', 'capetown'],
+    suburbs: ['Sea Point', 'Claremont', 'Constantia', 'Rondebosch', 'Wynberg', 'Bellville', 'Somerset West', 'Stellenbosch', 'Pinelands', 'Observatory', 'Green Point', 'Camps Bay', 'Hout Bay', 'Milnerton', 'Bloubergstrand'],
+  },
+  {
+    slug: 'stellenbosch',
+    name: 'Stellenbosch',
+    province: 'western-cape',
+    aliases: ['stel', 'stellies'],
+    suburbs: ['Die Boord', 'Welgemoed', 'Cloetesville'],
+  },
+  {
+    slug: 'paarl',
+    name: 'Paarl',
+    province: 'western-cape',
+    aliases: ['pearl'],
+  },
+  {
+    slug: 'george',
+    name: 'George',
+    province: 'western-cape',
+  },
+  {
+    slug: 'knysna',
+    name: 'Knysna',
+    province: 'western-cape',
+    aliases: ['knysna', 'nysna'],
+  },
+  {
+    slug: 'worcester',
+    name: 'Worcester',
+    province: 'western-cape',
+  },
+  {
+    slug: 'mossel-bay',
+    name: 'Mossel Bay',
+    province: 'western-cape',
+    aliases: ['mosselbaai', 'mosselbay'],
+  },
+  {
+    slug: 'hermanus',
+    name: 'Hermanus',
+    province: 'western-cape',
+  },
+  {
+    slug: 'franschhoek',
+    name: 'Franschhoek',
+    province: 'western-cape',
+  },
+  // ── KwaZulu-Natal ───────────────────────────────────────────────────────
+  {
+    slug: 'durban',
+    name: 'Durban',
+    displayName: 'Durban (eThekwini)',
+    province: 'kwazulu-natal',
+    isMetro: true,
+    aliases: ['ethekwini', 'ethekwini'],
+    suburbs: ['Umhlanga', 'Ballito', 'Berea', 'Morningside', 'Westville', 'Pinetown', 'Hillcrest', 'Amanzimtoti', 'uMhlanga', 'La Lucia'],
+  },
+  {
+    slug: 'pietermaritzburg',
+    name: 'Pietermaritzburg',
+    province: 'kwazulu-natal',
+    aliases: ['pmb', 'maritzburg'],
+  },
+  {
+    slug: 'newcastle',
+    name: 'Newcastle',
+    province: 'kwazulu-natal',
+  },
+  {
+    slug: 'richards-bay',
+    name: 'Richards Bay',
+    province: 'kwazulu-natal',
+    aliases: ['richardsbay'],
+  },
+  // ── Eastern Cape ────────────────────────────────────────────────────────
+  {
+    slug: 'gqeberha',
+    name: 'Gqeberha',
+    displayName: 'Gqeberha (Port Elizabeth)',
+    province: 'eastern-cape',
+    aliases: ['port elizabeth', 'pe', 'port-elizabeth'],
+  },
+  {
+    slug: 'east-london',
+    name: 'East London',
+    province: 'eastern-cape',
+    aliases: ['eastlondon'],
+    suburbs: ['Vincent', 'Beacon Bay', 'Nahoon'],
+  },
+  {
+    slug: 'makhanda',
+    name: 'Makhanda',
+    displayName: 'Makhanda (Grahamstown)',
+    province: 'eastern-cape',
+    aliases: ['grahamstown', 'graham', 'grahamstad'],
+  },
+  // ── Free State ──────────────────────────────────────────────────────────
+  {
+    slug: 'bloemfontein',
+    name: 'Bloemfontein',
+    province: 'free-state',
+    isMetro: true,
+    aliases: ['bloem', 'mangaung'],
+    suburbs: ['Westdene', 'Universitas', 'Langenhovenpark', 'Bayswater'],
+  },
+  {
+    slug: 'welkom',
+    name: 'Welkom',
+    province: 'free-state',
+  },
+  // ── Mpumalanga ──────────────────────────────────────────────────────────
+  {
+    slug: 'mbombela',
+    name: 'Mbombela',
+    displayName: 'Mbombela (Nelspruit)',
+    province: 'mpumalanga',
+    aliases: ['nelspruit', 'nels', 'mbombela'],
+  },
+  {
+    slug: 'emalahleni',
+    name: 'eMalahleni',
+    displayName: 'eMalahleni (Witbank)',
+    province: 'mpumalanga',
+    aliases: ['witbank', 'witban'],
+  },
+  {
+    slug: 'secunda',
+    name: 'Secunda',
+    province: 'mpumalanga',
+  },
+  // ── Limpopo ─────────────────────────────────────────────────────────────
+  {
+    slug: 'polokwane',
+    name: 'Polokwane',
+    displayName: 'Polokwane (Pietersburg)',
+    province: 'limpopo',
+    aliases: ['pietersburg', 'limpopo'],
+  },
+  {
+    slug: 'tzaneen',
+    name: 'Tzaneen',
+    province: 'limpopo',
+  },
+  // ── North West ──────────────────────────────────────────────────────────
+  {
+    slug: 'rustenburg',
+    name: 'Rustenburg',
+    province: 'north-west',
+  },
+  {
+    slug: 'mahikeng',
+    name: 'Mahikeng',
+    displayName: 'Mahikeng (Mafikeng)',
+    province: 'north-west',
+    aliases: ['mafikeng', 'mmabatho'],
+  },
+  {
+    slug: 'potchefstroom',
+    name: 'Potchefstroom',
+    province: 'north-west',
+    aliases: ['potch'],
+  },
+  // ── Northern Cape ───────────────────────────────────────────────────────
+  {
+    slug: 'kimberley',
+    name: 'Kimberley',
+    province: 'northern-cape',
+  },
+  {
+    slug: 'upington',
+    name: 'Upington',
+    province: 'northern-cape',
+  },
+];
+
+/**
+ * Search SA cities by query string. Matches city name, displayName, and aliases.
+ * Minimum query length: 2 characters.
+ */
+export function searchSACities(query: string, limit = 10): (SACity & { provinceDisplay: string; fullName: string })[] {
+  if (!query || query.length < 2) return [];
+
+  const q = query.toLowerCase().trim();
+
+  return SA_CITIES
+    .filter(city => {
+      if (city.name.toLowerCase().includes(q)) return true;
+      if (city.displayName?.toLowerCase().includes(q)) return true;
+      if (city.aliases?.some(a => a.includes(q))) return true;
+      if (city.suburbs?.some(s => s.toLowerCase().includes(q))) return true;
+      return false;
+    })
+    .map(city => {
+      const province = SA_PROVINCES.find(p => p.slug === city.province);
+      return {
+        ...city,
+        provinceDisplay: province?.name ?? city.province,
+        fullName: `${city.displayName ?? city.name}, ${province?.name ?? city.province}`,
+      };
+    })
+    .slice(0, limit);
+}
+
 export interface CityConfig {
   slug: string;
   name: string;

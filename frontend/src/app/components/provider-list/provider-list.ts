@@ -1,9 +1,12 @@
-import { Component, OnInit, Input, inject, signal, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, inject, signal, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { ProviderService } from '../../services/provider.service';
 import { SeoService } from '../../services/seo.service';
 import { AnalyticsService } from '../../services/analytics.service';
+import { CitiesService, CityResult } from '../../services/cities.service';
 import { ProviderCard } from '../provider-card/provider-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
@@ -18,7 +21,7 @@ import { PROVIDER_SPECIALTIES } from '@findlocal/shared';
   templateUrl: './provider-list.html',
   styleUrl: './provider-list.scss'
 })
-export class ProviderList implements OnInit {
+export class ProviderList implements OnInit, OnDestroy {
   @Input() cityFilter: string | undefined;
   @Input() embedded: boolean = false;
   @Input() showFilters: boolean = true;
@@ -26,7 +29,10 @@ export class ProviderList implements OnInit {
   private providerService = inject(ProviderService);
   private seo = inject(SeoService);
   private analytics = inject(AnalyticsService);
+  private citiesService = inject(CitiesService);
   private elementRef = inject(ElementRef);
+  private destroy$ = new Subject<void>();
+  private citySearch$ = new Subject<string>();
 
   providers = this.providerService.providers;
   loading = this.providerService.loading;
@@ -36,7 +42,11 @@ export class ProviderList implements OnInit {
 
   // Filter values
   selectedType = signal<ProviderType | ''>('');
-  selectedCity = signal<string>('');
+  selectedCity = signal<string>('');         // city slug for API
+  cityQuery = signal<string>('');            // display text in input
+  citySuggestions = signal<CityResult[]>([]);
+  showCitySuggestions = signal<boolean>(false);
+  onlineOnly = signal<boolean>(false);
   selectedSpecialties = signal<string[]>([]);
   specialtyDropdownOpen = signal<boolean>(false);
   freeConsultation = signal<boolean>(false);
@@ -57,8 +67,56 @@ export class ProviderList implements OnInit {
     // Pre-populate city filter if provided via Input
     if (this.cityFilter) {
       this.selectedCity.set(this.cityFilter);
+      this.cityQuery.set(this.cityFilter);
     }
 
+    // City autocomplete pipe
+    this.citySearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(q => this.citiesService.searchCities(q)),
+      takeUntil(this.destroy$)
+    ).subscribe(results => {
+      this.citySuggestions.set(results);
+      this.showCitySuggestions.set(results.length > 0);
+    });
+
+    this.search();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onCityQueryChange(q: string): void {
+    this.cityQuery.set(q);
+    this.selectedCity.set('');
+    if (q.length >= 2) {
+      this.citySearch$.next(q);
+    } else {
+      this.citySuggestions.set([]);
+      this.showCitySuggestions.set(false);
+    }
+  }
+
+  selectCity(city: CityResult): void {
+    this.selectedCity.set(city.slug);
+    this.cityQuery.set(city.displayName ?? city.name);
+    this.showCitySuggestions.set(false);
+    this.search();
+  }
+
+  clearCityFilter(): void {
+    this.selectedCity.set('');
+    this.cityQuery.set('');
+    this.citySuggestions.set([]);
+    this.showCitySuggestions.set(false);
+    this.search();
+  }
+
+  onOnlineOnlyChange(value: boolean): void {
+    this.onlineOnly.set(value);
     this.search();
   }
 
@@ -69,7 +127,11 @@ export class ProviderList implements OnInit {
     };
 
     if (this.selectedType()) params.type = this.selectedType() as ProviderType;
-    if (this.selectedCity()) params.city = this.selectedCity();
+    if (this.onlineOnly()) {
+      params.online = true;
+    } else if (this.selectedCity()) {
+      params.city = this.selectedCity();
+    }
     if (this.selectedSpecialties().length) params.specialties = this.selectedSpecialties();
     if (this.freeConsultation()) params.freeConsultation = true;
 
@@ -91,7 +153,11 @@ export class ProviderList implements OnInit {
     };
 
     if (this.selectedType()) params.type = this.selectedType() as ProviderType;
-    if (this.selectedCity()) params.city = this.selectedCity();
+    if (this.onlineOnly()) {
+      params.online = true;
+    } else if (this.selectedCity()) {
+      params.city = this.selectedCity();
+    }
     if (this.selectedSpecialties().length) params.specialties = this.selectedSpecialties();
     if (this.freeConsultation()) params.freeConsultation = true;
 
@@ -101,6 +167,9 @@ export class ProviderList implements OnInit {
   clearFilters(): void {
     this.selectedType.set('');
     this.selectedCity.set('');
+    this.cityQuery.set('');
+    this.citySuggestions.set([]);
+    this.onlineOnly.set(false);
     this.selectedSpecialties.set([]);
     this.specialtyDropdownOpen.set(false);
     this.freeConsultation.set(false);
@@ -114,6 +183,7 @@ export class ProviderList implements OnInit {
 
   onCityChange(value: string): void {
     this.selectedCity.set(value);
+    this.cityQuery.set(value);
     this.search();
   }
 

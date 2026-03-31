@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { Provider as SharedProvider, ProviderType, CounsellorType, SubscriptionStatus, VettingStatus } from '@findlocal/shared';
+import { Provider as SharedProvider, ProviderType, CounsellorType, SubscriptionStatus, VettingStatus, SA_CITIES, SA_PROVINCES } from '@findlocal/shared';
 
 export interface IProvider extends Omit<SharedProvider, 'id'>, Document {
   _id: mongoose.Types.ObjectId;
@@ -99,18 +99,32 @@ const providerSchema = new Schema<IProvider>(
       trim: true,
     }],
     location: {
-      address: String,
-      city: {
+      type: {
         type: String,
+        enum: ['physical', 'online-only'],
         required: true,
         trim: true,
       },
-      postcode: {
-        type: String,
-        required: true,
-        trim: true,
+      // Physical location fields
+      province: { type: String, trim: true },
+      provinceDisplay: { type: String, trim: true },
+      city: { type: String, required: true, trim: true },
+      cityDisplay: { type: String, required: true, trim: true },
+      suburb: { type: String, trim: true },
+      // Computed display fields (set by pre-save hook)
+      fullLocation: { type: String, required: true, trim: true },
+      shortLocation: { type: String, required: true, trim: true },
+      searchTerms: [{ type: String, trim: true }],
+      coordinates: {
+        lat: Number,
+        lng: Number,
       },
     },
+    sessionFormats: {
+      inPerson: { type: Boolean, default: false },
+      online: { type: Boolean, default: false },
+    },
+    servesNationwide: { type: Boolean, default: false },
     contactEmail: {
       type: String,
       required: true,
@@ -214,9 +228,45 @@ const providerSchema = new Schema<IProvider>(
   }
 );
 
-// Index for searching
+// Indexes
 providerSchema.index({ type: 1, 'location.city': 1, subscriptionStatus: 1 });
+providerSchema.index({ 'location.city': 1, 'sessionFormats.inPerson': 1 });
+providerSchema.index({ 'location.province': 1, 'sessionFormats.inPerson': 1 });
+providerSchema.index({ 'sessionFormats.online': 1 });
+providerSchema.index({ 'location.searchTerms': 1 });
 providerSchema.index({ specialties: 1 });
 providerSchema.index({ vettingStatus: 1 });
+
+// Pre-save hook — compute fullLocation, shortLocation, servesNationwide, searchTerms
+providerSchema.pre('save', function (next) {
+  const loc = this.location as any;
+  const fmt = this.sessionFormats as any;
+
+  if (loc) {
+    if (loc.type === 'online-only') {
+      loc.fullLocation = 'Online Only';
+      loc.shortLocation = 'Online';
+      loc.searchTerms = ['online', 'nationwide', 'virtual', 'teletherapy'];
+    } else {
+      const suburb = loc.suburb ? `${loc.suburb}, ` : '';
+      loc.fullLocation = `${suburb}${loc.cityDisplay}${loc.provinceDisplay ? `, ${loc.provinceDisplay}` : ''}`;
+      loc.shortLocation = loc.cityDisplay;
+
+      // Build searchTerms from city aliases in shared data
+      const cityData = SA_CITIES.find(c => c.slug === loc.city);
+      loc.searchTerms = [
+        loc.city,
+        ...(loc.province ? [loc.province] : []),
+        ...(cityData?.aliases ?? []),
+      ].filter(Boolean);
+    }
+  }
+
+  if (fmt) {
+    (this as any).servesNationwide = fmt.online === true;
+  }
+
+  next();
+});
 
 export const Provider = mongoose.model<IProvider>('Provider', providerSchema);

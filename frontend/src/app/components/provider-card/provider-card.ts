@@ -25,7 +25,8 @@ export class ProviderCard {
   }
 
   get locationDisplay(): string {
-    return `${this.provider.location.city}, ${this.provider.location.postcode}`;
+    const loc = this.provider.location;
+    return loc?.shortLocation ?? loc?.cityDisplay ?? '';
   }
 
   getLowestRate(): number | null {

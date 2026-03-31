@@ -90,8 +90,8 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
           : null;
         const type = firstSubType ? `${firstSubType} Counsellor` : baseType;
         this.seo.update({
-          title: `${p.displayName} — ${type} in ${p.location.city}`,
-          description: `${p.displayName} is a ${type.toLowerCase()} in ${p.location.city}. Specialties: ${p.specialties.slice(0, 4).join(', ')}. View profile and get in touch.`,
+          title: `${p.displayName} — ${type} in ${p.location.shortLocation ?? p.location.cityDisplay}`,
+          description: `${p.displayName} is a ${type.toLowerCase()} in ${p.location.shortLocation ?? p.location.cityDisplay}. Specialties: ${p.specialties.slice(0, 4).join(', ')}. View profile and get in touch.`,
           url: `/providers/${p.id}`,
         });
 
@@ -112,15 +112,15 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
           email: p.contactEmail,
           address: {
             '@type': 'PostalAddress',
-            streetAddress: p.location.address || p.location.city,
-            addressLocality: p.location.city,
-            postalCode: p.location.postcode,
+            streetAddress: p.location.suburb ?? p.location.cityDisplay,
+            addressLocality: p.location.cityDisplay,
+            addressRegion: p.location.provinceDisplay,
             addressCountry: 'ZA'
           },
           priceRange: priceRange,
           areaServed: {
             '@type': 'City',
-            name: p.location.city
+            name: p.location.cityDisplay
           }
         });
 
@@ -159,8 +159,16 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
   get locationDisplay(): string {
     const p = this.provider();
     if (!p) return '';
-    const parts = [p.location.address, p.location.city, p.location.postcode].filter(Boolean);
-    return parts.join(', ');
+    return p.location.fullLocation ?? p.location.cityDisplay;
+  }
+
+  get sessionFormatLabels(): string[] {
+    const p = this.provider();
+    if (!p?.sessionFormats) return [];
+    const labels: string[] = [];
+    if (p.sessionFormats.inPerson) labels.push('In-person');
+    if (p.sessionFormats.online) labels.push('Online');
+    return labels;
   }
 
   toggleContactForm(): void {

@@ -73,6 +73,8 @@ const toProviderResponse = (doc: any): ProviderType => ({
   vettedBy: doc.vettedBy,
   specialties: doc.specialties || [],
   location: doc.location,
+  sessionFormats: doc.sessionFormats || { inPerson: false, online: false },
+  servesNationwide: doc.servesNationwide ?? false,
   contactEmail: doc.contactEmail,
   contactPhone: doc.contactPhone,
   website: doc.website,
@@ -105,8 +107,14 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
     }
 
     // Validate required fields
-    if (!data.type || !data.displayName || !data.bio || !data.location?.city || !data.location?.postcode || !data.contactEmail) {
+    if (!data.type || !data.displayName || !data.bio || !data.location?.city || !data.location?.cityDisplay || !data.contactEmail) {
       return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+    if (data.location.type === 'physical' && !data.location.province) {
+      return res.status(400).json({ message: 'Province is required for physical locations' });
+    }
+    if (!data.sessionFormats || (!data.sessionFormats.inPerson && !data.sessionFormats.online)) {
+      return res.status(400).json({ message: 'Please select at least one session format' });
     }
 
     // Validate certifications
@@ -170,6 +178,7 @@ export const createProvider = async (req: AuthRequest, res: Response) => {
       pricing: data.pricing || { offersIntroductoryConsultation: false },
       specialties: data.specialties || [],
       location: data.location,
+      sessionFormats: data.sessionFormats,
       contactEmail: data.contactEmail,
       contactPhone: data.contactPhone,
       website: data.website,
@@ -291,6 +300,7 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
     if (data.pricing !== undefined) provider.pricing = data.pricing;
     if (data.specialties !== undefined) provider.specialties = data.specialties;
     if (data.location !== undefined) provider.location = data.location;
+    if (data.sessionFormats !== undefined) (provider as any).sessionFormats = data.sessionFormats;
     if (data.contactEmail !== undefined) provider.contactEmail = data.contactEmail;
     if (data.contactPhone !== undefined) provider.contactPhone = data.contactPhone;
     if (data.website !== undefined) provider.website = data.website;
@@ -342,6 +352,9 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     const params: ProviderSearchParams = {
       type: req.query.type as any,
       city: req.query.city as string,
+      province: req.query.province as string,
+      online: req.query.online === 'true' ? true : undefined,
+      inPerson: req.query.inPerson === 'true' ? true : undefined,
       specialties: specialtiesArray.length ? specialtiesArray : undefined,
       maxRate: req.query.maxRate ? Number(req.query.maxRate) : undefined,
       freeConsultation: req.query.freeConsultation === 'true',
@@ -368,9 +381,29 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     if (params.type) {
       query.type = params.type;
     }
-    if (params.city) {
-      query['location.city'] = new RegExp(params.city, 'i');
+
+    // Location / session format filters
+    if (params.online && !params.inPerson) {
+      query['sessionFormats.online'] = true;
+    } else if (params.inPerson && !params.online) {
+      query['sessionFormats.inPerson'] = true;
+      if (params.city) query['location.city'] = params.city;
+      else if (params.province) query['location.province'] = params.province;
+    } else {
+      // Both or neither — match either format
+      if (params.city) {
+        query.$or = [
+          { 'location.city': params.city, 'sessionFormats.inPerson': true },
+          { 'sessionFormats.online': true },
+        ];
+      } else if (params.province) {
+        query.$or = [
+          { 'location.province': params.province, 'sessionFormats.inPerson': true },
+          { 'sessionFormats.online': true },
+        ];
+      }
     }
+
     if (params.specialties && params.specialties.length) {
       query.specialties = { $all: params.specialties };
     }

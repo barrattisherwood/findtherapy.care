@@ -12,13 +12,15 @@ import { Footer } from '../footer/footer';
 import { SubscriptionStatus } from '../subscription-status/subscription-status';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { ImageUpload } from '../image-upload/image-upload';
-import { CreateProviderRequest, ProviderType, CounsellorType, Certification, ProfessionalBodyMembership, ProfessionalBodyName, ProviderPricing, VettingStatus, SUBSCRIPTION_PRICE_ZAR } from '@findlocal/shared';
+import { CreateProviderRequest, ProviderType, CounsellorType, Certification, ProfessionalBodyMembership, ProfessionalBodyName, ProviderPricing, VettingStatus, SUBSCRIPTION_PRICE_ZAR, StructuredLocation, SessionFormats } from '@findlocal/shared';
 import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROFESSIONAL_BODIES, COUNSELLOR_TYPES } from '@findlocal/shared';
+import { LocationInput } from '../location-input/location-input';
+import { SessionFormatsInput } from '../session-formats-input/session-formats-input';
 
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload],
+  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload, LocationInput, SessionFormatsInput],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.scss'
 })
@@ -47,8 +49,8 @@ export class ProviderProfile implements OnInit {
   counsellorTypesError = signal<string>('');
   displayNameError = signal<string>('');
   bioError = signal<string>('');
-  cityError = signal<string>('');
-  postcodeError = signal<string>('');
+  locationError = signal<string>('');
+  sessionFormatsError = signal<string>('');
   contactEmailError = signal<string>('');
   contactPhoneError = signal<string>('');
   websiteError = signal<string>('');
@@ -68,9 +70,8 @@ export class ProviderProfile implements OnInit {
     offersIntroductoryConsultation: false
   });
   specialties = signal<string[]>([]);
-  city = signal<string>('');
-  postcode = signal<string>('');
-  address = signal<string>('');
+  location = signal<StructuredLocation | null>(null);
+  sessionFormats = signal<SessionFormats>({ inPerson: false, online: false });
   contactEmail = signal<string>('');
   contactPhone = signal<string>('');
   website = signal<string>('');
@@ -114,9 +115,8 @@ export class ProviderProfile implements OnInit {
         this.certifications.set([...(p.certifications || [])]);
         this.pricing.set(p.pricing || { offersIntroductoryConsultation: false });
         this.specialties.set([...(p.specialties || [])]);
-        this.city.set(p.location.city);
-        this.postcode.set(p.location.postcode);
-        this.address.set(p.location.address || '');
+        this.location.set(p.location ?? null);
+        this.sessionFormats.set(p.sessionFormats ?? { inPerson: false, online: false });
         this.contactEmail.set(p.contactEmail);
         this.contactPhone.set(p.contactPhone || '');
         this.website.set(p.website || '');
@@ -153,11 +153,8 @@ export class ProviderProfile implements OnInit {
       certifications: this.certifications(),
       pricing: this.pricing(),
       specialties: this.specialties(),
-      location: {
-        city: this.city(),
-        postcode: this.postcode(),
-        address: this.address() || undefined,
-      },
+      location: this.location()!,
+      sessionFormats: this.sessionFormats(),
       contactEmail: this.contactEmail(),
       contactPhone: this.contactPhone() || undefined,
       website: this.website() || undefined,
@@ -348,27 +345,27 @@ export class ProviderProfile implements OnInit {
     return true;
   }
 
-  validateCity(): boolean {
-    const value = this.city().trim();
-    if (!value) {
-      this.cityError.set('City is required');
+  validateLocation(): boolean {
+    const loc = this.location();
+    if (!loc) {
+      this.locationError.set('Location is required');
       return false;
     }
-    this.cityError.set('');
+    if (loc.type === 'physical' && !loc.province) {
+      this.locationError.set('Please select a province');
+      return false;
+    }
+    this.locationError.set('');
     return true;
   }
 
-  validatePostcode(): boolean {
-    const value = this.postcode().trim();
-    if (!value) {
-      this.postcodeError.set('Postcode is required');
+  validateSessionFormats(): boolean {
+    const fmt = this.sessionFormats();
+    if (!fmt.inPerson && !fmt.online) {
+      this.sessionFormatsError.set('Please select at least one session format');
       return false;
     }
-    if (!/^\d{4}$/.test(value)) {
-      this.postcodeError.set('Postcode must be 4 digits');
-      return false;
-    }
-    this.postcodeError.set('');
+    this.sessionFormatsError.set('');
     return true;
   }
 
@@ -517,8 +514,8 @@ export class ProviderProfile implements OnInit {
       { error: this.counsellorTypesError, id: 'counsellor-type-section' },
       { error: this.professionalBodiesError, id: 'professional-bodies-section' },
       { error: this.certificationsError, id: 'certifications-section' },
-      { error: this.cityError, id: 'city' },
-      { error: this.postcodeError, id: 'postcode' },
+      { error: this.locationError, id: 'location-section' },
+      { error: this.sessionFormatsError, id: 'session-formats-section' },
       { error: this.contactEmailError, id: 'contactEmail' },
       { error: this.contactPhoneError, id: 'contactPhone' },
       { error: this.websiteError, id: 'website' },
@@ -578,8 +575,8 @@ export class ProviderProfile implements OnInit {
     const displayNameValid = this.validateDisplayName();
     const bioValid = this.validateBio();
     const counsellorTypesValid = this.validateCounsellorTypes();
-    const cityValid = this.validateCity();
-    const postcodeValid = this.validatePostcode();
+    const locationValid = this.validateLocation();
+    const sessionFormatsValid = this.validateSessionFormats();
     const emailValid = this.validateContactEmail();
     const phoneValid = this.validateContactPhone();
     const websiteValid = this.validateWebsite();
@@ -587,7 +584,7 @@ export class ProviderProfile implements OnInit {
     const professionalBodiesValid = this.validateProfessionalBodies();
     const pricingValid = this.validatePricing();
 
-    return displayNameValid && bioValid && counsellorTypesValid && cityValid && postcodeValid && emailValid && phoneValid && websiteValid && certificationsValid && professionalBodiesValid && pricingValid;
+    return displayNameValid && bioValid && counsellorTypesValid && locationValid && sessionFormatsValid && emailValid && phoneValid && websiteValid && certificationsValid && professionalBodiesValid && pricingValid;
   }
 
   formatViewCount(): string {
