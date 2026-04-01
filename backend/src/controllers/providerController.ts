@@ -372,9 +372,8 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
       isPublished: true,
       vettingStatus: 'approved',
       isSuspended: { $ne: true },
-      $or: [
-        { subscriptionStatus: 'active' },
-        { trialEndsAt: { $gt: now } },
+      $and: [
+        { $or: [{ subscriptionStatus: 'active' }, { trialEndsAt: { $gt: now } }] },
       ],
     };
 
@@ -390,17 +389,11 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
       if (params.city) query['location.city'] = params.city;
       else if (params.province) query['location.province'] = params.province;
     } else {
-      // Both or neither — match either format
+      // Both or neither — include providers in the city/province plus any online provider
       if (params.city) {
-        query.$or = [
-          { 'location.city': params.city, 'sessionFormats.inPerson': true },
-          { 'sessionFormats.online': true },
-        ];
+        query.$and.push({ $or: [{ 'location.city': params.city }, { 'sessionFormats.online': true }] });
       } else if (params.province) {
-        query.$or = [
-          { 'location.province': params.province, 'sessionFormats.inPerson': true },
-          { 'sessionFormats.online': true },
-        ];
+        query.$and.push({ $or: [{ 'location.province': params.province }, { 'sessionFormats.online': true }] });
       }
     }
 
