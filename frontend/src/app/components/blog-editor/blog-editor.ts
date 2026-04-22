@@ -1,27 +1,33 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { SafeHtml } from '@angular/platform-browser';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
 import { BlogService } from '../../services/blog.service';
 import { MarkdownService } from '../../services/markdown.service';
+import { ProviderService } from '../../services/provider.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
-import { BlogPost, CreateBlogPostRequest, UpdateBlogPostRequest } from '@findlocal/shared';
+import { BlogPost, CreateBlogPostRequest, UpdateBlogPostRequest, Provider } from '@findlocal/shared';
 
 @Component({
   selector: 'app-blog-editor',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, Navbar, Footer],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, Footer],
   templateUrl: './blog-editor.html',
   styleUrl: './blog-editor.scss'
 })
-export class BlogEditor implements OnInit {
+export class BlogEditor implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private blogService = inject(BlogService);
   private markdownService = inject(MarkdownService);
+  private providerService = inject(ProviderService);
+  private destroy$ = new Subject<void>();
+  private authorSearch$ = new Subject<string>();
 
   isEditing = signal(false);
   postId = signal<string | null>(null);
@@ -30,7 +36,13 @@ export class BlogEditor implements OnInit {
   successMessage = signal('');
   previewMode = signal(false);
   markdownPreview = signal<SafeHtml>('');
-  
+
+  // Author provider linking
+  authorQuery = signal('');
+  authorSuggestions = signal<Pick<Provider, 'id' | 'displayName' | 'profileImage'>[]>([]);
+  showAuthorSuggestions = signal(false);
+  linkedProviderId = signal<string | null>(null);
+
   blogForm: FormGroup;
   featuredImageFile = signal<File | null>(null);
   featuredImagePreview = signal<string | null>(null);
@@ -59,6 +71,42 @@ export class BlogEditor implements OnInit {
       this.postId.set(id);
       this.loadPost(id);
     }
+
+    this.authorSearch$.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(q => q.length >= 2 ? this.providerService.adminSearch(q) : of({ providers: [] })),
+      takeUntil(this.destroy$),
+    ).subscribe(res => {
+      this.authorSuggestions.set(res.providers ?? []);
+      this.showAuthorSuggestions.set((res.providers ?? []).length > 0);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  onAuthorQueryChange(q: string): void {
+    this.authorQuery.set(q);
+    this.linkedProviderId.set(null);
+    this.authorSearch$.next(q);
+  }
+
+  selectAuthorProvider(p: Pick<Provider, 'id' | 'displayName' | 'profileImage'>): void {
+    this.linkedProviderId.set(p.id);
+    this.authorQuery.set(p.displayName);
+    this.blogForm.patchValue({ authorDisplayName: p.displayName });
+    this.authorSuggestions.set([]);
+    this.showAuthorSuggestions.set(false);
+  }
+
+  clearAuthorProvider(): void {
+    this.linkedProviderId.set(null);
+    this.authorQuery.set('');
+    this.blogForm.patchValue({ authorDisplayName: 'Staff writer' });
+    this.authorSuggestions.set([]);
   }
 
   loadPost(id: string): void {
@@ -90,6 +138,11 @@ export class BlogEditor implements OnInit {
 
     if (post.featuredImage) {
       this.featuredImagePreview.set(post.featuredImage);
+    }
+
+    if (post.authorProviderId) {
+      this.linkedProviderId.set(post.authorProviderId);
+      this.authorQuery.set(post.authorDisplayName ?? '');
     }
   }
 
@@ -210,6 +263,7 @@ export class BlogEditor implements OnInit {
         seoTitle: formValue.seoTitle,
         seoDescription: formValue.seoDescription,
         authorDisplayName: formValue.authorDisplayName || 'Staff writer',
+        authorProviderId: this.linkedProviderId() ?? undefined,
         commentsEnabled: formValue.commentsEnabled
       };
 

@@ -53,7 +53,11 @@
           <svg class="h-5 w-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
           </svg>
-          <span>{{ post()!.authorDisplayName || 'Staff writer' }}</span>
+          @if (post()!.authorProviderId) {
+            <a [routerLink]="['/providers', post()!.authorProviderId]" class="hover:text-primary-600 hover:underline">{{ post()!.authorDisplayName || 'Staff writer' }}</a>
+          } @else {
+            <span>{{ post()!.authorDisplayName || 'Staff writer' }}</span>
+          }
         </div>
 
         <div class="flex items-center">
@@ -153,7 +157,12 @@
     <div class="mt-12 p-6 bg-white rounded-lg border border-gray-200">
       <h3 class="text-lg font-semibold text-gray-900 mb-2">About the Author</h3>
       <p class="text-gray-700">
-        <strong>{{ post()!.authorDisplayName || 'Staff writer' }}</strong> is the findtherapy.care editorial team, dedicated to sharing practical insights and resources to support your mental wellness journey.
+        @if (post()!.authorProviderId) {
+          <a [routerLink]="['/providers', post()!.authorProviderId]" class="font-semibold hover:text-primary-600 hover:underline">{{ post()!.authorDisplayName || 'Staff writer' }}</a>
+        } @else {
+          <strong>{{ post()!.authorDisplayName || 'Staff writer' }}</strong>
+        }
+        is the findtherapy.care editorial team, dedicated to sharing practical insights and resources to support your mental wellness journey.
       </p>
     </div>
 

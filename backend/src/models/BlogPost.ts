@@ -15,6 +15,7 @@ export interface IBlogPost extends Document {
   seoTitle?: string;
   seoDescription?: string;
   authorDisplayName?: string;
+  authorProviderId?: Schema.Types.ObjectId;
   readingTime: number;
   views: number;
   likes: number;
@@ -90,6 +91,11 @@ const blogPostSchema = new Schema<IBlogPost>({
   authorDisplayName: {
     type: String,
     trim: true
+  },
+  authorProviderId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Provider',
+    required: false
   },
   readingTime: {
     type: Number,

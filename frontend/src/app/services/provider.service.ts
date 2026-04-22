@@ -87,6 +87,13 @@ export class ProviderService {
     return this.http.get<{ provider: Provider }>(`${this.apiUrl}/${id}`);
   }
 
+  // Search providers by display name (admin, for blog author linking)
+  adminSearch(query: string): Observable<{ providers: Pick<Provider, 'id' | 'displayName' | 'profileImage'>[] }> {
+    const apiUrl = `${this.apiUrl.replace('/providers', '')}/admin/providers`;
+    const params = new HttpParams().set('search', query).set('limit', '10');
+    return this.http.get<any>(apiUrl, { params });
+  }
+
   // Clear my provider (used on logout)
   clearMyProvider(): void {
     this.myProvider.set(null);

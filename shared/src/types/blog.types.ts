@@ -21,6 +21,7 @@ export interface BlogPost {
   views: number;
   likes: number;
   authorDisplayName?: string;
+  authorProviderId?: string;
   commentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,7 @@ export interface CreateBlogPostRequest {
   seoTitle?: string;
   seoDescription?: string;
   authorDisplayName?: string;
+  authorProviderId?: string;
   commentsEnabled?: boolean;
 }
 
@@ -53,6 +55,7 @@ export interface UpdateBlogPostRequest {
   seoTitle?: string;
   seoDescription?: string;
   authorDisplayName?: string;
+  authorProviderId?: string;
   commentsEnabled?: boolean;
 }
 
