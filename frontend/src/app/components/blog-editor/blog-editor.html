@@ -255,8 +255,8 @@ Example:
             <div class="relative">
               <input
                 type="text"
-                [ngModel]="authorQuery()"
-                (ngModelChange)="onAuthorQueryChange($event)"
+                [value]="authorQuery()"
+                (input)="onAuthorQueryChange($any($event.target).value)"
                 (blur)="showAuthorSuggestions.set(false)"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Search for a provider, or type a custom name"

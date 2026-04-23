@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { SafeHtml } from '@angular/platform-browser';
@@ -15,7 +14,7 @@ import { BlogPost, CreateBlogPostRequest, UpdateBlogPostRequest, Provider } from
 @Component({
   selector: 'app-blog-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, Footer],
+  imports: [CommonModule, ReactiveFormsModule, Navbar, Footer],
   templateUrl: './blog-editor.html',
   styleUrl: './blog-editor.scss'
 })
