@@ -129,6 +129,10 @@ export class BlogList implements OnInit {
     return this.blogService.formatReadingTime(minutes);
   }
 
+  formatCategory(slug: string): string {
+    return slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
   getPageNumbers(): number[] {
     const pages = [];
     const start = Math.max(1, this.currentPage() - 2);

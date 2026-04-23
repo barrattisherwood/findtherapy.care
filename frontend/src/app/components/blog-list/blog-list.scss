@@ -1,3 +1,9 @@
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
 // Blog list specific styles
 .blog-list {
   .line-clamp-2 {
