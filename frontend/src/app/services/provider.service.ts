@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import {
   Provider,
   CreateProviderRequest,
@@ -91,7 +91,15 @@ export class ProviderService {
   adminSearch(query: string): Observable<{ providers: Pick<Provider, 'id' | 'displayName' | 'profileImage'>[] }> {
     const apiUrl = `${this.apiUrl.replace('/providers', '')}/admin/providers`;
     const params = new HttpParams().set('search', query).set('limit', '10');
-    return this.http.get<any>(apiUrl, { params });
+    return this.http.get<any>(apiUrl, { params }).pipe(
+      map(res => ({
+        providers: (res.providers ?? []).map((p: any) => ({
+          id: p._id ?? p.id,
+          displayName: p.displayName,
+          profileImage: p.profileImage,
+        }))
+      }))
+    );
   }
 
   // Clear my provider (used on logout)

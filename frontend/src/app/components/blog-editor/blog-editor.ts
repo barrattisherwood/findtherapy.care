@@ -91,6 +91,7 @@ export class BlogEditor implements OnInit, OnDestroy {
   onAuthorQueryChange(q: string): void {
     this.authorQuery.set(q);
     this.linkedProviderId.set(null);
+    this.blogForm.patchValue({ authorDisplayName: q || 'Staff writer' });
     this.authorSearch$.next(q);
   }
 
@@ -143,6 +144,9 @@ export class BlogEditor implements OnInit, OnDestroy {
     if (post.authorProviderId) {
       this.linkedProviderId.set(post.authorProviderId);
       this.authorQuery.set(post.authorDisplayName ?? '');
+    } else {
+      const name = post.authorDisplayName ?? '';
+      this.authorQuery.set(name === 'Staff writer' ? '' : name);
     }
   }
 
