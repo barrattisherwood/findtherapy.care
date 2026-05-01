@@ -11,7 +11,7 @@ import { ProviderCard } from '../provider-card/provider-card';
 import { LoadingSkeleton } from '../loading-skeleton/loading-skeleton';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
-import { ProviderType, ProviderSearchParams, CITY_CONFIGS, MAJOR_CITIES } from '@findlocal/shared';
+import { ProviderType, ProviderSearchParams, CITY_CONFIGS, MAJOR_CITIES, MajorCity } from '@findlocal/shared';
 import { PROVIDER_SPECIALTIES } from '@findlocal/shared';
 
 @Component({
@@ -64,10 +64,11 @@ export class ProviderList implements OnInit, OnDestroy {
       });
     }
 
-    // Pre-populate city filter if provided via Input
+    // Pre-populate city filter if provided via Input (cityFilter is always a slug)
     if (this.cityFilter) {
       this.selectedCity.set(this.cityFilter);
-      this.cityQuery.set(this.cityFilter);
+      const config = CITY_CONFIGS[this.cityFilter as MajorCity];
+      this.cityQuery.set(config?.name ?? this.cityFilter);
     }
 
     // City autocomplete pipe
