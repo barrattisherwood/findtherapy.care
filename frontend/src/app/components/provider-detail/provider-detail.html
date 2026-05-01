@@ -27,30 +27,33 @@
     } @else if (provider()) {
       <div class="bg-white rounded-lg shadow overflow-hidden">
         <!-- Header -->
-        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 px-4 sm:px-8 py-6 text-white">
-          <div class="flex gap-5 sm:gap-6 items-start">
-            <!-- Profile Image -->
-            @if (provider()!.profileImage) {
-              <img
-                [src]="provider()!.profileImage + '?w=400&h=400&c=fill&g=face&q=auto&f=auto'"
-                [alt]="provider()!.displayName"
-                class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white/20 shadow-lg flex-shrink-0"
-              />
-            } @else {
-              <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 border-4 border-white/10">
-                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-white/60" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              </div>
-            }
+        <div class="bg-gradient-to-r from-primary-600 to-secondary-600 text-white overflow-hidden">
+          <div class="grid grid-cols-1 md:grid-cols-[auto_1fr_auto] divide-y md:divide-y-0 md:divide-x divide-white/10">
 
-            <!-- Provider Info -->
-            <div class="flex-1 min-w-0">
+            <!-- Col 1: Photo -->
+            <div class="flex items-center justify-center md:items-start p-6 md:p-8">
+              @if (provider()!.profileImage) {
+                <img
+                  [src]="provider()!.profileImage + '?w=400&h=400&c=fill&g=face&q=auto&f=auto'"
+                  [alt]="provider()!.displayName"
+                  class="w-28 h-28 md:w-32 md:h-32 rounded-full object-cover border-4 border-white/20 shadow-lg"
+                />
+              } @else {
+                <div class="w-28 h-28 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center border-4 border-white/10">
+                  <svg class="w-14 h-14 md:w-16 md:h-16 text-white/60" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+              }
+            </div>
+
+            <!-- Col 2: Info -->
+            <div class="px-6 pb-6 md:pl-0 md:pr-6 md:py-8 space-y-3 text-center md:text-left">
               <!-- Name + Founder badge -->
-              <div class="flex items-center gap-3 flex-wrap">
+              <div class="flex flex-col md:flex-row md:items-center gap-2 justify-center md:justify-start flex-wrap">
                 <h1 class="text-2xl font-bold">{{ provider()!.displayName }}</h1>
                 @if (provider()!.isFounder) {
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-400/30 text-yellow-100 border border-yellow-400/40">
+                  <span class="inline-flex items-center self-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-400/30 text-yellow-100 border border-yellow-400/40">
                     <svg class="w-3.5 h-3.5 mr-1 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                     </svg>
@@ -60,11 +63,11 @@
               </div>
 
               <!-- Location -->
-              <p class="mt-1 text-primary-100">{{ locationDisplay }}</p>
+              <p class="text-primary-100">{{ locationDisplay }}</p>
 
               <!-- Session format badges -->
               @if (sessionFormatLabels.length > 0) {
-                <div class="mt-2 flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2 justify-center md:justify-start">
                   @for (label of sessionFormatLabels; track label) {
                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white">
                       {{ label }}
@@ -74,12 +77,12 @@
               }
 
               <!-- Contact Info -->
-              <div class="mt-3 space-y-2">
+              <div class="space-y-1.5">
                 <a
                   href="mailto:{{ provider()!.contactEmail }}"
-                  class="flex items-center text-sm text-white/90 hover:text-white transition-colors"
+                  class="flex items-center justify-center md:justify-start gap-2 text-sm text-white/90 hover:text-white transition-colors"
                 >
-                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   {{ provider()!.contactEmail }}
@@ -87,9 +90,9 @@
                 @if (provider()!.contactPhone) {
                   <a
                     href="tel:{{ provider()!.contactPhone }}"
-                    class="flex items-center text-sm text-white/90 hover:text-white transition-colors"
+                    class="flex items-center justify-center md:justify-start gap-2 text-sm text-white/90 hover:text-white transition-colors"
                   >
-                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                     {{ provider()!.contactPhone }}
@@ -98,45 +101,46 @@
               </div>
 
               <!-- Type badges -->
-              <div class="mt-3 flex flex-wrap gap-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 flex-shrink-0">
+              <div class="flex flex-wrap gap-2 justify-center md:justify-start">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20">
                   {{ providerTypeLabel }}
                 </span>
                 @if (counsellorTypeLabels.length > 0) {
                   @for (label of counsellorTypeLabels; track label) {
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10 flex-shrink-0">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/10">
                       {{ label }}
                     </span>
                   }
                 }
               </div>
+            </div>
 
-              <!-- Action buttons -->
-              <div class="mt-4 flex flex-wrap gap-3">
-                <button
-                  (click)="openContactModal()"
-                  class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-white text-primary-700 rounded-lg text-sm font-semibold hover:bg-primary-50 transition-colors shadow-sm"
+            <!-- Col 3: Actions -->
+            <div class="bg-black/10 p-6 md:p-8 flex flex-row md:flex-col gap-3 items-stretch justify-center md:justify-center md:min-w-[180px]">
+              <button
+                (click)="openContactModal()"
+                class="flex-1 md:flex-none w-full inline-flex items-center justify-center px-4 py-2.5 bg-white text-primary-700 rounded-lg text-sm font-semibold hover:bg-primary-50 transition-colors shadow-sm"
+              >
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Send Message
+              </button>
+              @if (provider()!.website) {
+                <a
+                  [href]="provider()!.website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex-1 md:flex-none w-full inline-flex items-center justify-center px-4 py-2.5 bg-white/10 text-white border border-white/30 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors"
                 >
                   <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                   </svg>
-                  Send Message
-                </button>
-                @if (provider()!.website) {
-                  <a
-                    [href]="provider()!.website"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-white/10 text-white border border-white/30 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors"
-                  >
-                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                    </svg>
-                    Visit Website
-                  </a>
-                }
-              </div>
+                  Visit Website
+                </a>
+              }
             </div>
+
           </div>
         </div>
 
