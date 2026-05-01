@@ -97,8 +97,8 @@
                 }
               </div>
 
-              <!-- Type badge + Action -->
-              <div class="mt-4 flex items-center gap-3 flex-wrap">
+              <!-- Type badges -->
+              <div class="mt-3 flex flex-wrap gap-2">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-white/20 flex-shrink-0">
                   {{ providerTypeLabel }}
                 </span>
@@ -109,15 +109,32 @@
                     </span>
                   }
                 }
+              </div>
+
+              <!-- Action buttons -->
+              <div class="mt-4 flex flex-wrap gap-3">
                 <button
                   (click)="openContactModal()"
-                  class="inline-flex items-center px-4 py-2 bg-white text-primary-700 rounded-lg text-sm font-semibold hover:bg-primary-50 transition-colors shadow-sm flex-shrink-0"
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-white text-primary-700 rounded-lg text-sm font-semibold hover:bg-primary-50 transition-colors shadow-sm"
                 >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   Send Message
                 </button>
+                @if (provider()!.website) {
+                  <a
+                    [href]="provider()!.website"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex-1 sm:flex-none inline-flex items-center justify-center px-4 py-2 bg-white/10 text-white border border-white/30 rounded-lg text-sm font-semibold hover:bg-white/20 transition-colors"
+                  >
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    Visit Website
+                  </a>
+                }
               </div>
             </div>
           </div>
@@ -248,20 +265,6 @@
               </button>
             </div>
 
-            <!-- Website Link -->
-            @if (provider()!.website) {
-              <a
-                [href]="provider()!.website"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors text-primary-600 hover:text-primary-700"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-                Visit website
-              </a>
-            }
           </section>
         </div>
       </div>
