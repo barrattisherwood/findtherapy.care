@@ -42,7 +42,8 @@
               "src/android-chrome-512x512.png",
               "src/site.webmanifest",
               "src/robots.txt",
-              "src/sitemap.xml"
+              "src/sitemap.xml",
+              "src/google098cf8877c6d0727.html"
             ],
             "styles": [
               "src/styles.scss"
