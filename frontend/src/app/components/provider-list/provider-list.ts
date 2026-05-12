@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Input, inject, signal, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { ProviderService } from '../../services/provider.service';
@@ -30,6 +31,7 @@ export class ProviderList implements OnInit, OnDestroy {
   private seo = inject(SeoService);
   private analytics = inject(AnalyticsService);
   private citiesService = inject(CitiesService);
+  private route = inject(ActivatedRoute);
   private elementRef = inject(ElementRef);
   private destroy$ = new Subject<void>();
   private citySearch$ = new Subject<string>();
@@ -69,6 +71,19 @@ export class ProviderList implements OnInit, OnDestroy {
       this.selectedCity.set(this.cityFilter);
       const config = CITY_CONFIGS[this.cityFilter as MajorCity];
       this.cityQuery.set(config?.name ?? this.cityFilter);
+    }
+
+    // Pre-populate from hero search query params (city, cityName, specialty)
+    const qp = this.route.snapshot.queryParamMap;
+    const qCity = qp.get('city');
+    const qCityName = qp.get('cityName');
+    const qSpecialty = qp.get('specialty');
+    if (qCity && !this.cityFilter) {
+      this.selectedCity.set(qCity);
+      this.cityQuery.set(qCityName ?? CITY_CONFIGS[qCity as MajorCity]?.name ?? qCity);
+    }
+    if (qSpecialty && PROVIDER_SPECIALTIES.includes(qSpecialty as any)) {
+      this.selectedSpecialties.set([qSpecialty]);
     }
 
     // City autocomplete pipe
