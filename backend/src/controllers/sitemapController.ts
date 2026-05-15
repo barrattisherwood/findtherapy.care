@@ -8,7 +8,7 @@ interface SitemapUrl {
   lastmod?: string;
 }
 
-export const getSitemap = async (req: Request, res: Response) => {
+export const getSitemap = async (_req: Request, res: Response) => {
   try {
     // Get all published providers with active access
     const now = new Date();
@@ -23,7 +23,7 @@ export const getSitemap = async (req: Request, res: Response) => {
     }).select('_id updatedAt');
 
     // Build XML sitemap
-    const baseUrl = process.env.FRONTEND_URL || 'https://findtherapy.care';
+    const baseUrl = 'https://findtherapy.care';
     
     const urls: SitemapUrl[] = [
       // Static pages
