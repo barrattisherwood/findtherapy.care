@@ -6,4 +6,6 @@ export const environment = {
   siteContactProxyUrl: 'http://localhost:3001/contact',
   providerContactProxyUrl: 'http://localhost:3001/provider-contact',
   turnstile: { siteKey: '1x00000000000000000000AA' }, // Cloudflare always-pass test key
+  arclinkBlogBaseUrl: 'https://blog.arclink.dev',
+  arclinkTenantId: '', // Fill in after running the Seed step in the Arclink admin dashboard
 };

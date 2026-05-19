@@ -6,4 +6,6 @@ export const environment = {
   siteContactProxyUrl: 'https://proxy-production-78fd.up.railway.app/contact',
   providerContactProxyUrl: 'https://proxy-production-78fd.up.railway.app/provider-contact',
   turnstile: { siteKey: '0x4AAAAAACgmGPYuBMJkQq78' },
+  arclinkBlogBaseUrl: 'https://blog.arclink.dev',
+  arclinkTenantId: '', // Fill in after running the Seed step in the Arclink admin dashboard
 };
