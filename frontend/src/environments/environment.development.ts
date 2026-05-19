@@ -7,5 +7,5 @@ export const environment = {
   providerContactProxyUrl: 'http://localhost:3001/provider-contact',
   turnstile: { siteKey: '1x00000000000000000000AA' }, // Cloudflare always-pass test key
   arclinkBlogBaseUrl: 'https://blog.arclink.dev',
-  arclinkTenantId: '', // Fill in after running the Seed step in the Arclink admin dashboard
+  arclinkTenantId: 'f1946a14-f876-4bd7-83b8-9c2f2b259277',
 };
