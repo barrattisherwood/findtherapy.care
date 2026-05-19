@@ -71,7 +71,7 @@
       </div>
 
       <!-- Clear filters -->
-      <div *ngIf="selectedCategory() || selectedTag() || searchQuery()">
+      <div *ngIf="selectedCategory() || selectedTag() || activeSearch()">
         <button
           (click)="clearFilters()"
           class="text-xs text-primary-600 hover:text-primary-800 font-medium"
@@ -97,7 +97,7 @@
     </div>
 
     <!-- Featured Posts (only on first page with no filters) -->
-    <div *ngIf="!loading() && currentPage() === 1 && !selectedCategory() && !selectedTag() && !searchQuery() && featuredPosts().length > 0" class="mb-12">
+    <div *ngIf="!loading() && featuredPosts().length > 0" class="mb-12">
       <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Articles</h2>
       <div class="grid md:grid-cols-3 gap-8">
         <div *ngFor="let post of featuredPosts(); let i = index" [class]="i === 0 ? 'md:col-span-2' : ''">
@@ -203,10 +203,10 @@
       </svg>
       <h3 class="text-xl font-medium text-gray-900 mb-2">No articles found</h3>
       <p class="text-gray-600 mb-6">
-        {{ selectedCategory() || selectedTag() || searchQuery() ? 'Try adjusting your filters or search terms.' : 'Check back soon for new mental health insights and resources.' }}
+        {{ selectedCategory() || selectedTag() || activeSearch() ? 'Try adjusting your filters or search terms.' : 'Check back soon for new mental health insights and resources.' }}
       </p>
       <button
-        *ngIf="selectedCategory() || selectedTag() || searchQuery()"
+        *ngIf="selectedCategory() || selectedTag() || activeSearch()"
         (click)="clearFilters()"
         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
       >
