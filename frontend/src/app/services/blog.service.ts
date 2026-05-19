@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import {
@@ -150,9 +150,14 @@ export class BlogService {
     );
   }
 
-  // Arclink has no /filters endpoint — return empty lists; category/tag query params still work
+  // Arclink has no /filters endpoint — derive categories and tags from the first page of posts
   getBlogFilters(): Observable<{ categories: string[], tags: string[] }> {
-    return of({ categories: [], tags: [] });
+    return this.http.get<ArclinkListResponse>(`${this.arclinkUrl}?page=1&limit=50`).pipe(
+      map(r => ({
+        categories: [...new Set(r.posts.flatMap(p => p.categories))].sort(),
+        tags: [...new Set(r.posts.flatMap(p => p.tags))].sort(),
+      })),
+    );
   }
 
   // ── Admin methods (standalone backend, unchanged) ────────────────────────────
