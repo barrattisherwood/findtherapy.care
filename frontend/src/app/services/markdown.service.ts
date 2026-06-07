@@ -19,9 +19,10 @@ export class MarkdownService {
    */
   render(markdown: string): SafeHtml {
     if (!markdown) return '';
-    
+
     try {
-      const rawHtml = marked.parse(markdown) as string;
+      const cleaned = markdown.replace(/\[([A-Z]+)\]([\s\S]*?)\[\/\1\]/g, '$2').trim();
+      const rawHtml = marked.parse(cleaned) as string;
       return this.sanitizer.bypassSecurityTrustHtml(rawHtml);
     } catch (error) {
       console.error('Markdown parsing error:', error);
