@@ -66,6 +66,47 @@ export const uploadImage = async (
 };
 
 /**
+ * Upload a blog featured image to Cloudinary (landscape 1200×630 crop)
+ */
+export const uploadBlogImage = async (
+  fileBuffer: Buffer,
+  publicId?: string
+): Promise<{ url: string; publicId: string; width: number; height: number }> => {
+  return new Promise((resolve, reject) => {
+    const uploadOptions: any = {
+      folder: 'blog',
+      resource_type: 'image',
+      transformation: [
+        { width: 1200, height: 630, crop: 'fill', gravity: 'auto', quality: 'auto:good' },
+      ],
+    };
+
+    if (publicId) {
+      uploadOptions.public_id = publicId;
+    }
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (error: any, result: any) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          reject(new Error('Failed to upload image'));
+        } else if (result) {
+          resolve({
+            url: result.secure_url,
+            publicId: result.public_id,
+            width: result.width,
+            height: result.height,
+          });
+        }
+      }
+    );
+
+    uploadStream.end(fileBuffer);
+  });
+};
+
+/**
  * Delete an image from Cloudinary
  * @param publicId - The Cloudinary public ID
  * @returns Promise with deletion result

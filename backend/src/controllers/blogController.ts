@@ -8,7 +8,7 @@ import {
   BlogPostsResponse,
   BlogMetrics 
 } from '@findlocal/shared';
-import { uploadImage, deleteImage } from '../services/cloudinaryService';
+import { uploadBlogImage, deleteImage } from '../services/cloudinaryService';
 
 // Get all blog posts (public endpoint)
 export const getBlogPosts = async (req: Request, res: Response): Promise<void> => {
@@ -302,7 +302,7 @@ export const uploadFeaturedImage = async (req: AuthRequest, res: Response): Prom
       return;
     }
 
-    const result = await uploadImage(req.file.buffer, 'blog', undefined);
+    const result = await uploadBlogImage(req.file.buffer, undefined);
 
     res.json({ url: result.url });
   } catch (error) {
