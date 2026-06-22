@@ -77,4 +77,12 @@ export class SeoService {
       existingScript.remove();
     }
   }
+
+  setNoIndex(): void {
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+  }
+
+  clearNoIndex(): void {
+    this.meta.removeTag('name="robots"');
+  }
 }

@@ -130,14 +130,13 @@ describe('BlogEditor Component - authorDisplayName', () => {
   });
 
   describe('form input rendering', () => {
-    it('renders an author name input in the template', () => {
-      const input = fixture.nativeElement.querySelector('#authorDisplayName');
+    it('renders the author provider search input', () => {
+      const input = fixture.nativeElement.querySelector('input[placeholder="Search for a provider, or type a custom name"]');
       expect(input).not.toBeNull();
     });
 
-    it('author name input has placeholder "Staff writer"', () => {
-      const input = fixture.nativeElement.querySelector('#authorDisplayName');
-      expect(input?.placeholder).toBe('Staff writer');
+    it('includes authorDisplayName as a form control', () => {
+      expect(component.blogForm.contains('authorDisplayName')).toBe(true);
     });
   });
 });

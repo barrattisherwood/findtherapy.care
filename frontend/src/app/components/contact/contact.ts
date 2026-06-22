@@ -1,4 +1,4 @@
-import { Component, signal, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, signal, inject, ViewChild, ElementRef, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { AnalyticsService } from '../../services/analytics.service';
 import { FormsService } from '../../services/forms.service';
+import { SeoService } from '../../services/seo.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -14,9 +15,10 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, Navbar, Footer, FormsModule, RouterModule],
   templateUrl: './contact.html',
 })
-export class ContactComponent implements AfterViewInit {
+export class ContactComponent implements OnInit, AfterViewInit {
   private analytics = inject(AnalyticsService);
   private formsService = inject(FormsService);
+  private seo = inject(SeoService);
 
   @ViewChild('turnstileWidget') turnstileWidget!: ElementRef;
   private turnstileWidgetId: string | null = null;
@@ -28,6 +30,14 @@ export class ContactComponent implements AfterViewInit {
   submitted = signal(false);
   loading = signal(false);
   error = signal('');
+
+  ngOnInit(): void {
+    this.seo.update({
+      title: 'Contact Us',
+      description: 'Get in touch with the findtherapy.care team. We\'re here to help you find the right mental health support in South Africa.',
+      url: '/contact',
+    });
+  }
 
   ngAfterViewInit(): void {
     const checkTurnstile = setInterval(() => {

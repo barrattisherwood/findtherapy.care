@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BlogService } from '../../services/blog.service';
+import { SeoService } from '../../services/seo.service';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
 import { BlogPost, BlogPostsResponse } from '@findlocal/shared';
@@ -16,6 +17,7 @@ import { BlogPost, BlogPostsResponse } from '@findlocal/shared';
 })
 export class BlogList implements OnInit {
   private blogService = inject(BlogService);
+  private seo = inject(SeoService);
   private route = inject(ActivatedRoute);
 
   private readonly PAGE_SIZE = 9;
@@ -77,6 +79,12 @@ export class BlogList implements OnInit {
   });
 
   ngOnInit(): void {
+    this.seo.update({
+      title: 'Mental Health Blog',
+      description: 'Articles, guides, and insights on mental health, therapy, and wellbeing from South African therapists and counsellors.',
+      url: '/blog',
+    });
+
     this.route.queryParams.subscribe(params => {
       this.currentPage.set(parseInt(params['page']) || 1);
       this.selectedCategory.set(params['category'] || null);

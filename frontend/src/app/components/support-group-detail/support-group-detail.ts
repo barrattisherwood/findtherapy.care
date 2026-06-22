@@ -50,6 +50,7 @@ export class SupportGroupDetail implements OnInit {
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to load support group');
         this.loading.set(false);
+        this.seo.setNoIndex();
       }
     });
   }

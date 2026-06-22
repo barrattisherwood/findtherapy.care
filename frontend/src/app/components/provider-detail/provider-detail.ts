@@ -130,6 +130,7 @@ export class ProviderDetail implements OnInit, AfterViewChecked {
       error: (err) => {
         this.error.set(err.error?.message || 'Failed to load provider');
         this.loading.set(false);
+        this.seo.setNoIndex();
       }
     });
   }
