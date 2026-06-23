@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { Footer } from '../footer/footer';
 import { Navbar } from '../navbar/navbar';
-import { TRIAL_PERIOD_DAYS, SUBSCRIPTION_PRICE_ZAR, PROVIDER_SPECIALTIES } from '@findlocal/shared';
+import { FOUNDERS_TRIAL_DAYS, SUBSCRIPTION_PRICE_ZAR, PROVIDER_SPECIALTIES } from '@findlocal/shared';
 import { CitiesService, CityResult } from '../../services/cities.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class Landing implements OnInit, OnDestroy {
   private citySearch$ = new Subject<string>();
 
   currentYear = new Date().getFullYear();
-  trialMonths = Math.round(TRIAL_PERIOD_DAYS / 30);
+  trialMonths = Math.round(FOUNDERS_TRIAL_DAYS / 30);
   subscriptionPrice = SUBSCRIPTION_PRICE_ZAR;
   specialties = PROVIDER_SPECIALTIES;
 
