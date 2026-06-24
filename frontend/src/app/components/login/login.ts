@@ -47,7 +47,12 @@ export class Login {
       .subscribe({
       next: () => {
         this.analytics.trackLogin();
-        this.router.navigate(['/provider/profile']);
+        const user = this.authService.currentUser();
+        if (user?.isAdmin) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/provider/profile']);
+        }
       },
       error: (err) => {
         this.loading.set(false);

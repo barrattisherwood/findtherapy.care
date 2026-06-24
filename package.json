@@ -21,8 +21,8 @@
     "build:backend": "npm run build --workspace=backend",
     "build": "npm run build:shared && npm run build:frontend && npm run build:backend",
     "vercel-build": "npm run build:shared && npm run build:frontend",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
+    "test:e2e": "playwright test --config e2e/playwright.config.ts",
+    "test:e2e:ui": "playwright test --config e2e/playwright.config.ts --ui",
     "prepare": "node -e \"if (process.env.CI === 'true') process.exit(0)\" && husky || true"
   },
   "devDependencies": {
