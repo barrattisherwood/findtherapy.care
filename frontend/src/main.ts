@@ -23,6 +23,18 @@ Sentry.init({
   replaysSessionSampleRate: 0.05,
   // Only active if a DSN is configured
   enabled: !!environment.sentryDsn,
+  beforeSend(event) {
+    // Ignore errors injected by Facebook's in-app browser on Android.
+    // "Java object is gone" is a WebView lifecycle error in Facebook's own
+    // navigation_performance_logger_android script — not actionable.
+    const msg = event.exception?.values?.[0]?.value ?? '';
+    if (msg.includes('Java object is gone')) return null;
+
+    const frames = event.exception?.values?.[0]?.stacktrace?.frames ?? [];
+    if (frames.some(f => f.filename?.includes('iabjs://'))) return null;
+
+    return event;
+  },
 });
 
 bootstrapApplication(App, appConfig)
