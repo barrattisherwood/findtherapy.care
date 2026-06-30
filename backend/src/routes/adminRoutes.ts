@@ -4,6 +4,7 @@ import { getBlogMetrics } from '../controllers/blogController';
 import { getMessages, markMessageRead, getUnreadCount } from '../controllers/messagesController';
 import { getAdminLogs } from '../controllers/adminLogsController';
 import { getSentryIssues } from '../controllers/sentryController';
+import { getPendingPosts, reviewPost } from '../controllers/adminBlogController';
 import { authMiddleware } from '../middleware/auth';
 import { adminMiddleware } from '../middleware/admin';
 
@@ -34,5 +35,9 @@ router.get('/logs', authMiddleware, adminMiddleware, getAdminLogs);
 
 // Sentry issues proxy - requires auth + admin
 router.get('/sentry-issues', authMiddleware, adminMiddleware, getSentryIssues);
+
+// Provider blog review - requires auth + admin
+router.get('/blog/pending', authMiddleware, adminMiddleware, getPendingPosts);
+router.patch('/blog/:id/review', authMiddleware, adminMiddleware, reviewPost);
 
 export default router;

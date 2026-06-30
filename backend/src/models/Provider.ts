@@ -3,6 +3,7 @@ import { Provider as SharedProvider, ProviderType, CounsellorType, SubscriptionS
 
 export interface IProvider extends Omit<SharedProvider, 'id'>, Document {
   _id: mongoose.Types.ObjectId;
+  blogBetaEnabled: boolean;
 }
 
 const providerSchema = new Schema<IProvider>(
@@ -221,6 +222,10 @@ const providerSchema = new Schema<IProvider>(
     },
     founderSince: {
       type: Date,
+    },
+    blogBetaEnabled: {
+      type: Boolean,
+      default: false,
     },
   },
   {

@@ -34,9 +34,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
     "multer": "^2.0.2",
+    "nanoid": "^3.3.11",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.12",
     "resend": "^6.9.2",
+    "slugify": "^1.6.9",
     "twilio": "^5.12.0"
   },
   "devDependencies": {

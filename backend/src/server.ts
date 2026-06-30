@@ -13,6 +13,7 @@ import blogRoutes from './routes/blogRoutes';
 import sitemapRoutes from './routes/sitemapRoutes';
 import promoRoutes from './routes/promoRoutes';
 import citiesRoutes from './routes/citiesRoutes';
+import providerBlogRoutes from './routes/providerBlogRoutes';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
 import { initializeScheduledJobs } from './services/scheduledJobs';
@@ -62,6 +63,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/promo', promoRoutes);
 app.use('/api/cities', citiesRoutes);
+app.use('/api/provider/blog', providerBlogRoutes);
 
 // Sentry error handler must be before the custom error handler
 Sentry.setupExpressErrorHandler(app);
