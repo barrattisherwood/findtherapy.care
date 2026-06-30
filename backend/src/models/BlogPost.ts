@@ -1,5 +1,13 @@
 import { Schema, model, Document } from 'mongoose';
 
+export interface SocialQueueItem {
+  platform: 'instagram' | 'facebook' | 'linkedin';
+  scheduledAt?: Date;
+  postedAt?: Date;
+  status: 'pending' | 'posted' | 'failed';
+  postUrl?: string;
+}
+
 export interface IBlogPost extends Document {
   title: string;
   slug: string;
@@ -7,7 +15,7 @@ export interface IBlogPost extends Document {
   excerpt: string;
   featuredImage?: string;
   author: Schema.Types.ObjectId;
-  status: 'draft' | 'published' | 'scheduled' | 'archived';
+  status: 'draft' | 'published' | 'scheduled' | 'archived' | 'pending_review';
   publishedAt?: Date;
   scheduledFor?: Date;
   categories: string[];
@@ -22,6 +30,15 @@ export interface IBlogPost extends Document {
   commentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // Provider-authored post fields
+  authorType: 'admin' | 'provider';
+  brief?: string;
+  aiGenerated: boolean;
+  aiGeneratedAt?: Date;
+  generationCount: number;
+  providerApproved: boolean;
+  providerApprovedAt?: Date;
+  socialQueue: SocialQueueItem[];
 }
 
 const blogPostSchema = new Schema<IBlogPost>({
@@ -40,13 +57,13 @@ const blogPostSchema = new Schema<IBlogPost>({
   },
   content: {
     type: String,
-    required: true
+    default: '',
   },
   excerpt: {
     type: String,
-    required: true,
     maxlength: 300,
-    trim: true
+    trim: true,
+    default: '',
   },
   featuredImage: {
     type: String,
@@ -59,7 +76,7 @@ const blogPostSchema = new Schema<IBlogPost>({
   },
   status: {
     type: String,
-    enum: ['draft', 'published', 'scheduled', 'archived'],
+    enum: ['draft', 'published', 'scheduled', 'archived', 'pending_review'],
     default: 'draft'
   },
   publishedAt: {
@@ -112,7 +129,45 @@ const blogPostSchema = new Schema<IBlogPost>({
   commentsEnabled: {
     type: Boolean,
     default: true
-  }
+  },
+  // Provider-authored post fields
+  authorType: {
+    type: String,
+    enum: ['admin', 'provider'],
+    default: 'admin',
+  },
+  brief: {
+    type: String,
+    trim: true,
+  },
+  aiGenerated: {
+    type: Boolean,
+    default: false,
+  },
+  aiGeneratedAt: {
+    type: Date,
+  },
+  generationCount: {
+    type: Number,
+    default: 0,
+  },
+  providerApproved: {
+    type: Boolean,
+    default: false,
+  },
+  providerApprovedAt: {
+    type: Date,
+  },
+  socialQueue: {
+    type: [{
+      platform: { type: String, enum: ['instagram', 'facebook', 'linkedin'], required: true },
+      scheduledAt: { type: Date },
+      postedAt: { type: Date },
+      status: { type: String, enum: ['pending', 'posted', 'failed'], default: 'pending' },
+      postUrl: { type: String },
+    }],
+    default: [],
+  },
 }, {
   timestamps: true
 });
@@ -123,6 +178,7 @@ blogPostSchema.index({ slug: 1 });
 blogPostSchema.index({ categories: 1 });
 blogPostSchema.index({ tags: 1 });
 blogPostSchema.index({ author: 1 });
+blogPostSchema.index({ authorType: 1, status: 1 }); // admin pending review query
 
 // Pre-save middleware to auto-generate slug and reading time
 blogPostSchema.pre('save', function(next) {

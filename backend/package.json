@@ -21,6 +21,7 @@
     "migrate:locations": "railway run ts-node src/scripts/migrate-provider-locations.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.107.0",
     "@findlocal/shared": "file:../shared",
     "@sentry/node": "^10.39.0",
     "@types/node-cron": "^3.0.11",
