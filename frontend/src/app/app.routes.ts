@@ -28,6 +28,9 @@ export const routes: Routes = [
   // Blog routes
   { path: 'blog', loadComponent: () => import('./components/blog-list/blog-list').then(m => m.BlogList), title: 'Mental Health Blog — findtherapy.care' },
   { path: 'blog/:slug', loadComponent: () => import('./components/blog-detail/blog-detail').then(m => m.BlogDetail) },
+  // Provider blog routes (beta)
+  { path: 'provider/blog', canActivate: [authGuard], loadComponent: () => import('./pages/provider-blog/provider-blog').then(m => m.ProviderBlog), title: 'My Blog — findtherapy.care' },
+  { path: 'provider/blog/:id', canActivate: [authGuard], loadComponent: () => import('./pages/provider-blog/post-editor/post-editor').then(m => m.PostEditor), title: 'Edit Post — findtherapy.care' },
   // Admin routes
   { path: 'admin/dashboard', loadComponent: () => import('./components/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard), canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
   { path: 'admin/vetting', loadComponent: () => import('./components/admin-vetting/admin-vetting').then(m => m.AdminVetting), canActivate: [adminGuard], title: 'Provider Vetting — findtherapy.care' },
