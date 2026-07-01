@@ -164,6 +164,18 @@ export class AdminService {
     );
   }
 
+  pendingBlogCount = signal(0);
+
+  getPendingBlogPosts(): Observable<{ posts: any[]; total: number }> {
+    return this.http.get<{ posts: any[]; total: number }>(`${this.apiUrl}/blog/pending`).pipe(
+      tap(res => this.pendingBlogCount.set(res.total))
+    );
+  }
+
+  reviewBlogPost(id: string, action: 'approve' | 'reject', rejectionReason?: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/blog/${id}/review`, { action, rejectionReason });
+  }
+
   getAdminLogs(page: number = 1, action: string = ''): Observable<AdminLogListResponse> {
     let params = new HttpParams().set('page', page.toString()).set('limit', '25');
     if (action) params = params.set('action', action);

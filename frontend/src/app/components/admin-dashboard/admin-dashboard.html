@@ -250,16 +250,40 @@
       <!-- Blog Management Section -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="text-lg font-semibold text-gray-900">Blog Management</h3>
-          <a
-            routerLink="/admin/blog"
-            class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors"
-          >
-            Manage Blog
-            <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-          </a>
+          <div class="flex items-center gap-3">
+            <h3 class="text-lg font-semibold text-gray-900">Blog Management</h3>
+            @if (pendingBlogCount() > 0) {
+              <a
+                routerLink="/admin/blog/pending"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold hover:bg-yellow-200 transition-colors"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                {{ pendingBlogCount() }} pending review
+              </a>
+            }
+          </div>
+          <div class="flex items-center gap-2">
+            @if (pendingBlogCount() > 0) {
+              <a
+                routerLink="/admin/blog/pending"
+                class="inline-flex items-center px-3 py-2 border border-yellow-300 text-sm font-medium rounded-md text-yellow-800 bg-yellow-50 hover:bg-yellow-100 transition-colors"
+              >
+                Review Posts
+                <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </a>
+            }
+            <a
+              routerLink="/admin/blog"
+              class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 transition-colors"
+            >
+              Manage Blog
+              <svg class="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+          </div>
         </div>
 
         @if (blogMetrics()) {

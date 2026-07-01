@@ -38,6 +38,7 @@ export const routes: Routes = [
   { path: 'admin/messages', loadComponent: () => import('./components/admin-messages/admin-messages').then(m => m.AdminMessages), canActivate: [adminGuard], title: 'Messages — findtherapy.care' },
   { path: 'admin/logs', loadComponent: () => import('./components/admin-logs/admin-logs').then(m => m.AdminLogs), canActivate: [adminGuard], title: 'Activity Log — findtherapy.care' },
   { path: 'admin/blog', loadComponent: () => import('./components/blog-admin/blog-admin').then(m => m.BlogAdmin), canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
+  { path: 'admin/blog/pending', loadComponent: () => import('./components/admin-blog-pending/admin-blog-pending').then(m => m.AdminBlogPending), canActivate: [adminGuard], title: 'Pending Blog Review — findtherapy.care' },
   { path: 'admin/blog/new', loadComponent: () => import('./components/blog-editor/blog-editor').then(m => m.BlogEditor), canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
   { path: 'admin/blog/edit/:id', loadComponent: () => import('./components/blog-editor/blog-editor').then(m => m.BlogEditor), canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },
   // Legal pages

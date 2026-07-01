@@ -1,0 +1,189 @@
+<app-navbar />
+
+<main class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-3xl mx-auto px-4">
+
+    <!-- Header -->
+    <div class="flex items-center gap-4 mb-8">
+      <a routerLink="/admin/dashboard" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Dashboard
+      </a>
+      <span class="text-gray-300">/</span>
+      <h1 class="text-xl font-bold text-gray-900">
+        Pending Blog Review
+        @if (posts().length > 0) {
+          <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+            {{ posts().length }}
+          </span>
+        }
+      </h1>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="text-center py-16 text-gray-500 text-sm">Loading pending posts...</div>
+    }
+
+    <!-- Empty state -->
+    @if (!loading() && posts().length === 0) {
+      <div class="bg-white border border-gray-200 rounded-xl p-12 text-center shadow-sm">
+        <svg class="w-12 h-12 text-green-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <h2 class="text-lg font-semibold text-gray-900 mb-1">All caught up!</h2>
+        <p class="text-sm text-gray-500">No provider blog posts are awaiting review.</p>
+      </div>
+    }
+
+    <!-- Post list -->
+    @if (!loading()) {
+      <div class="space-y-4">
+        @for (post of posts(); track post._id) {
+          <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+
+            <!-- Post header -->
+            <div class="p-6">
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                  <h2 class="text-lg font-semibold text-gray-900 truncate">{{ post.title }}</h2>
+                  <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-gray-500">
+                    <span class="font-medium text-gray-700">{{ authorName(post) }}</span>
+                    @if (authorEmail(post)) {
+                      <span class="text-gray-400">·</span>
+                      <span>{{ authorEmail(post) }}</span>
+                    }
+                    <span class="text-gray-400">·</span>
+                    <span>Submitted {{ formatDate(post.publishedAt) }}</span>
+                  </div>
+                </div>
+                <span class="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  Pending
+                </span>
+              </div>
+
+              @if (post.brief) {
+                <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Topic Brief</p>
+                  <p class="text-sm text-gray-700">{{ post.brief }}</p>
+                </div>
+              }
+
+              @if (post.excerpt) {
+                <div class="mt-3">
+                  <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Excerpt</p>
+                  <p class="text-sm text-gray-600 italic">{{ post.excerpt }}</p>
+                </div>
+              }
+
+              @if (post.tags?.length) {
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                  @for (tag of post.tags!; track tag) {
+                    <span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 text-xs">{{ tag }}</span>
+                  }
+                </div>
+              }
+
+              <!-- Toggle full content -->
+              @if (post.content) {
+                <button
+                  (click)="toggleExpand(post._id)"
+                  class="mt-4 text-xs text-[#2D9B9B] hover:underline flex items-center gap-1"
+                >
+                  @if (expandedId() === post._id) {
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                    Hide full post
+                  } @else {
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                    Read full post
+                  }
+                </button>
+
+                @if (expandedId() === post._id) {
+                  <div
+                    class="mt-4 prose prose-sm max-w-none text-gray-800 border-t border-gray-100 pt-4"
+                    [innerHTML]="renderContent(post.content!)"
+                  ></div>
+                }
+              }
+            </div>
+
+            <!-- Action bar -->
+            <div class="border-t border-gray-100 px-6 py-4 bg-gray-50">
+              @if (rejectingId() === post._id) {
+                <!-- Rejection reason form -->
+                <div class="space-y-3">
+                  <label class="block text-sm font-medium text-gray-700">
+                    Reason for rejection <span class="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    [value]="rejectionReason()"
+                    (input)="rejectionReason.set($any($event.target).value)"
+                    rows="2"
+                    placeholder="Brief feedback for the provider (e.g. 'Content contains medical advice — please revise')"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
+                  ></textarea>
+                  <div class="flex gap-2">
+                    <button
+                      (click)="confirmReject(post._id)"
+                      [disabled]="!rejectionReason().trim() || actioning() === post._id"
+                      class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      @if (actioning() === post._id) { Rejecting... } @else { Confirm Reject }
+                    </button>
+                    <button
+                      (click)="cancelReject()"
+                      [disabled]="actioning() === post._id"
+                      class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-white transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <!-- Normal action buttons -->
+                <div class="flex flex-wrap gap-3">
+                  <button
+                    (click)="approve(post._id)"
+                    [disabled]="actioning() === post._id"
+                    class="flex items-center gap-2 px-5 py-2 bg-[#2D9B9B] text-white rounded-lg hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                  >
+                    @if (actioning() === post._id) {
+                      <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                      Publishing...
+                    } @else {
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      Approve & Publish
+                    }
+                  </button>
+                  <button
+                    (click)="startReject(post._id)"
+                    [disabled]="actioning() === post._id"
+                    class="px-4 py-2 text-red-600 border border-red-200 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors text-sm font-medium"
+                  >
+                    Reject
+                  </button>
+                </div>
+              }
+            </div>
+
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+</main>
+
+<app-footer />

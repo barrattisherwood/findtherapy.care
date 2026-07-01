@@ -28,6 +28,7 @@ export class AdminDashboard implements OnInit {
   errorMessage = signal('');
   selectedDays = signal(30);
   pendingVettingCount = this.adminService.pendingCount;
+  pendingBlogCount = this.adminService.pendingBlogCount;
 
   timeRangeOptions = [
     { value: 7, label: 'Last 7 days' },
@@ -39,6 +40,7 @@ export class AdminDashboard implements OnInit {
     this.loadMetrics();
     this.loadBlogMetrics();
     this.adminService.getPendingCount().subscribe();
+    this.adminService.getPendingBlogPosts().subscribe();
     this.loadRecentLogs();
     this.loadSentryIssues();
   }
