@@ -37,13 +37,24 @@ async function setupApiMocks(
 
   // Auth endpoints
   await page.route('**/api/auth/register', route =>
-    route.fulfill({ status: 201, json: authResponse })
+    route.fulfill({ status: 201, json: { message: 'Registration successful. Please check your email.' } })
+  );
+  await page.route('**/api/auth/verify-email', route =>
+    route.fulfill({ status: 200, json: authResponse })
   );
   await page.route('**/api/auth/me', route =>
     route.fulfill({ json: authResponse.user })
   );
   await page.route('**/api/auth/login', route =>
     route.fulfill({ json: authResponse })
+  );
+
+  // Cities API (used by location-input component on provider profile page)
+  await page.route('**/api/cities/provinces', route =>
+    route.fulfill({ json: { provinces: [] } })
+  );
+  await page.route('**/api/cities/search*', route =>
+    route.fulfill({ json: { results: [] } })
   );
 
   // Provider endpoints — single handler dispatches by URL + method.
@@ -156,8 +167,9 @@ test.describe('Founder flow', () => {
 
     await page.getByRole('button', { name: /Create account/i }).click();
 
-    // Should redirect to provider profile
-    await expect(page).toHaveURL(/\/provider\/profile/);
+    // Registration triggers email verification — shows "Check your email" confirmation
+    await expect(page.getByText(/Check your email/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('founder@test.com')).toBeVisible();
   });
 
   // Scenario 4 — Provider profile creation shows pending review state
@@ -178,9 +190,13 @@ test.describe('Founder flow', () => {
       'Experienced psychologist specialising in anxiety and depression. ' +
         'I work with adults navigating life transitions, trauma, and relationship challenges.'
     );
-    await page.locator('input[name="city"]').fill('Cape Town');
-    await page.locator('input[name="postcode"]').fill('8001');
     await page.locator('input[name="contactEmail"]').fill('founder@test.com');
+
+    // Location — use online-only to avoid city autocomplete (calls external API)
+    await page.locator('input[name="locationType"][value="online-only"]').click();
+
+    // Session formats — at least one required
+    await page.getByText('Online (video / telehealth)').click();
 
     // Professional body — click Add then fill the dynamic fields.
     // Provider type uses radio buttons, so the first <select> on the form is the pb select.
@@ -251,10 +267,16 @@ test.describe('Founder flow', () => {
     await page.locator('#confirmPassword').fill('Test1234!');
     await page.getByRole('button', { name: /Create account/i }).click();
 
-    // Step 4: Lands at provider profile (pending state since profile exists)
-    await expect(page).toHaveURL(/\/provider\/profile/);
+    // Registration sends verification email — app shows "Check your email"
+    await expect(page.getByText(/Check your email/i)).toBeVisible({ timeout: 10_000 });
+
+    // Step 4: Simulate clicking the verification link in the email
+    await page.goto('/verify-email?token=mock-token');
+
+    // Verify-email component verifies the token, then redirects to /provider/profile after 2s
+    await expect(page).toHaveURL(/\/provider\/profile/, { timeout: 15_000 });
     await expect(
-      page.getByText(/Profile Under Review|Create Provider Profile/i)
+      page.getByRole('heading', { name: /Edit Provider Profile|Create Provider Profile/i })
     ).toBeVisible({ timeout: 10_000 });
   });
 
