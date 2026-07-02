@@ -1,6 +1,7 @@
 import express from 'express';
 import { authMiddleware } from '../middleware/auth';
 import { providerGuard } from '../middleware/providerGuard';
+import { requireFeatureFlag } from '../middleware/requireFeatureFlag';
 import {
   getMyPosts,
   createDraft,
@@ -16,7 +17,7 @@ import {
 
 const router = express.Router();
 
-router.use(authMiddleware, providerGuard);
+router.use(authMiddleware, providerGuard, requireFeatureFlag('provider_blog'));
 
 router.get('/', getMyPosts);
 router.post('/', createDraft);

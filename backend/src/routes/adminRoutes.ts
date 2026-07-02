@@ -5,6 +5,7 @@ import { getMessages, markMessageRead, getUnreadCount } from '../controllers/mes
 import { getAdminLogs } from '../controllers/adminLogsController';
 import { getSentryIssues } from '../controllers/sentryController';
 import { getPendingPosts, reviewPost } from '../controllers/adminBlogController';
+import { listFlags, toggleFlag } from '../controllers/adminFeatureFlagsController';
 import { authMiddleware } from '../middleware/auth';
 import { adminMiddleware } from '../middleware/admin';
 
@@ -39,5 +40,9 @@ router.get('/sentry-issues', authMiddleware, adminMiddleware, getSentryIssues);
 // Provider blog review - requires auth + admin
 router.get('/blog/pending', authMiddleware, adminMiddleware, getPendingPosts);
 router.patch('/blog/:id/review', authMiddleware, adminMiddleware, reviewPost);
+
+// Feature flags management - requires auth + admin
+router.get('/feature-flags', authMiddleware, adminMiddleware, listFlags);
+router.patch('/feature-flags/:key', authMiddleware, adminMiddleware, toggleFlag);
 
 export default router;
