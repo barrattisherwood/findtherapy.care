@@ -46,7 +46,7 @@ jobs:
 
       - name: Check frontend availability
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" https://www.findtherapy.care)
+          response=$(curl -s -o /dev/null -w "%{http_code}" -L https://findtherapy.care)
           if [ $response -ne 200 ]; then
             echo "Frontend check failed with status $response"
             exit 1
