@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './guards/auth-guard';
 import { adminGuard } from './guards/admin-guard';
+import { providerBlogGuard } from './guards/provider-blog-guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./components/landing/landing').then(m => m.Landing), title: 'findtherapy.care — Find therapists and counsellors near you' },
@@ -29,8 +30,8 @@ export const routes: Routes = [
   { path: 'blog', loadComponent: () => import('./components/blog-list/blog-list').then(m => m.BlogList), title: 'Mental Health Blog — findtherapy.care' },
   { path: 'blog/:slug', loadComponent: () => import('./components/blog-detail/blog-detail').then(m => m.BlogDetail) },
   // Provider blog routes (beta)
-  { path: 'provider/blog', canActivate: [authGuard], loadComponent: () => import('./pages/provider-blog/provider-blog').then(m => m.ProviderBlog), title: 'My Blog — findtherapy.care' },
-  { path: 'provider/blog/:id', canActivate: [authGuard], loadComponent: () => import('./pages/provider-blog/post-editor/post-editor').then(m => m.PostEditor), title: 'Edit Post — findtherapy.care' },
+  { path: 'provider/blog', canActivate: [authGuard, providerBlogGuard], loadComponent: () => import('./pages/provider-blog/provider-blog').then(m => m.ProviderBlog), title: 'My Blog — findtherapy.care' },
+  { path: 'provider/blog/:id', canActivate: [authGuard, providerBlogGuard], loadComponent: () => import('./pages/provider-blog/post-editor/post-editor').then(m => m.PostEditor), title: 'Edit Post — findtherapy.care' },
   // Admin routes
   { path: 'admin/dashboard', loadComponent: () => import('./components/admin-dashboard/admin-dashboard').then(m => m.AdminDashboard), canActivate: [adminGuard], title: 'Admin Dashboard — findtherapy.care' },
   { path: 'admin/vetting', loadComponent: () => import('./components/admin-vetting/admin-vetting').then(m => m.AdminVetting), canActivate: [adminGuard], title: 'Provider Vetting — findtherapy.care' },
@@ -38,6 +39,7 @@ export const routes: Routes = [
   { path: 'admin/messages', loadComponent: () => import('./components/admin-messages/admin-messages').then(m => m.AdminMessages), canActivate: [adminGuard], title: 'Messages — findtherapy.care' },
   { path: 'admin/logs', loadComponent: () => import('./components/admin-logs/admin-logs').then(m => m.AdminLogs), canActivate: [adminGuard], title: 'Activity Log — findtherapy.care' },
   { path: 'admin/blog', loadComponent: () => import('./components/blog-admin/blog-admin').then(m => m.BlogAdmin), canActivate: [adminGuard], title: 'Blog Management — findtherapy.care' },
+  { path: 'admin/feature-flags', loadComponent: () => import('./components/admin-feature-flags/admin-feature-flags').then(m => m.AdminFeatureFlags), canActivate: [adminGuard], title: 'Feature Flags — findtherapy.care' },
   { path: 'admin/blog/pending', loadComponent: () => import('./components/admin-blog-pending/admin-blog-pending').then(m => m.AdminBlogPending), canActivate: [adminGuard], title: 'Pending Blog Review — findtherapy.care' },
   { path: 'admin/blog/new', loadComponent: () => import('./components/blog-editor/blog-editor').then(m => m.BlogEditor), canActivate: [adminGuard], title: 'New Blog Post — findtherapy.care' },
   { path: 'admin/blog/edit/:id', loadComponent: () => import('./components/blog-editor/blog-editor').then(m => m.BlogEditor), canActivate: [adminGuard], title: 'Edit Blog Post — findtherapy.care' },

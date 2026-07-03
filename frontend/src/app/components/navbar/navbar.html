@@ -99,7 +99,7 @@
                 </svg>
                 Profile
               </a>
-              @if (!currentUser()?.isAdmin) {
+              @if (providerBlogEnabled()) {
                 <a
                   routerLink="/provider/blog"
                   (click)="showUserMenu.set(false)"
@@ -212,7 +212,7 @@
                 <span>My Profile</span>
               </a>
 
-              @if (!currentUser()?.isAdmin) {
+              @if (providerBlogEnabled()) {
                 <a
                   routerLink="/provider/blog"
                   (click)="toggleMobileMenu()"

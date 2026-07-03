@@ -87,6 +87,16 @@ export interface SentryIssuesResponse {
   issues: SentryIssue[];
 }
 
+export interface FeatureFlag {
+  key: string;
+  description: string;
+  enabled: boolean;
+  allowlistedAdminIds: string[];
+  updatedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -184,5 +194,13 @@ export class AdminService {
 
   getSentryIssues(): Observable<SentryIssuesResponse> {
     return this.http.get<SentryIssuesResponse>(`${this.apiUrl}/sentry-issues`);
+  }
+
+  getFeatureFlags(): Observable<{ flags: FeatureFlag[] }> {
+    return this.http.get<{ flags: FeatureFlag[] }>(`${this.apiUrl}/feature-flags`);
+  }
+
+  toggleFeatureFlag(key: string, enabled: boolean): Observable<{ flag: FeatureFlag }> {
+    return this.http.patch<{ flag: FeatureFlag }>(`${this.apiUrl}/feature-flags/${key}`, { enabled });
   }
 }

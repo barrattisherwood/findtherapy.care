@@ -1,7 +1,9 @@
 import { Component, inject, signal, computed, HostListener } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { FeatureFlagService } from '../../services/feature-flag.service';
 
 @Component({
   selector: 'app-navbar',
@@ -12,8 +14,10 @@ import { AuthService } from '../../services/auth.service';
 })
 export class Navbar {
   private authService = inject(AuthService);
+  private featureFlagService = inject(FeatureFlagService);
 
   currentUser = this.authService.currentUser;
+  providerBlogEnabled = toSignal(this.featureFlagService.isEnabled$('provider_blog'), { initialValue: false });
   isAuthenticated = this.authService.isLoggedIn;
   userInitial = computed(() => {
     const email = this.currentUser()?.email;
