@@ -1,6 +1,11 @@
 import { FeatureFlag, getFlag, getAllFlags, updateFlag } from '../../models/FeatureFlag';
 
 describe('FeatureFlag model', () => {
+  beforeAll(async () => {
+    // mongodb-memory-server doesn't create indexes automatically; sync them so
+    // unique constraints are enforced during tests
+    await FeatureFlag.syncIndexes();
+  });
 
   it('requires key', async () => {
     await expect(FeatureFlag.create({ description: 'no key here' })).rejects.toThrow();
