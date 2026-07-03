@@ -15,6 +15,7 @@ import promoRoutes from './routes/promoRoutes';
 import citiesRoutes from './routes/citiesRoutes';
 import providerBlogRoutes from './routes/providerBlogRoutes';
 import featureFlagsRoutes from './routes/featureFlagsRoutes';
+import { seedFeatureFlags } from './scripts/seed-feature-flags';
 import { apiRateLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './utils/errors';
 import { initializeScheduledJobs } from './services/scheduledJobs';
@@ -80,6 +81,9 @@ mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
     
+    // Seed feature flags (idempotent upsert — safe on every boot)
+    seedFeatureFlags().catch(err => console.error('Feature flag seed error:', err));
+
     // Initialize scheduled jobs (cron tasks)
     initializeScheduledJobs();
     

@@ -2,21 +2,13 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { FeatureFlag } from '../models/FeatureFlag';
 
-dotenv.config();
-
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/findlocal';
-
-// Admin IDs to allowlist for provider_blog while it's in beta
 const ALLOWLISTED_ADMIN_IDS = [
   '697dcddbdd2e9922a3b2ab64', // Barratt
   '698226e7addf6a90e7889b49', // Julia (julia@psychinsight.co.za)
 ];
 
-async function seedFeatureFlags() {
-  await mongoose.connect(MONGODB_URI);
-  console.log('Connected to MongoDB');
-
-  const result = await FeatureFlag.findOneAndUpdate(
+export async function seedFeatureFlags() {
+  await FeatureFlag.findOneAndUpdate(
     { key: 'provider_blog' },
     {
       $setOnInsert: {
@@ -28,16 +20,20 @@ async function seedFeatureFlags() {
     },
     { upsert: true, new: true }
   );
-
-  if (result) {
-    console.log(`provider_blog flag: ${result.enabled ? 'enabled' : 'disabled'}, allowlisted: [${result.allowlistedAdminIds.join(', ')}]`);
-  }
-
-  await mongoose.disconnect();
-  console.log('Done.');
+  console.log('Feature flags seeded.');
 }
 
-seedFeatureFlags().catch(err => {
-  console.error('Seed failed:', err);
-  process.exit(1);
-});
+// Standalone CLI entry point
+if (require.main === module) {
+  dotenv.config();
+  const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/findlocal';
+
+  mongoose.connect(MONGODB_URI)
+    .then(() => seedFeatureFlags())
+    .then(() => mongoose.disconnect())
+    .then(() => console.log('Done.'))
+    .catch(err => {
+      console.error('Seed failed:', err);
+      process.exit(1);
+    });
+}
