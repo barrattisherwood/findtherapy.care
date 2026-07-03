@@ -9,6 +9,24 @@ export interface AuthRequest extends Request {
   file?: Express.Multer.File;
 }
 
+export const optionalAuthMiddleware = (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.substring(7);
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+      req.userId = decoded.userId;
+    } catch {
+      // Invalid token — treat as unauthenticated
+    }
+  }
+  next();
+};
+
 export const authMiddleware = (
   req: AuthRequest,
   res: Response,
