@@ -180,4 +180,25 @@ export class PostEditor implements OnInit {
   isPlatformQueued(platform: string): boolean {
     return this.post()?.socialQueue.some(q => q.platform === platform) ?? false;
   }
+
+  insertMarkdown(type: 'bold' | 'h2' | 'bullet', el: HTMLTextAreaElement) {
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const selected = el.value.substring(start, end);
+    const before = el.value.substring(0, start);
+    const after = el.value.substring(end);
+
+    let inserted: string;
+    switch (type) {
+      case 'bold':   inserted = `**${selected || 'bold text'}**`; break;
+      case 'h2':     inserted = `## ${selected || 'Heading'}`; break;
+      case 'bullet': inserted = `- ${selected || 'list item'}`; break;
+    }
+
+    const newValue = before + inserted + after;
+    el.value = newValue;
+    this.editContent.set(newValue);
+    el.focus();
+    el.setSelectionRange(start + inserted.length, start + inserted.length);
+  }
 }
