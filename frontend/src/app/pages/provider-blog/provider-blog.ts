@@ -22,7 +22,6 @@ export class ProviderBlog implements OnInit {
   showNewPostForm = signal(false);
   creating = signal(false);
   newTitle = '';
-  newBrief = '';
 
   ngOnInit() {
     this.blogService.loadPosts().subscribe({
@@ -36,14 +35,13 @@ export class ProviderBlog implements OnInit {
   }
 
   submitNewPost() {
-    if (!this.newTitle.trim() || !this.newBrief.trim()) return;
+    if (!this.newTitle.trim()) return;
     this.creating.set(true);
-    this.blogService.createDraft({ title: this.newTitle.trim(), brief: this.newBrief.trim() }).subscribe({
+    this.blogService.createDraft({ title: this.newTitle.trim(), brief: '' }).subscribe({
       next: (post) => {
         this.creating.set(false);
         this.showNewPostForm.set(false);
         this.newTitle = '';
-        this.newBrief = '';
         this.blogService.selectedPostId.set(post._id);
         this.router.navigate(['/provider/blog', post._id]);
       },
@@ -57,6 +55,5 @@ export class ProviderBlog implements OnInit {
   cancelNewPost() {
     this.showNewPostForm.set(false);
     this.newTitle = '';
-    this.newBrief = '';
   }
 }

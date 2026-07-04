@@ -8,7 +8,7 @@ import { ProviderBlogService } from '../../../services/provider-blog.service';
 import { MarkdownService } from '../../../services/markdown.service';
 import { ToastService } from '../../../services/toast';
 
-type EditorState = 'loading' | 'not-found' | 'brief' | 'review' | 'editing' | 'ready' | 'pending_review' | 'published';
+type EditorState = 'loading' | 'not-found' | 'review' | 'editing' | 'ready' | 'pending_review' | 'published';
 
 @Component({
   selector: 'app-post-editor',
@@ -45,8 +45,7 @@ export class PostEditor implements OnInit {
     if (p.status === 'pending_review') return 'pending_review';
     if (p.providerApproved && p.status === 'draft') return 'ready';
     if (p.aiGenerated && !p.providerApproved && !this.isEditing()) return 'review';
-    if (this.isEditing() || (p.content && !p.aiGenerated)) return 'editing';
-    return 'brief';
+    return 'editing';
   });
 
   protected generationLabel = computed(() => {
