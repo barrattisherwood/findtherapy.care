@@ -288,3 +288,17 @@ export const adminBlogPosts = {
   hasNextPage: false,
   hasPrevPage: false,
 };
+
+export const adminFeatureFlags = {
+  flags: [
+    {
+      _id: 'ff-001',
+      key: 'provider_blog',
+      description: 'Provider-written blog submissions (invitation campaigns, submission form, Claude review workflow)',
+      enabled: false,
+      allowlistedAdminIds: ['admin-001', 'admin-002'],
+      createdAt: new Date('2026-07-01').toISOString(),
+      updatedAt: new Date('2026-07-01').toISOString(),
+    },
+  ],
+};

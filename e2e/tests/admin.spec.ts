@@ -9,6 +9,7 @@ import {
   adminMessages,
   adminLogs,
   adminBlogPosts,
+  adminFeatureFlags,
 } from '../fixtures/admin-mocks';
 
 const SCREENSHOT_DIR = 'e2e/screenshots';
@@ -61,6 +62,19 @@ async function setupAdminMocks(page: Page) {
   await page.route('**/api/auth/me', route =>
     route.fulfill({ json: { user: adminAuthResponse.user } })
   );
+
+  // Feature flags (admin isn't allowlisted by default so provider_blog flag returns false)
+  await page.route('**/api/feature-flags/mine', route =>
+    route.fulfill({ json: { flags: { provider_blog: false } } })
+  );
+  await page.route('**/api/admin/feature-flags', async route => {
+    const method = route.request().method();
+    if (method === 'PATCH') {
+      const body = JSON.parse(route.request().postData() ?? '{}');
+      return route.fulfill({ json: { flag: { ...adminFeatureFlags.flags[0], ...body } } });
+    }
+    route.fulfill({ json: adminFeatureFlags });
+  });
 
   // Dashboard metrics
   await page.route('**/api/admin/dashboard**', route =>
@@ -413,5 +427,33 @@ test.describe('Admin — Navigation', () => {
       await expect(page).toHaveURL(new RegExp(route), { timeout: 10_000 });
       await page.screenshot({ path: `${SCREENSHOT_DIR}/28-nav-${label}.png` });
     }
+  });
+});
+
+test.describe('Admin — Feature Flags', () => {
+  test.beforeEach(async ({ page }) => {
+    await setupAdminMocks(page);
+    await injectAdminSession(page);
+  });
+
+  test('shows feature flags list with provider_blog flag', async ({ page }) => {
+    await page.goto('/admin/feature-flags');
+    await expect(page.getByText('provider_blog')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText('OFF')).toBeVisible();
+    await expect(page.getByText('2 allowlisted')).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/29-feature-flags.png`, fullPage: true });
+  });
+
+  test('can toggle the provider_blog flag on', async ({ page }) => {
+    await page.goto('/admin/feature-flags');
+    await expect(page.getByText('provider_blog')).toBeVisible({ timeout: 10_000 });
+
+    const toggle = page.locator('button[role="switch"], button').filter({ hasText: '' }).first();
+    // Use the toggle button next to provider_blog
+    const flagRow = page.locator('div').filter({ hasText: 'provider_blog' }).first();
+    const toggleBtn = flagRow.locator('button').last();
+    await toggleBtn.click();
+
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/30-feature-flag-toggled.png`, fullPage: true });
   });
 });
