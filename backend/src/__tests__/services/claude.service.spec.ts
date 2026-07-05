@@ -1,15 +1,11 @@
 import { generateBlogPost } from '../../services/claude.service';
 
-// jest.mock() is hoisted above variable declarations, so we cannot directly
-// reference a const here. Instead we declare with let and assign in beforeEach;
-// the factory closure captures the variable reference, so by the time
-// messages.create is actually called the assignment has happened.
-let mockCreate: jest.Mock;
+let mockStream: jest.Mock;
 
 jest.mock('@anthropic-ai/sdk', () => ({
   __esModule: true,
   default: jest.fn().mockImplementation(() => ({
-    messages: { create: (...args: unknown[]) => mockCreate(...args) },
+    messages: { stream: (...args: unknown[]) => mockStream(...args) },
   })),
 }));
 
@@ -20,11 +16,15 @@ const validResponse = {
   socialCaption: 'New post on findtherapy.care!',
 };
 
+const makeFinalMessage = (text: string) => ({
+  finalMessage: jest.fn().mockResolvedValue({
+    content: [{ type: 'text', text }],
+  }),
+});
+
 describe('Claude Service — generateBlogPost', () => {
   beforeEach(() => {
-    mockCreate = jest.fn().mockResolvedValue({
-      content: [{ type: 'text', text: JSON.stringify(validResponse) }],
-    });
+    mockStream = jest.fn().mockReturnValue(makeFinalMessage(JSON.stringify(validResponse)));
   });
 
   it('returns generated content from a brief', async () => {
@@ -47,7 +47,7 @@ describe('Claude Service — generateBlogPost', () => {
       authorName: 'Dr. Smith',
     });
 
-    const callArgs = mockCreate.mock.calls[0][0];
+    const callArgs = mockStream.mock.calls[0][0];
     expect(callArgs.messages[0].content).toContain('Managing Anxiety at Work');
     expect(callArgs.messages[0].content).toContain('Tips for professionals');
   });
@@ -60,7 +60,7 @@ describe('Claude Service — generateBlogPost', () => {
       draft: 'My existing draft content',
     });
 
-    const callArgs = mockCreate.mock.calls[0][0];
+    const callArgs = mockStream.mock.calls[0][0];
     expect(callArgs.messages[0].content).toContain('My existing draft content');
   });
 
@@ -71,20 +71,27 @@ describe('Claude Service — generateBlogPost', () => {
       authorName: 'Dr. Smith',
     });
 
-    const callArgs = mockCreate.mock.calls[0][0];
+    const callArgs = mockStream.mock.calls[0][0];
     expect(callArgs.messages[0].content).not.toContain('Polish');
   });
 
   it('uses the correct Claude model', async () => {
     await generateBlogPost({ title: 'T', brief: 'B', authorName: 'Dr. X' });
-    const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.model).toBe('claude-sonnet-4-6');
+    const callArgs = mockStream.mock.calls[0][0];
+    expect(callArgs.model).toBe('claude-haiku-4-5-20251001');
+  });
+
+  it('strips markdown code fences before parsing JSON', async () => {
+    mockStream.mockReturnValueOnce(
+      makeFinalMessage('```json\n' + JSON.stringify(validResponse) + '\n```')
+    );
+
+    const result = await generateBlogPost({ title: 'Test', brief: 'Brief', authorName: 'Dr. Smith' });
+    expect(result.excerpt).toBe('A short summary.');
   });
 
   it('throws a SyntaxError if Claude returns invalid JSON', async () => {
-    mockCreate.mockResolvedValueOnce({
-      content: [{ type: 'text', text: 'not json at all' }],
-    });
+    mockStream.mockReturnValueOnce(makeFinalMessage('not json at all'));
 
     await expect(
       generateBlogPost({ title: 'Test', brief: 'Brief', authorName: 'Dr. Smith' })
@@ -92,7 +99,9 @@ describe('Claude Service — generateBlogPost', () => {
   });
 
   it('throws if Claude returns an empty content array', async () => {
-    mockCreate.mockResolvedValueOnce({ content: [] });
+    mockStream.mockReturnValueOnce({
+      finalMessage: jest.fn().mockResolvedValue({ content: [] }),
+    });
 
     await expect(
       generateBlogPost({ title: 'Test', brief: 'Brief', authorName: 'Dr. Smith' })
@@ -100,7 +109,9 @@ describe('Claude Service — generateBlogPost', () => {
   });
 
   it('propagates API errors from the Anthropic SDK', async () => {
-    mockCreate.mockRejectedValueOnce(new Error('Anthropic rate limit exceeded'));
+    mockStream.mockReturnValueOnce({
+      finalMessage: jest.fn().mockRejectedValueOnce(new Error('Anthropic rate limit exceeded')),
+    });
 
     await expect(
       generateBlogPost({ title: 'Test', brief: 'Brief', authorName: 'Dr. Smith' })
