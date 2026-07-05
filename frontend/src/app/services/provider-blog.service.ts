@@ -37,6 +37,15 @@ export class ProviderBlogService {
     );
   }
 
+  getPost(id: string) {
+    return this.http.get<ProviderBlogPost>(`${this.baseUrl}/${id}`).pipe(
+      tap(post => this.posts.update(ps => {
+        const exists = ps.some(p => p._id === id);
+        return exists ? ps.map(p => p._id === id ? post : p) : [post, ...ps];
+      }))
+    );
+  }
+
   createDraft(payload: CreateDraftPayload) {
     return this.http.post<ProviderBlogPost>(this.baseUrl, payload).pipe(
       tap(post => this.posts.update(ps => [post, ...ps]))

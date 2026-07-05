@@ -28,7 +28,7 @@ import { ProviderBlogPost } from '@findlocal/shared';
       </div>
       <button
         (click)="open.emit()"
-        class="flex-shrink-0 px-3 py-1.5 text-sm font-medium text-[#2D9B9B] border border-[#2D9B9B] rounded-lg hover:bg-teal-50 transition-colors"
+        class="flex-shrink-0 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
       >
         Open
       </button>

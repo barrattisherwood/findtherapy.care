@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Navbar } from '../../../components/navbar/navbar';
 import { Footer } from '../../../components/footer/footer';
 import { ProviderBlogService } from '../../../services/provider-blog.service';
@@ -18,7 +18,6 @@ type EditorState = 'loading' | 'not-found' | 'review' | 'editing' | 'ready' | 'p
 })
 export class PostEditor implements OnInit {
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   protected blogService = inject(ProviderBlogService);
   protected markdownService = inject(MarkdownService);
   private toast = inject(ToastService);
@@ -64,14 +63,10 @@ export class PostEditor implements OnInit {
     const id = this.route.snapshot.paramMap.get('id')!;
     this.blogService.selectedPostId.set(id);
 
-    if (this.blogService.posts().length === 0) {
-      this.blogService.loadPosts().subscribe({
-        next: () => this.syncEditFields(),
-        error: () => this.toast.show({ type: 'error', title: 'Error', message: 'Failed to load post.' }),
-      });
-    } else {
-      this.syncEditFields();
-    }
+    this.blogService.getPost(id).subscribe({
+      next: () => this.syncEditFields(),
+      error: () => this.toast.show({ type: 'error', title: 'Error', message: 'Failed to load post.' }),
+    });
   }
 
   private syncEditFields() {

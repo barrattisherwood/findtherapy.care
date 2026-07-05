@@ -66,6 +66,37 @@ describe('ProviderBlogService', () => {
     });
   });
 
+  // ── getPost ──────────────────────────────────────────────────────────────────
+
+  describe('getPost', () => {
+    it('makes GET /provider/blog/:id and updates post in list with full content', () => {
+      const cached = makePost({ _id: 'p1', content: '' });
+      service.posts.set([cached]);
+
+      const full = makePost({ _id: 'p1', content: '## Hello\n\nFull content here.' });
+      service.getPost('p1').subscribe();
+
+      const req = http.expectOne(`${baseUrl}/p1`);
+      expect(req.request.method).toBe('GET');
+      req.flush(full);
+
+      expect(service.posts()[0].content).toBe('## Hello\n\nFull content here.');
+    });
+
+    it('prepends post to list when not already cached', () => {
+      service.posts.set([]);
+
+      const post = makePost({ _id: 'new', content: 'Some content.' });
+      service.getPost('new').subscribe();
+
+      const req = http.expectOne(`${baseUrl}/new`);
+      req.flush(post);
+
+      expect(service.posts()).toHaveLength(1);
+      expect(service.posts()[0]._id).toBe('new');
+    });
+  });
+
   // ── createDraft ──────────────────────────────────────────────────────────────
 
   describe('createDraft', () => {

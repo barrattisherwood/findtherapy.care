@@ -44,12 +44,14 @@ Brief: "${brief}"
 
 Return JSON with: { "content": "full markdown post min 600 words", "excerpt": "2-3 sentence summary", "suggestedTags": ["tag1","tag2"], "socialCaption": "caption for social media max 200 chars" }`;
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+  const stream = client.messages.stream({
+    model: 'claude-haiku-4-5',
     max_tokens: 2000,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }],
   });
+
+  const response = await stream.finalMessage();
 
   const text = response.content
     .filter((block): block is Anthropic.TextBlock => block.type === 'text')

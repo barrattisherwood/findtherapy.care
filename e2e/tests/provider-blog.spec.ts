@@ -97,7 +97,13 @@ async function setupProviderMocks(page: Page, listPosts: object[] = []) {
     if (method === 'PATCH') {
       return route.fulfill({ json: savedDraft });
     }
-    // GET list (and individual gets — service reads post from the list)
+    // GET /api/provider/blog/:id — single post fetch (getPost)
+    if (method === 'GET' && /\/provider\/blog\/[^/]+$/.test(url)) {
+      const id = url.split('/').pop();
+      const post = listPosts.find((p: any) => p._id === id) ?? listPosts[0] ?? blankDraft;
+      return route.fulfill({ json: post });
+    }
+    // GET /api/provider/blog — list
     route.fulfill({ json: listPosts });
   });
 }
