@@ -45,7 +45,7 @@ Brief: "${brief}"
 Return JSON with: { "content": "full markdown post min 600 words", "excerpt": "2-3 sentence summary", "suggestedTags": ["tag1","tag2"], "socialCaption": "caption for social media max 200 chars" }`;
 
   const stream = client.messages.stream({
-    model: 'claude-haiku-4-5',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }],
@@ -53,10 +53,13 @@ Return JSON with: { "content": "full markdown post min 600 words", "excerpt": "2
 
   const response = await stream.finalMessage();
 
-  const text = response.content
+  const raw = response.content
     .filter((block): block is Anthropic.TextBlock => block.type === 'text')
     .map(block => block.text)
     .join('');
+
+  // Strip markdown code fences if the model wraps the JSON
+  const text = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
 
   return JSON.parse(text) as GeneratedPost;
 };

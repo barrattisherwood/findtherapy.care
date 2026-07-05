@@ -122,9 +122,10 @@ export const generateContent = async (req: ProviderAuthRequest, res: Response) =
     );
 
     res.json({ post: updated, socialCaption: generated.socialCaption });
-  } catch (err) {
-    console.error('Claude generation error:', err);
-    res.status(500).json({ message: 'Content generation failed' });
+  } catch (err: any) {
+    const detail = err?.message ?? String(err);
+    console.error('Claude generation error:', detail);
+    res.status(500).json({ message: `Content generation failed: ${detail}` });
   }
 };
 
