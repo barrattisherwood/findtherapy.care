@@ -83,6 +83,7 @@ export class PostEditor implements OnInit {
     this.blogService.generateContent(p._id).subscribe({
       next: () => {
         this.isEditing.set(false);
+        this.syncEditFields();
         if (this.lastSocialCaption()) {
           this.toast.show({ type: 'info', title: 'Content generated', message: 'Review and approve before submitting.' });
         }
