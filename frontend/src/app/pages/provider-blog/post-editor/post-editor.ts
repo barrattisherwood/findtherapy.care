@@ -42,7 +42,7 @@ export class PostEditor implements OnInit {
     if (!p) return this.blogService.loading() ? 'loading' : 'not-found';
     if (p.status === 'published') return 'published';
     if (p.status === 'pending_review') return 'pending_review';
-    if (p.providerApproved && p.status === 'draft') return 'ready';
+    if (p.providerApproved && p.status === 'draft' && !this.isEditing()) return 'ready';
     if (p.aiGenerated && !p.providerApproved && !this.isEditing()) return 'review';
     return 'editing';
   });
