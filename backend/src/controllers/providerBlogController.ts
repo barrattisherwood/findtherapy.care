@@ -2,7 +2,9 @@ import { Response } from 'express';
 import { randomBytes } from 'crypto';
 import slugify from 'slugify';
 import BlogPost from '../models/BlogPost';
+import { User } from '../models/User';
 import { generateBlogPost } from '../services/claude.service';
+import { sendBlogPostPendingReviewEmail } from '../services/emailService';
 import { ProviderAuthRequest } from '../middleware/providerGuard';
 
 const randomSuffix = () => randomBytes(2).toString('hex'); // 4 hex chars
@@ -158,6 +160,15 @@ export const publishPost = async (req: ProviderAuthRequest, res: Response) => {
       { status: 'pending_review', publishedAt: new Date() },
       { new: true }
     );
+
+    User.findById(req.userId).select('email').then(user => {
+      sendBlogPostPendingReviewEmail(
+        post.title,
+        req.provider!.displayName,
+        user?.email ?? ''
+      ).catch(err => console.error('Blog pending review email error:', err));
+    }).catch(() => {});
+
     res.json(updated);
   } catch {
     res.status(400).json({ message: 'Failed to submit post for review' });

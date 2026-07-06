@@ -162,30 +162,6 @@
           [innerHTML]="renderedContent()"
         ></div>
 
-        <!-- Social queue -->
-        <div class="p-6 border-b border-gray-100">
-          <h3 class="text-sm font-semibold text-gray-700 mb-3">Schedule social sharing (optional)</h3>
-          <div class="flex flex-wrap gap-3">
-            @for (platform of ['instagram', 'facebook', 'linkedin']; track platform) {
-              <button
-                (click)="toggleSocialPlatform($any(platform))"
-                [class]="isPlatformQueued(platform)
-                  ? 'px-4 py-2 rounded-lg text-sm font-medium bg-teal-600 text-white border border-teal-600'
-                  : 'px-4 py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'"
-              >
-                {{ platform | titlecase }}
-                @if (isPlatformQueued(platform)) { ✓ }
-              </button>
-            }
-          </div>
-          @if (lastSocialCaption()) {
-            <div class="mt-3 p-3 bg-gray-50 rounded-lg">
-              <p class="text-xs font-medium text-gray-500 mb-1">Suggested caption</p>
-              <p class="text-sm text-gray-700 italic">{{ lastSocialCaption() }}</p>
-            </div>
-          }
-        </div>
-
         <div class="p-6 flex flex-wrap items-center gap-3">
           <button
             (click)="submitForReview()"
@@ -234,26 +210,6 @@
         <p class="text-sm text-gray-600 mb-6">
           <strong>"{{ post()?.title }}"</strong> is live on findtherapy.care.
         </p>
-
-        <!-- Social queue for published posts -->
-        @if (post()?.providerApproved) {
-          <div class="border-t border-gray-100 pt-6 text-left">
-            <h3 class="text-sm font-semibold text-gray-700 mb-3">Social sharing queue</h3>
-            <div class="flex flex-wrap gap-3">
-              @for (platform of ['instagram', 'facebook', 'linkedin']; track platform) {
-                <button
-                  (click)="toggleSocialPlatform($any(platform))"
-                  [class]="isPlatformQueued(platform)
-                    ? 'px-4 py-2 rounded-lg text-sm font-medium bg-teal-600 text-white border border-teal-600'
-                    : 'px-4 py-2 rounded-lg text-sm font-medium bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'"
-                >
-                  {{ platform | titlecase }}
-                  @if (isPlatformQueued(platform)) { ✓ }
-                </button>
-              }
-            </div>
-          </div>
-        }
 
         <a routerLink="/provider/blog" class="inline-block mt-6 text-sm text-primary-600 hover:underline">
           Back to my posts

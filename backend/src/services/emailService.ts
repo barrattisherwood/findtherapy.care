@@ -403,6 +403,64 @@ export const sendPasswordResetEmail = async (
 };
 
 // ---------------------------------------------------------------------------
+// Blog Post Emails
+// ---------------------------------------------------------------------------
+
+export const sendBlogPostPendingReviewEmail = async (
+  postTitle: string,
+  providerName: string,
+  providerEmail: string
+): Promise<void> => {
+  const reviewUrl = `${APP_URL}/admin/blog/pending`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== BLOG POST PENDING REVIEW ==========');
+    console.log(`Post: "${postTitle}"`);
+    console.log(`Provider: ${providerName} (${providerEmail})`);
+    console.log(`Review URL: ${reviewUrl}`);
+    console.log('==============================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const html = emailShell(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C_TEXT};">
+      Blog Post Ready for Review
+    </h2>
+    <p style="margin:0 0 24px;font-size:15px;color:${C_MUTED};line-height:1.6;">
+      A provider has submitted a blog post and it is awaiting your review before going live.
+    </p>
+
+    ${infoBox('#f4f5f3', C_PRIMARY, `
+      <strong style="display:block;margin-bottom:6px;color:${C_TEXT};">Post Details</strong>
+      <span style="color:${C_MUTED};">Title:</span> <strong>${postTitle}</strong><br/>
+      <span style="color:${C_MUTED};">Author:</span> ${providerName}<br/>
+      <span style="color:${C_MUTED};">Email:</span> ${providerEmail}
+    `)}
+
+    ${ctaButton(reviewUrl, 'Review Post')}
+
+    ${divider()}
+    <p style="margin:0;font-size:13px;color:${C_MUTED};text-align:center;">
+      Visit <a href="${reviewUrl}" style="color:${C_PRIMARY};text-decoration:none;">the admin blog queue</a> to approve or reject this post.
+    </p>
+  `);
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: ADMIN_EMAIL,
+    subject: `Blog Post Pending Review — "${postTitle}"`,
+    html,
+    text: `Blog Post Ready for Review\n\nA provider has submitted a blog post awaiting your review.\n\nTitle: "${postTitle}"\nAuthor: ${providerName} (${providerEmail})\n\nReview at: ${reviewUrl}`,
+  });
+
+  console.log('✅ Blog post pending review email sent to admin:', result);
+};
+
+// ---------------------------------------------------------------------------
 // Subscription / Trial Emails
 // ---------------------------------------------------------------------------
 
