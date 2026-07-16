@@ -15,6 +15,8 @@ export async function seedFeatureFlags() {
         key: 'provider_blog',
         description: 'Provider-written blog submissions (invitation campaigns, submission form, Claude review workflow)',
         enabled: false,
+      },
+      $set: {
         allowlistedAdminIds: ALLOWLISTED_ADMIN_IDS,
       },
     },
