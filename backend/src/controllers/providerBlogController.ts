@@ -1,11 +1,27 @@
 import { Response } from 'express';
 import { randomBytes } from 'crypto';
 import slugify from 'slugify';
+import multer from 'multer';
 import BlogPost from '../models/BlogPost';
 import { User } from '../models/User';
 import { generateBlogPost } from '../services/claude.service';
+import { uploadBlogImage, deleteImage, isCloudinaryConfigured } from '../services/cloudinaryService';
 import { sendBlogPostPendingReviewEmail } from '../services/emailService';
 import { ProviderAuthRequest } from '../middleware/providerGuard';
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
+  fileFilter: (_req, file, cb) => {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only jpg, png and webp images are allowed'));
+    }
+  },
+});
+
+export const uploadFeaturedImageMiddleware = upload.single('image');
 
 const randomSuffix = () => randomBytes(2).toString('hex'); // 4 hex chars
 
@@ -205,5 +221,67 @@ export const removeFromSocialQueue = async (req: ProviderAuthRequest, res: Respo
     res.json(post);
   } catch {
     res.status(400).json({ message: 'Failed to remove from social queue' });
+  }
+};
+
+// POST /api/provider/blog/:id/image
+export const uploadFeaturedImage = async (req: ProviderAuthRequest, res: Response) => {
+  try {
+    if (!isCloudinaryConfigured()) {
+      return res.status(500).json({ message: 'Image upload is not configured' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image file provided' });
+    }
+
+    const post = await BlogPost.findOne({ _id: req.params.id, authorProviderId: req.provider!._id });
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    // Delete old featured image if present
+    if (post.featuredImagePublicId) {
+      await deleteImage(post.featuredImagePublicId).catch(err =>
+        console.error('Failed to delete old featured image:', err)
+      );
+    }
+
+    const result = await uploadBlogImage(req.file.buffer);
+
+    const updated = await BlogPost.findByIdAndUpdate(
+      post._id,
+      {
+        featuredImage: result.url,
+        featuredImagePublicId: result.publicId,
+        providerApproved: false,
+      },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err: any) {
+    res.status(400).json({ message: err?.message ?? 'Failed to upload image' });
+  }
+};
+
+// DELETE /api/provider/blog/:id/image
+export const removeFeaturedImage = async (req: ProviderAuthRequest, res: Response) => {
+  try {
+    const post = await BlogPost.findOne({ _id: req.params.id, authorProviderId: req.provider!._id });
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
+    if (post.featuredImagePublicId) {
+      await deleteImage(post.featuredImagePublicId).catch(err =>
+        console.error('Failed to delete featured image from Cloudinary:', err)
+      );
+    }
+
+    const updated = await BlogPost.findByIdAndUpdate(
+      post._id,
+      { $unset: { featuredImage: '', featuredImagePublicId: '' }, providerApproved: false },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch {
+    res.status(400).json({ message: 'Failed to remove image' });
   }
 };

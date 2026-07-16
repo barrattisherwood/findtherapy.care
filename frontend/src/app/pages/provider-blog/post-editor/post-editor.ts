@@ -31,6 +31,7 @@ export class PostEditor implements OnInit {
   saving = signal(false);
   approving = signal(false);
   submitting = signal(false);
+  uploadingImage = signal(false);
 
   // Editable fields (synced from post on load)
   editTitle = signal('');
@@ -156,6 +157,48 @@ export class PostEditor implements OnInit {
       error: (err) => {
         this.submitting.set(false);
         this.toast.show({ type: 'error', title: 'Error', message: err?.error?.message ?? 'Failed to submit post.' });
+      },
+    });
+  }
+
+  onImageFileSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      this.toast.show({ type: 'error', title: 'Invalid file', message: 'Only JPG, PNG and WebP images are allowed.' });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.toast.show({ type: 'error', title: 'File too large', message: 'Image must be 2 MB or smaller.' });
+      return;
+    }
+    const p = this.post();
+    if (!p) return;
+    this.uploadingImage.set(true);
+    this.blogService.uploadFeaturedImage(p._id, file).subscribe({
+      next: () => {
+        this.uploadingImage.set(false);
+        this.toast.show({ type: 'success', title: 'Image uploaded', message: 'Featured image updated.' });
+      },
+      error: () => {
+        this.uploadingImage.set(false);
+        this.toast.show({ type: 'error', title: 'Upload failed', message: 'Could not upload image. Please try again.' });
+      },
+    });
+  }
+
+  removeImage() {
+    const p = this.post();
+    if (!p) return;
+    this.uploadingImage.set(true);
+    this.blogService.removeFeaturedImage(p._id).subscribe({
+      next: () => {
+        this.uploadingImage.set(false);
+        this.toast.show({ type: 'success', title: 'Image removed', message: 'Featured image removed.' });
+      },
+      error: () => {
+        this.uploadingImage.set(false);
+        this.toast.show({ type: 'error', title: 'Error', message: 'Could not remove image.' });
       },
     });
   }

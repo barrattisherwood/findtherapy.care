@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import BlogPost from '../models/BlogPost';
+import { Provider } from '../models/Provider';
 import { 
   CreateBlogPostRequest, 
   UpdateBlogPostRequest, 
@@ -88,7 +89,20 @@ export const getBlogPostBySlug = async (req: Request, res: Response): Promise<vo
     await BlogPost.findByIdAndUpdate(post._id, { $inc: { views: 1 } });
     post.views += 1;
 
-    res.json(post);
+    // Attach author summary for provider-authored posts
+    let authorSummary: object | undefined;
+    if (post.authorType === 'provider' && post.authorProviderId) {
+      const provider = await Provider.findOne({
+        _id: post.authorProviderId,
+        vettingStatus: 'approved',
+        isPublished: true,
+      }).select('displayName profileImage type location specialties pricing sessionFormats bio isFounder founderNumber');
+      if (provider) {
+        authorSummary = { ...provider.toJSON(), id: provider._id.toString() };
+      }
+    }
+
+    res.json({ ...post.toJSON(), authorSummary });
   } catch (error) {
     res.status(500).json({ 
       message: 'Failed to fetch blog post', 

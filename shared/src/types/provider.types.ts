@@ -127,6 +127,21 @@ export interface Provider {
   updatedAt: Date;
 }
 
+// Minimal provider summary attached to public blog posts — only public-safe fields
+export interface ProviderAuthorSummary {
+  id: string;
+  displayName: string;
+  type: ProviderType;
+  bio: string;
+  profileImage?: string;
+  location: StructuredLocation;
+  specialties: string[];
+  pricing: ProviderPricing;
+  sessionFormats: SessionFormats;
+  isFounder?: boolean;
+  founderNumber?: number;
+}
+
 // Helper type for checking if provider has active access (trial or subscription)
 export type ProviderAccessStatus = 'trial' | 'active' | 'expired' | 'none';
 

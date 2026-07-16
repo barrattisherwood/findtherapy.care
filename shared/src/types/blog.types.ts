@@ -1,3 +1,5 @@
+import { ProviderAuthorSummary } from './provider.types.js';
+
 export interface BlogPost {
   _id: string;
   title: string;
@@ -22,6 +24,8 @@ export interface BlogPost {
   likes: number;
   authorDisplayName?: string;
   authorProviderId?: string;
+  authorType?: 'admin' | 'provider';
+  authorSummary?: ProviderAuthorSummary;
   commentsEnabled: boolean;
   createdAt: Date;
   updatedAt: Date;

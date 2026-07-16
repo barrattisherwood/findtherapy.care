@@ -24,6 +24,10 @@ jest.mock('../../services/claude.service', () => ({
   generateBlogPost: jest.fn(),
 }));
 
+jest.mock('../../services/emailService', () => ({
+  sendBlogPostPendingReviewEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
 import { generateBlogPost } from '../../services/claude.service';
 const mockGenerateBlogPost = generateBlogPost as jest.Mock;
 

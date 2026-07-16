@@ -90,6 +90,20 @@ export class ProviderBlogService {
     );
   }
 
+  uploadFeaturedImage(id: string, file: File) {
+    const body = new FormData();
+    body.append('image', file);
+    return this.http.post<ProviderBlogPost>(`${this.baseUrl}/${id}/image`, body).pipe(
+      tap(updated => this.posts.update(ps => ps.map(p => p._id === id ? updated : p)))
+    );
+  }
+
+  removeFeaturedImage(id: string) {
+    return this.http.delete<ProviderBlogPost>(`${this.baseUrl}/${id}/image`).pipe(
+      tap(updated => this.posts.update(ps => ps.map(p => p._id === id ? updated : p)))
+    );
+  }
+
   addToSocialQueue(id: string, platform: string, scheduledAt?: string) {
     return this.http.post<ProviderBlogPost>(`${this.baseUrl}/${id}/social-queue`, { platform, scheduledAt }).pipe(
       tap(updated => this.posts.update(ps => ps.map(p => p._id === id ? updated : p)))

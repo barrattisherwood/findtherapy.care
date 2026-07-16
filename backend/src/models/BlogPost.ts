@@ -14,6 +14,7 @@ export interface IBlogPost extends Document {
   content: string;
   excerpt: string;
   featuredImage?: string;
+  featuredImagePublicId?: string;
   author: Schema.Types.ObjectId;
   status: 'draft' | 'published' | 'scheduled' | 'archived' | 'pending_review';
   publishedAt?: Date;
@@ -66,6 +67,10 @@ const blogPostSchema = new Schema<IBlogPost>({
     default: '',
   },
   featuredImage: {
+    type: String,
+    trim: true
+  },
+  featuredImagePublicId: {
     type: String,
     trim: true
   },

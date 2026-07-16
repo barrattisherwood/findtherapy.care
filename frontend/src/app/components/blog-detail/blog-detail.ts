@@ -1,19 +1,20 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { SafeHtml } from '@angular/platform-browser';
 import { BlogService } from '../../services/blog.service';
 import { MarkdownService } from '../../services/markdown.service';
 import { AnalyticsService } from '../../services/analytics.service';
-import { BlogPost } from '@findlocal/shared';
+import { BlogPost, Provider } from '@findlocal/shared';
 import { Navbar } from '../navbar/navbar';
 import { Footer } from '../footer/footer';
+import { ProviderCard } from '../provider-card/provider-card';
 
 @Component({
   selector: 'app-blog-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar, Footer],
+  imports: [CommonModule, RouterLink, Navbar, Footer, ProviderCard],
   templateUrl: './blog-detail.html',
   styleUrls: ['./blog-detail.scss']
 })
@@ -22,14 +23,19 @@ export class BlogDetail implements OnInit {
   private markdownService = inject(MarkdownService);
   private analyticsService = inject(AnalyticsService);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private document = inject(DOCUMENT);
 
   post = signal<BlogPost | null>(null);
   renderedContent = signal<SafeHtml>('');
   loading = signal(true);
   errorMessage = signal<string | null>(null);
+
+  get authorProvider(): Provider | null {
+    const s = this.post()?.authorSummary;
+    return s ? (s as unknown as Provider) : null;
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -65,6 +71,16 @@ export class BlogDetail implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  private injectJsonLd(data: object): void {
+    const existing = this.document.getElementById('blog-json-ld');
+    if (existing) existing.remove();
+    const script = this.document.createElement('script');
+    script.id = 'blog-json-ld';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(data);
+    this.document.head.appendChild(script);
   }
 
   private updateMetaTags(post: BlogPost): void {
@@ -103,6 +119,21 @@ export class BlogDetail implements OnInit {
     post.categories.forEach(category => {
       this.metaService.addTag({ property: 'article:tag', content: category });
     });
+
+    const jsonLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: pageTitle,
+      description,
+      url: `https://findtherapy.care/blog/${post.slug}`,
+      datePublished: post.publishedAt?.toString() || '',
+      author: {
+        '@type': 'Person',
+        name: post.authorDisplayName || 'Staff writer',
+      },
+    };
+    if (post.featuredImage) jsonLd['image'] = post.featuredImage;
+    this.injectJsonLd(jsonLd);
   }
 
   formatDate(date: Date | string): string {
