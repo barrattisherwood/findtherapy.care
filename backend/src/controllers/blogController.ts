@@ -98,7 +98,20 @@ export const getBlogPostBySlug = async (req: Request, res: Response): Promise<vo
         isPublished: true,
       }).select('displayName profileImage type location specialties pricing sessionFormats bio isFounder founderNumber');
       if (provider) {
-        authorSummary = { ...provider.toJSON(), id: provider._id.toString() };
+        const p = provider.toJSON() as Record<string, unknown>;
+        authorSummary = {
+          id: provider._id.toString(),
+          displayName: p['displayName'],
+          type: p['type'],
+          bio: p['bio'],
+          profileImage: p['profileImage'],
+          location: p['location'],
+          specialties: p['specialties'],
+          pricing: p['pricing'],
+          sessionFormats: p['sessionFormats'],
+          isFounder: p['isFounder'],
+          founderNumber: p['founderNumber'],
+        };
       }
     }
 

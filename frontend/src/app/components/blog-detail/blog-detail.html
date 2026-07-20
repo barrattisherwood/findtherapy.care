@@ -159,7 +159,7 @@
         <h3 class="text-lg font-semibold text-gray-900 mb-4">About the author</h3>
         <app-provider-card [provider]="authorProvider" />
       </div>
-    } @else {
+    } @else if (post()?.authorType === 'admin') {
       <div class="mt-12 p-6 bg-white rounded-lg border border-gray-200">
         <h3 class="text-lg font-semibold text-gray-900 mb-2">About the author</h3>
         <p class="text-gray-700">
