@@ -112,7 +112,7 @@ describe('BlogDetail Component - authorDisplayName', () => {
 
   describe('About the Author section', () => {
     it('shows authorDisplayName in the About the Author section', () => {
-      showPost(makePost({ authorDisplayName: 'Dr. Jane Smith' }));
+      showPost(makePost({ authorDisplayName: 'Dr. Jane Smith', authorType: 'admin' }));
 
       const strongs = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('strong'));
       const authorStrong = strongs.find(el => el.textContent?.includes('Dr. Jane Smith'));
@@ -120,7 +120,7 @@ describe('BlogDetail Component - authorDisplayName', () => {
     });
 
     it('shows "Staff writer" in the About the Author section when not set', () => {
-      showPost(makePost({ authorDisplayName: undefined }));
+      showPost(makePost({ authorDisplayName: undefined, authorType: 'admin' }));
 
       const strongs = Array.from<HTMLElement>(fixture.nativeElement.querySelectorAll('strong'));
       const staffWriterStrong = strongs.find(el => el.textContent?.includes('Staff writer'));
