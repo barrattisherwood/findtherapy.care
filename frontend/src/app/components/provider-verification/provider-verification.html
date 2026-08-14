@@ -1,0 +1,177 @@
+<div class="bg-white rounded-xl border border-gray-200 p-6">
+  <h2 class="text-xl font-semibold text-gray-900 mb-1">Verification</h2>
+  <p class="text-sm text-gray-500 mb-6">
+    Upload your professional registration documents to get verified. Verified profiles appear in search results.
+  </p>
+
+  @if (loading()) {
+    <div class="py-6 text-center text-gray-400 text-sm">Loading verification status…</div>
+  } @else if (status()) {
+
+    <!-- Status badge -->
+    <div class="mb-6">
+      <div
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+        [class.bg-gray-100]="statusColor === 'gray'"
+        [class.text-gray-700]="statusColor === 'gray'"
+        [class.bg-yellow-50]="statusColor === 'yellow'"
+        [class.text-yellow-700]="statusColor === 'yellow'"
+        [class.bg-green-50]="statusColor === 'green'"
+        [class.text-green-700]="statusColor === 'green'"
+        [class.bg-red-50]="statusColor === 'red'"
+        [class.text-red-700]="statusColor === 'red'"
+      >
+        @if (statusColor === 'green') {
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        } @else if (statusColor === 'yellow') {
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        } @else if (statusColor === 'red') {
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        }
+        {{ statusLabel }}
+      </div>
+
+      @if (status()?.vettingStatus === 'rejected' && status()?.vettingNotes) {
+        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <span class="font-medium">Feedback: </span>{{ status()!.vettingNotes }}
+        </div>
+      }
+
+      @if (status()?.vettingStatus === 'approved') {
+        <p class="mt-2 text-sm text-gray-500">
+          Your profile is verified and visible in search results.
+        </p>
+      }
+
+      @if (status()?.vettingStatus === 'pending') {
+        <p class="mt-2 text-sm text-gray-500">
+          We have received your documents and will review them within 2 business days.
+        </p>
+      }
+    </div>
+
+    <!-- Uploaded documents -->
+    @if (status()!.documents.length > 0) {
+      <div class="mb-6">
+        <h3 class="text-sm font-medium text-gray-700 mb-3">Submitted documents</h3>
+        <div class="space-y-2">
+          @for (doc of status()!.documents; track doc.id; let i = $index) {
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-gray-800">{{ formatDocumentType(doc.documentType) }}</p>
+                  <p class="text-xs text-gray-500">{{ doc.fileName }} &middot; Uploaded {{ formatDate(doc.uploadedAt) }}</p>
+                </div>
+              </div>
+              <div class="text-xs font-medium">
+                @if (!doc.fileAvailable) {
+                  <span class="text-gray-400">File removed</span>
+                } @else if (doc.reviewOutcome === 'approved') {
+                  <span class="text-green-600">Accepted</span>
+                } @else if (doc.reviewOutcome === 'rejected') {
+                  <span class="text-red-600">Rejected</span>
+                } @else {
+                  <span class="text-yellow-600">Pending review</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Upload form — show for unverified and rejected -->
+    @if (status()!.vettingStatus !== 'approved') {
+      <div class="border-t border-gray-100 pt-6">
+        <h3 class="text-sm font-medium text-gray-900 mb-4">
+          @if (status()!.vettingStatus === 'rejected') {
+            Upload updated documents
+          } @else {
+            Upload verification document
+          }
+        </h3>
+
+        <div class="space-y-4">
+          <!-- Document type selector -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Document type</label>
+            <select
+              [ngModel]="selectedDocumentType()"
+              (ngModelChange)="selectedDocumentType.set($event)"
+              name="documentType"
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+            >
+              @for (opt of documentTypeOptions; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- File picker -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">File</label>
+            <div class="flex items-center gap-3">
+              <label
+                class="cursor-pointer flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                [class.opacity-50]="uploading()"
+              >
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+                @if (selectedFile()) {
+                  {{ selectedFile()!.name }}
+                } @else {
+                  Choose file
+                }
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  (change)="onFileSelected($event)"
+                  [disabled]="uploading()"
+                  class="sr-only"
+                />
+              </label>
+              @if (selectedFile()) {
+                <button
+                  type="button"
+                  (click)="selectedFile.set(null); fileError.set('')"
+                  class="text-gray-400 hover:text-gray-600"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              }
+            </div>
+            <p class="mt-1 text-xs text-gray-400">PDF, JPG or PNG, max 10 MB</p>
+            @if (fileError()) {
+              <p class="mt-1 text-sm text-red-600">{{ fileError() }}</p>
+            }
+          </div>
+
+          <button
+            (click)="upload()"
+            [disabled]="uploading() || !selectedFile()"
+            class="bg-primary-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (uploading()) {
+              Uploading…
+            } @else {
+              Submit document
+            }
+          </button>
+        </div>
+      </div>
+    }
+
+  }
+</div>

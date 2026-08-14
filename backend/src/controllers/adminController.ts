@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { User } from '../models/User';
 import { Provider } from '../models/Provider';
+import ProviderDocument from '../models/ProviderDocument';
 import { logAdminAction } from '../utils/adminLogger';
 import { cancelPayFastSubscription } from '../services/payfastService';
 import { SupportGroup } from '../models/SupportGroup';
@@ -236,7 +237,7 @@ export const getPendingProviders = async (req: AuthRequest, res: Response): Prom
 
     // Optional status filter (default: pending)
     const status = req.query.status as string || 'pending';
-    const validStatuses = ['pending', 'approved', 'rejected'];
+    const validStatuses = ['unverified', 'pending', 'approved', 'rejected'];
     const filter: any = {};
     if (validStatuses.includes(status)) {
       filter.vettingStatus = status;
@@ -251,6 +252,26 @@ export const getPendingProviders = async (req: AuthRequest, res: Response): Prom
       Provider.countDocuments(filter),
     ]);
 
+    const providerIds = providers.map(p => p._id);
+    const allDocs = await ProviderDocument.find({ providerId: { $in: providerIds } })
+      .sort({ uploadedAt: -1 });
+
+    const docsByProvider = new Map<string, any[]>();
+    for (const doc of allDocs) {
+      const key = doc.providerId.toString();
+      if (!docsByProvider.has(key)) docsByProvider.set(key, []);
+      docsByProvider.get(key)!.push({
+        id: doc._id.toString(),
+        documentType: doc.documentType,
+        fileName: doc.fileName,
+        fileType: doc.fileType,
+        uploadedAt: doc.uploadedAt,
+        reviewedAt: doc.reviewedAt,
+        reviewOutcome: doc.reviewOutcome,
+        fileAvailable: !!doc.cloudinaryPublicId,
+      });
+    }
+
     res.json({
       providers: providers.map(p => ({
         id: p._id.toString(),
@@ -262,6 +283,7 @@ export const getPendingProviders = async (req: AuthRequest, res: Response): Prom
         vettedAt: p.vettedAt,
         contactEmail: p.contactEmail,
         createdAt: p.createdAt,
+        documents: docsByProvider.get(p._id.toString()) ?? [],
       })),
       total,
       page,
@@ -317,7 +339,18 @@ export const vetProvider = async (req: AuthRequest, res: Response): Promise<void
       }
     }
 
+    if (status === 'approved') {
+      provider.isPublished = true;
+    }
+
     await provider.save();
+
+    // Stamp unreviewed documents with the outcome
+    const reviewedAt = new Date();
+    await ProviderDocument.updateMany(
+      { providerId: provider._id, reviewedAt: { $exists: false } },
+      { $set: { reviewOutcome: status, reviewedAt } }
+    );
 
     const adminUser = await User.findById(req.userId).select('email');
     await logAdminAction({

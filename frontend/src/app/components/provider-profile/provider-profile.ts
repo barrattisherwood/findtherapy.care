@@ -16,11 +16,12 @@ import { CreateProviderRequest, ProviderType, CounsellorType, Certification, Pro
 import { PROVIDER_SPECIALTIES, PROVIDER_DEGREES, PROFESSIONAL_BODIES, COUNSELLOR_TYPES } from '@findlocal/shared';
 import { LocationInput } from '../location-input/location-input';
 import { SessionFormatsInput } from '../session-formats-input/session-formats-input';
+import { ProviderVerification } from '../provider-verification/provider-verification';
 
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload, LocationInput, SessionFormatsInput],
+  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload, LocationInput, SessionFormatsInput, ProviderVerification],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.scss'
 })

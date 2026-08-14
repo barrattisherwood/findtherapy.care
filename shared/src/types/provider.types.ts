@@ -27,7 +27,11 @@ export interface ProfessionalBodyMembership {
 }
 
 // Vetting status for provider approval
-export type VettingStatus = 'pending' | 'approved' | 'rejected';
+// 'unverified' = new provider, no documents uploaded yet
+// 'pending'    = documents uploaded, awaiting admin review
+// 'approved'   = admin approved, profile is live
+// 'rejected'   = admin rejected, provider can re-upload
+export type VettingStatus = 'unverified' | 'pending' | 'approved' | 'rejected';
 
 // Certification for additional training/certifications
 export interface Certification {

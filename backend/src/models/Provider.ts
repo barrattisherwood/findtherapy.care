@@ -142,13 +142,13 @@ const providerSchema = new Schema<IProvider>(
     },
     isPublished: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     // Vetting
     vettingStatus: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'] as VettingStatus[],
-      default: 'pending',
+      enum: ['unverified', 'pending', 'approved', 'rejected'] as VettingStatus[],
+      default: 'unverified',
     },
     vettingNotes: {
       type: String,

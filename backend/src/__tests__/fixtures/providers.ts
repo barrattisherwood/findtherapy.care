@@ -17,6 +17,8 @@ export interface TestProviderOptions {
   payfastPaymentId?: string;
   payfastSubscriptionToken?: string;
   isPublished?: boolean;
+  vettingStatus?: 'unverified' | 'pending' | 'approved' | 'rejected';
+  vettingNotes?: string;
   viewCount?: number;
   isFounder?: boolean;
   founderNumber?: number;
@@ -55,7 +57,8 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     contactEmail: options.contactEmail || 'provider@example.com',
     contactPhone: options.contactPhone || '+27123456789',
     isPublished: options.isPublished ?? true,
-    vettingStatus: 'approved',
+    vettingStatus: options.vettingStatus ?? 'approved',
+    vettingNotes: options.vettingNotes,
     viewCount: options.viewCount ?? 0,
     subscriptionStatus: options.subscriptionStatus || 'none',
     subscriptionEndsAt: options.subscriptionEndsAt,

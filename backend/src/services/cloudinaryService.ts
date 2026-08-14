@@ -142,4 +142,67 @@ export const getTransformedImageUrl = (
   });
 };
 
+/**
+ * Upload a provider verification document to Cloudinary as a private raw asset.
+ * The public_id is stored in MongoDB; the file is never exposed via a public URL.
+ */
+export const uploadDocument = async (
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<{ publicId: string }> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'provider-documents',
+        resource_type: 'raw',
+        type: 'private',
+        use_filename: false,
+      },
+      (error: any, result: any) => {
+        if (error) {
+          console.error('Cloudinary document upload error:', error);
+          reject(new Error('Failed to upload document'));
+        } else if (result) {
+          resolve({ publicId: result.public_id });
+        }
+      }
+    );
+    uploadStream.end(fileBuffer);
+  });
+};
+
+/**
+ * Download a private raw document from Cloudinary and return it as a Buffer.
+ * Used by the auth-gated streaming endpoint — the URL is never sent to the client.
+ */
+export const downloadDocument = async (publicId: string): Promise<{ buffer: Buffer; contentType: string }> => {
+  const url = cloudinary.url(publicId, {
+    resource_type: 'raw',
+    type: 'private',
+    sign_url: true,
+    secure: true,
+  });
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch document from Cloudinary: ${response.status}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const contentType = response.headers.get('content-type') || 'application/octet-stream';
+  return { buffer: Buffer.from(arrayBuffer), contentType };
+};
+
+/**
+ * Delete a raw private document from Cloudinary.
+ */
+export const deleteDocument = async (publicId: string): Promise<void> => {
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'raw', type: 'private' });
+  } catch (error) {
+    console.error('Cloudinary document delete error:', error);
+    throw new Error('Failed to delete document');
+  }
+};
+
 export { cloudinary };

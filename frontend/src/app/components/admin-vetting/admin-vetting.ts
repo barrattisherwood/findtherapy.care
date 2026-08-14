@@ -25,7 +25,8 @@ export class AdminVetting implements OnInit {
   totalPages = signal(1);
 
   statusFilter = signal<string>('pending');
-  statusOptions = ['pending', 'approved', 'rejected'];
+  statusOptions = ['unverified', 'pending', 'approved', 'rejected'];
+  expandedDocumentsId = signal<string | null>(null);
 
   // Track which provider has the notes input open
   activeNotesId = signal<string | null>(null);
@@ -106,6 +107,22 @@ export class AdminVetting implements OnInit {
 
   formatProviderType(type: string): string {
     return type.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  toggleDocuments(providerId: string): void {
+    this.expandedDocumentsId.set(
+      this.expandedDocumentsId() === providerId ? null : providerId
+    );
+  }
+
+  formatDocumentType(type: string): string {
+    const labels: Record<string, string> = {
+      hpcsa_registration: 'HPCSA Registration',
+      aschp_registration: 'ASCHP Registration',
+      qualification: 'Qualification',
+      other: 'Other',
+    };
+    return labels[type] ?? type;
   }
 
   formatDate(date: Date | string): string {

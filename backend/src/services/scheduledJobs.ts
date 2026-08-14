@@ -1,7 +1,9 @@
 import cron from 'node-cron';
 import { Provider } from '../models/Provider';
 import { User } from '../models/User';
+import ProviderDocument from '../models/ProviderDocument';
 import { sendTrialEndingReminderEmail } from './emailService';
+import { deleteDocument } from './cloudinaryService';
 
 /**
  * Check for providers whose trial is ending in 5 days and send reminder emails
@@ -72,6 +74,54 @@ export const checkTrialEndingReminders = async (): Promise<void> => {
   }
 };
 
+const APPROVED_RETENTION_DAYS = 90;
+const REJECTED_RETENTION_DAYS = 30;
+
+/**
+ * Delete Cloudinary assets for reviewed provider documents past their POPIA retention window.
+ * The ProviderDocument record is kept as an audit trail; only cloudinaryPublicId is cleared.
+ * Runs daily.
+ */
+export const deleteExpiredDocuments = async (): Promise<{ deletedCount: number }> => {
+  try {
+    console.log('[Cron] Running expired document deletion...');
+
+    const now = new Date();
+
+    const approvedCutoff = new Date(now);
+    approvedCutoff.setDate(approvedCutoff.getDate() - APPROVED_RETENTION_DAYS);
+
+    const rejectedCutoff = new Date(now);
+    rejectedCutoff.setDate(rejectedCutoff.getDate() - REJECTED_RETENTION_DAYS);
+
+    const expiredDocs = await ProviderDocument.find({
+      cloudinaryPublicId: { $ne: '' },
+      $or: [
+        { reviewOutcome: 'approved', reviewedAt: { $lt: approvedCutoff } },
+        { reviewOutcome: 'rejected', reviewedAt: { $lt: rejectedCutoff } },
+      ],
+    });
+
+    let deletedCount = 0;
+    for (const doc of expiredDocs) {
+      try {
+        await deleteDocument(doc.cloudinaryPublicId);
+        doc.cloudinaryPublicId = '';
+        await doc.save();
+        deletedCount++;
+      } catch (err) {
+        console.error(`[Cron] Failed to delete document ${doc._id}:`, err);
+      }
+    }
+
+    console.log(`[Cron] Expired document deletion complete. Deleted: ${deletedCount}`);
+    return { deletedCount };
+  } catch (error) {
+    console.error('[Cron] Error in expired document deletion:', error);
+    return { deletedCount: 0 };
+  }
+};
+
 /**
  * Initialize all scheduled jobs
  */
@@ -83,8 +133,14 @@ export const initializeScheduledJobs = (): void => {
     await checkTrialEndingReminders();
   });
 
+  // Run document retention cleanup daily at 2:00 AM
+  cron.schedule('0 2 * * *', async () => {
+    await deleteExpiredDocuments();
+  });
+
   console.log('[Cron] ✅ Scheduled jobs initialized successfully');
   console.log('[Cron] - Trial ending reminders: Daily at 9:00 AM');
+  console.log('[Cron] - Document retention cleanup: Daily at 2:00 AM');
 
   // Run once on startup in development
   if (process.env.NODE_ENV !== 'production') {

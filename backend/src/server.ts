@@ -14,6 +14,7 @@ import sitemapRoutes from './routes/sitemapRoutes';
 import promoRoutes from './routes/promoRoutes';
 import citiesRoutes from './routes/citiesRoutes';
 import providerBlogRoutes from './routes/providerBlogRoutes';
+import providerDocumentRoutes from './routes/providerDocumentRoutes';
 import featureFlagsRoutes from './routes/featureFlagsRoutes';
 import { seedFeatureFlags } from './scripts/seed-feature-flags';
 import { apiRateLimiter } from './middleware/rateLimiter';
@@ -66,6 +67,7 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/promo', promoRoutes);
 app.use('/api/cities', citiesRoutes);
 app.use('/api/provider/blog', providerBlogRoutes);
+app.use('/api/provider/documents', providerDocumentRoutes);
 app.use('/api/feature-flags', featureFlagsRoutes);
 
 // Sentry error handler must be before the custom error handler

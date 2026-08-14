@@ -4,6 +4,17 @@ import { Observable, tap } from 'rxjs';
 import { DashboardMetrics, VetProviderRequest, ProviderAccessStatus } from '@findlocal/shared';
 import { environment } from '../../environments/environment';
 
+export interface PendingProviderDocument {
+  id: string;
+  documentType: string;
+  fileName: string;
+  fileType: string;
+  uploadedAt: Date | string;
+  reviewedAt?: Date | string;
+  reviewOutcome?: 'approved' | 'rejected';
+  fileAvailable: boolean;
+}
+
 export interface PendingProvider {
   id: string;
   displayName: string;
@@ -18,6 +29,7 @@ export interface PendingProvider {
   vettedAt?: Date;
   contactEmail: string;
   createdAt: Date;
+  documents: PendingProviderDocument[];
 }
 
 export interface PendingProviderListResponse {
