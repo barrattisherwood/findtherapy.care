@@ -129,6 +129,10 @@ export class AdminService {
     );
   }
 
+  getDocumentUrl(documentId: string): Observable<{ url: string; fileName: string }> {
+    return this.http.get<{ url: string; fileName: string }>(`${this.apiUrl}/provider/documents/${documentId}`);
+  }
+
   // Vetting-specific list (pending/approved/rejected)
   getVettingProviders(status: string = 'pending', page: number = 1, limit: number = 20): Observable<PendingProviderListResponse> {
     let params = new HttpParams()

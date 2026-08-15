@@ -194,6 +194,21 @@ export const downloadDocument = async (publicId: string): Promise<{ buffer: Buff
 };
 
 /**
+ * Generate a short-lived signed URL for a private raw document.
+ * Expires in 5 minutes — intended for admin one-time viewing only.
+ */
+export const getDocumentSignedUrl = (publicId: string): string => {
+  const expiresAt = Math.floor(Date.now() / 1000) + 300; // 5 minutes
+  return cloudinary.url(publicId, {
+    resource_type: 'raw',
+    type: 'private',
+    sign_url: true,
+    secure: true,
+    expires_at: expiresAt,
+  });
+};
+
+/**
  * Delete a raw private document from Cloudinary.
  */
 export const deleteDocument = async (publicId: string): Promise<void> => {

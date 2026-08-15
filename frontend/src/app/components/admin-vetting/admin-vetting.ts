@@ -125,6 +125,13 @@ export class AdminVetting implements OnInit {
     return labels[type] ?? type;
   }
 
+  viewDocument(docId: string): void {
+    this.adminService.getDocumentUrl(docId).subscribe({
+      next: ({ url }) => window.open(url, '_blank', 'noopener'),
+      error: () => this.toast.error('Error', 'Could not retrieve document'),
+    });
+  }
+
   formatDate(date: Date | string): string {
     return new Date(date).toLocaleDateString('en-ZA', {
       year: 'numeric',

@@ -165,13 +165,21 @@
                         <span class="text-gray-500 ml-2">{{ doc.fileName }}</span>
                         <span class="text-gray-400 ml-2 text-xs">Uploaded {{ formatDate(doc.uploadedAt) }}</span>
                       </div>
-                      <div class="flex items-center gap-2">
+                      <div class="flex items-center gap-3">
                         @if (!doc.fileAvailable) {
                           <span class="text-xs text-gray-400 italic">File deleted</span>
-                        } @else if (doc.reviewOutcome === 'approved') {
-                          <span class="text-xs text-green-600 font-medium">Approved</span>
-                        } @else if (doc.reviewOutcome === 'rejected') {
-                          <span class="text-xs text-red-600 font-medium">Rejected</span>
+                        } @else {
+                          <button
+                            (click)="viewDocument(doc.id)"
+                            class="text-xs text-primary-600 hover:text-primary-700 font-medium underline"
+                          >
+                            View
+                          </button>
+                          @if (doc.reviewOutcome === 'approved') {
+                            <span class="text-xs text-green-600 font-medium">Approved</span>
+                          } @else if (doc.reviewOutcome === 'rejected') {
+                            <span class="text-xs text-red-600 font-medium">Rejected</span>
+                          }
                         }
                       </div>
                     </div>

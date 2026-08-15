@@ -1,8 +1,9 @@
 import { Response } from 'express';
 import ProviderDocument from '../models/ProviderDocument';
 import { Provider } from '../models/Provider';
-import { uploadDocument as cloudinaryUpload, downloadDocument, isCloudinaryConfigured } from '../services/cloudinaryService';
+import { uploadDocument as cloudinaryUpload, downloadDocument, getDocumentSignedUrl, isCloudinaryConfigured } from '../services/cloudinaryService';
 import { ProviderAuthRequest } from '../middleware/providerGuard';
+import { AuthRequest } from '../middleware/auth';
 import type { ProviderDocumentType, ProviderDocumentFileType } from '@findlocal/shared';
 
 const ALLOWED_MIMETYPES: Record<string, ProviderDocumentFileType> = {
@@ -105,6 +106,22 @@ export const getDocument = async (req: ProviderAuthRequest, res: Response): Prom
   res.set('Content-Type', contentType);
   res.set('Content-Disposition', `inline; filename="${doc.fileName}"`);
   res.end(buffer);
+};
+
+export const adminGetDocumentUrl = async (req: AuthRequest, res: Response): Promise<void> => {
+  const doc = await ProviderDocument.findById(req.params.id);
+  if (!doc) {
+    res.status(404).json({ message: 'Document not found' });
+    return;
+  }
+
+  if (!doc.cloudinaryPublicId) {
+    res.status(410).json({ message: 'Document is no longer available' });
+    return;
+  }
+
+  const url = getDocumentSignedUrl(doc.cloudinaryPublicId);
+  res.json({ url, fileName: doc.fileName });
 };
 
 export const getVerificationStatus = async (req: ProviderAuthRequest, res: Response): Promise<void> => {

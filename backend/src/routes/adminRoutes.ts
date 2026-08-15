@@ -1,5 +1,6 @@
 import express from 'express';
 import { getDashboardMetrics, getPendingProviders, vetProvider, getPendingCount, getAllProviders, suspendProvider, deleteProvider, setFounderStatus } from '../controllers/adminController';
+import { adminGetDocumentUrl } from '../controllers/providerDocumentController';
 import { getBlogMetrics } from '../controllers/blogController';
 import { getMessages, markMessageRead, getUnreadCount } from '../controllers/messagesController';
 import { getAdminLogs } from '../controllers/adminLogsController';
@@ -19,6 +20,7 @@ router.get('/blog-metrics', authMiddleware, adminMiddleware, getBlogMetrics);
 router.get('/providers/pending-count', authMiddleware, adminMiddleware, getPendingCount);
 router.get('/providers/vetting', authMiddleware, adminMiddleware, getPendingProviders);
 router.post('/providers/:id/vet', authMiddleware, adminMiddleware, vetProvider);
+router.get('/provider/documents/:id', authMiddleware, adminMiddleware, adminGetDocumentUrl);
 
 // Provider management - requires auth + admin
 router.get('/providers', authMiddleware, adminMiddleware, getAllProviders);
