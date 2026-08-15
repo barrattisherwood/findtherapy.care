@@ -105,6 +105,17 @@ export const pendingProviders = {
       degrees: ['MA', 'PhD'],
       professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS067890' }],
       bio: 'Clinical psychologist with 8 years experience in trauma and PTSD.',
+      documents: [
+        {
+          id: 'doc-admin-001',
+          documentType: 'hpcsa_registration',
+          fileName: 'hpcsa-cert.pdf',
+          fileType: 'pdf',
+          fileAvailable: true,
+          reviewOutcome: null,
+          uploadedAt: new Date('2026-06-18').toISOString(),
+        },
+      ],
     },
     {
       id: 'p-pending-002',
@@ -118,6 +129,17 @@ export const pendingProviders = {
       degrees: ['BA'],
       professionalBodies: [{ body: 'ASCHP', registrationNumber: 'CH12345' }],
       bio: 'Registered counsellor specialising in grief and relationship issues.',
+      documents: [
+        {
+          id: 'doc-admin-002',
+          documentType: 'aschp_registration',
+          fileName: 'aschp-cert.jpg',
+          fileType: 'jpg',
+          fileAvailable: false,
+          reviewOutcome: null,
+          uploadedAt: new Date('2026-06-19').toISOString(),
+        },
+      ],
     },
   ],
   total: 2,

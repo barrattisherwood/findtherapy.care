@@ -109,6 +109,9 @@ async function setupAdminMocks(page: Page) {
   await page.route('**/api/admin/providers/pending-count', route =>
     route.fulfill({ json: { count: 2 } })
   );
+  await page.route('**/api/admin/provider/documents/**', route =>
+    route.fulfill({ json: { url: 'https://res.cloudinary.com/mock/signed/hpcsa-cert.pdf', fileName: 'hpcsa-cert.pdf' } })
+  );
 
   // Specific blog routes (override the blog catch-all above)
   await page.route('**/api/blog/filters', route =>
@@ -243,6 +246,55 @@ test.describe('Admin — Vetting', () => {
       await approvedBtn.click();
     }
     await page.screenshot({ path: `${SCREENSHOT_DIR}/11-vetting-approved-filter.png`, fullPage: true });
+  });
+
+  test('View button appears when document is available and opens a new tab', async ({ page }) => {
+    await page.goto('/admin/vetting');
+    await expect(page.getByText('Dr. Amara Nkosi')).toBeVisible({ timeout: 10_000 });
+
+    // Expand documents for first provider (has fileAvailable: true)
+    await page.getByRole('button', { name: /view documents/i }).first().click();
+    await expect(page.getByText('hpcsa-cert.pdf')).toBeVisible();
+
+    // View button must be present
+    const viewBtn = page.getByTestId('view-document').first();
+    await expect(viewBtn).toBeVisible();
+
+    // Clicking View should call the API and open the signed URL in a new tab
+    const [newTab] = await Promise.all([
+      page.context().waitForEvent('page'),
+      viewBtn.click(),
+    ]);
+    expect(newTab.url()).toContain('cloudinary.com/mock/signed');
+  });
+
+  test('View button is absent when document file has been deleted', async ({ page }) => {
+    await page.goto('/admin/vetting');
+    await expect(page.getByText('Lindiwe Dlamini')).toBeVisible({ timeout: 10_000 });
+
+    // Expand documents for second provider (has fileAvailable: false)
+    await page.getByRole('button', { name: /view documents/i }).nth(1).click();
+    await expect(page.getByText('aschp-cert.jpg')).toBeVisible();
+
+    // No view-document button — deleted file shows "File deleted" text instead
+    await expect(page.getByTestId('view-document')).not.toBeAttached();
+    await expect(page.getByText('File deleted')).toBeVisible();
+  });
+
+  test('document view endpoint error shows toast, not an uncaught exception', async ({ page }) => {
+    // Override the document endpoint to return an error for this test only
+    await page.route('**/api/admin/provider/documents/**', route =>
+      route.fulfill({ status: 500, json: { message: 'Storage error' } })
+    );
+
+    await page.goto('/admin/vetting');
+    await expect(page.getByText('Dr. Amara Nkosi')).toBeVisible({ timeout: 10_000 });
+
+    await page.getByRole('button', { name: /view documents/i }).first().click();
+    await page.getByTestId('view-document').first().click();
+
+    // Should show an error toast, not crash
+    await expect(page.locator('p', { hasText: /could not retrieve document/i })).toBeVisible({ timeout: 5_000 });
   });
 });
 
