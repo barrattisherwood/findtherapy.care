@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProviderService } from '../../services/provider.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -21,12 +21,13 @@ import { ProviderVerification } from '../provider-verification/provider-verifica
 @Component({
   selector: 'app-provider-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload, LocationInput, SessionFormatsInput, ProviderVerification],
+  imports: [CommonModule, FormsModule, RouterLink, Navbar, Footer, SubscriptionStatus, LoadingSkeleton, ImageUpload, LocationInput, SessionFormatsInput, ProviderVerification],
   templateUrl: './provider-profile.html',
   styleUrl: './provider-profile.scss'
 })
 export class ProviderProfile implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private providerService = inject(ProviderService);
   private subscriptionService = inject(SubscriptionService);
   private analytics = inject(AnalyticsService);
@@ -177,10 +178,9 @@ export class ProviderProfile implements OnInit {
       this.providerService.create(data, promoCode).subscribe({
         next: () => {
           this.hasProfile.set(true);
-          this.toast.success('Success', 'Profile created successfully.');
           this.saving.set(false);
-          // Clear promo code after successful use
           this.promoService.clearPromoCode();
+          this.router.navigate(['/provider/verify']);
         },
         error: (err) => {
           this.toast.error('Error', err.error?.message || 'Failed to create profile.');

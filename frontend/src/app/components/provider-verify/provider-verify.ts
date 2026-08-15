@@ -1,0 +1,122 @@
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ProviderDocumentService } from '../../services/provider-document.service';
+import { ToastService } from '../../services/toast';
+import { Navbar } from '../navbar/navbar';
+import { Footer } from '../footer/footer';
+import { ProviderDocumentType, ProviderDocumentSummary } from '@findlocal/shared';
+
+const DOCUMENT_TYPE_LABELS: Record<ProviderDocumentType, string> = {
+  hpcsa_registration: 'HPCSA Registration',
+  aschp_registration: 'ASCHP Registration',
+  qualification: 'Qualification / Degree',
+  other: 'Other',
+};
+
+const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+const MAX_SIZE_MB = 10;
+
+@Component({
+  selector: 'app-provider-verify',
+  standalone: true,
+  imports: [CommonModule, FormsModule, Navbar, Footer],
+  templateUrl: './provider-verify.html',
+  styleUrl: './provider-verify.scss',
+})
+export class ProviderVerify implements OnInit {
+  private docService = inject(ProviderDocumentService);
+  private toast = inject(ToastService);
+  private router = inject(Router);
+
+  status = this.docService.status;
+  loading = this.docService.loading;
+  uploading = this.docService.uploading;
+
+  selectedDocumentType = signal<ProviderDocumentType>('hpcsa_registration');
+  selectedFile = signal<File | null>(null);
+  fileError = signal<string>('');
+  uploaded = signal<boolean>(false);
+
+  documentTypeOptions: { value: ProviderDocumentType; label: string }[] = [
+    { value: 'hpcsa_registration', label: DOCUMENT_TYPE_LABELS.hpcsa_registration },
+    { value: 'aschp_registration', label: DOCUMENT_TYPE_LABELS.aschp_registration },
+    { value: 'qualification', label: DOCUMENT_TYPE_LABELS.qualification },
+    { value: 'other', label: DOCUMENT_TYPE_LABELS.other },
+  ];
+
+  ngOnInit(): void {
+    this.docService.loadStatus().subscribe({
+      next: (s) => {
+        if (s.vettingStatus === 'approved' || s.vettingStatus === 'pending') {
+          this.router.navigate(['/provider/profile']);
+        }
+      },
+      error: () => {
+        // No provider profile exists yet — send back to create it first
+        this.router.navigate(['/provider/profile']);
+      },
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      this.fileError.set('Only PDF, JPG, and PNG files are accepted.');
+      this.selectedFile.set(null);
+      input.value = '';
+      return;
+    }
+
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      this.fileError.set(`File must be under ${MAX_SIZE_MB}MB.`);
+      this.selectedFile.set(null);
+      input.value = '';
+      return;
+    }
+
+    this.fileError.set('');
+    this.selectedFile.set(file);
+  }
+
+  upload(): void {
+    const file = this.selectedFile();
+    if (!file) {
+      this.fileError.set('Please select a file to upload.');
+      return;
+    }
+
+    this.docService.upload(file, this.selectedDocumentType()).subscribe({
+      next: () => {
+        this.uploaded.set(true);
+        this.selectedFile.set(null);
+        this.fileError.set('');
+        // Brief success state then redirect to profile
+        setTimeout(() => this.router.navigate(['/provider/profile']), 1800);
+      },
+      error: (err) => {
+        this.toast.error('Upload failed', err.error?.message || 'Please try again.');
+      },
+    });
+  }
+
+  formatDocumentType(type: ProviderDocumentType): string {
+    return DOCUMENT_TYPE_LABELS[type] ?? type;
+  }
+
+  formatDate(date: Date | string): string {
+    return new Date(date).toLocaleDateString('en-ZA', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  trackByDocId(_: number, doc: ProviderDocumentSummary): string {
+    return doc.id;
+  }
+}

@@ -1,0 +1,176 @@
+<app-navbar />
+
+<div class="min-h-screen bg-gray-50 py-12">
+  <div class="max-w-2xl mx-auto px-4 sm:px-6">
+
+    <!-- Step indicator -->
+    <div class="flex items-center justify-center gap-0 mb-10">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <span class="text-sm font-medium text-green-700">Profile created</span>
+      </div>
+      <div class="w-12 h-px bg-gray-300 mx-3 flex-shrink-0"></div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center flex-shrink-0 text-white text-sm font-bold">2</div>
+        <span class="text-sm font-semibold text-primary-700">Upload documents</span>
+      </div>
+      <div class="w-12 h-px bg-gray-300 mx-3 flex-shrink-0"></div>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 text-gray-500 text-sm font-bold">3</div>
+        <span class="text-sm text-gray-500">Await review</span>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+
+      @if (uploaded()) {
+        <!-- Success state -->
+        <div class="p-10 text-center">
+          <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Document submitted</h2>
+          <p class="text-gray-600 mb-1">We'll review it within 2 business days.</p>
+          <p class="text-sm text-gray-400">Taking you to your profile…</p>
+        </div>
+
+      } @else if (loading()) {
+        <div class="p-10 text-center text-gray-400">Loading…</div>
+
+      } @else {
+        <!-- Header -->
+        <div class="px-8 pt-8 pb-6 border-b border-gray-100">
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">Verify your credentials</h1>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            Before your profile goes live, we need to verify your professional registration.
+            Upload a document showing your registration number — your profile will appear in
+            search results once reviewed and approved.
+          </p>
+        </div>
+
+        <div class="p-8">
+          <!-- Already-uploaded documents (if returning user has some) -->
+          @if (status()?.documents && status()!.documents.length > 0) {
+            <div class="mb-8">
+              <h3 class="text-sm font-semibold text-gray-700 mb-3">Already submitted</h3>
+              <div class="space-y-2">
+                @for (doc of status()!.documents; track doc.id; let i = $index) {
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                      <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      <div>
+                        <p class="text-sm font-medium text-gray-800">{{ formatDocumentType(doc.documentType) }}</p>
+                        <p class="text-xs text-gray-500">{{ doc.fileName }} &middot; {{ formatDate(doc.uploadedAt) }}</p>
+                      </div>
+                    </div>
+                    <div class="text-xs font-medium">
+                      @if (doc.reviewOutcome === 'rejected') {
+                        <span class="text-red-600">Rejected — upload a replacement below</span>
+                      } @else {
+                        <span class="text-yellow-600">Pending review</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- What to upload -->
+          <div class="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
+            <p class="font-semibold mb-1">What to upload</p>
+            <ul class="list-disc list-inside space-y-0.5 text-blue-700">
+              <li>HPCSA, ASCHP, or other professional body registration certificate</li>
+              <li>Must clearly show your name and registration number</li>
+              <li>PDF, JPG, or PNG — max 10 MB</li>
+            </ul>
+          </div>
+
+          <!-- Upload form -->
+          <div class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Document type</label>
+              <select
+                [ngModel]="selectedDocumentType()"
+                (ngModelChange)="selectedDocumentType.set($event)"
+                name="documentType"
+                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm"
+              >
+                @for (opt of documentTypeOptions; track opt.value) {
+                  <option [value]="opt.value">{{ opt.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">File</label>
+              <label
+                class="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors"
+                [class.border-primary-500]="selectedFile()"
+                [class.bg-primary-50]="selectedFile()"
+              >
+                <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+                <span class="text-sm text-gray-700">
+                  @if (selectedFile()) {
+                    <span class="font-medium text-primary-700">{{ selectedFile()!.name }}</span>
+                  } @else {
+                    Choose file (PDF, JPG or PNG)
+                  }
+                </span>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  (change)="onFileSelected($event)"
+                  [disabled]="uploading()"
+                  class="sr-only"
+                />
+              </label>
+              @if (fileError()) {
+                <p class="mt-1.5 text-sm text-red-600">{{ fileError() }}</p>
+              }
+              @if (selectedFile()) {
+                <button
+                  type="button"
+                  (click)="selectedFile.set(null); fileError.set('')"
+                  class="mt-1.5 text-xs text-gray-400 hover:text-gray-600"
+                >
+                  Remove file
+                </button>
+              }
+            </div>
+
+            <button
+              (click)="upload()"
+              [disabled]="uploading() || !selectedFile()"
+              class="w-full bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              @if (uploading()) {
+                <span class="flex items-center justify-center gap-2">
+                  <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  Uploading…
+                </span>
+              } @else {
+                Submit document
+              }
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<app-footer />

@@ -10,13 +10,19 @@
     <!-- Vetting Status Banner -->
     @if (hasProfile()) {
       @if (vettingStatus() === 'unverified') {
-        <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-          <svg class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <div class="mb-6 bg-amber-50 border border-amber-300 rounded-xl p-5 flex items-start gap-4">
+          <svg class="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
           </svg>
-          <div>
-            <h3 class="text-sm font-semibold text-blue-800">Verification Required</h3>
-            <p class="text-sm text-blue-700 mt-1">Upload your professional registration documents in the Verification section below to get your profile approved and visible to clients.</p>
+          <div class="flex-1">
+            <h3 class="font-semibold text-amber-900">Action required: upload your verification documents</h3>
+            <p class="text-sm text-amber-800 mt-1 mb-3">Your profile is not yet visible to clients. Upload your professional registration certificate to complete verification.</p>
+            <a routerLink="/provider/verify" class="inline-flex items-center gap-2 bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors">
+              Upload documents
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
           </div>
         </div>
       } @else if (vettingStatus() === 'pending') {
@@ -44,9 +50,15 @@
           <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
           </svg>
-          <div>
+          <div class="flex-1">
             <h3 class="text-sm font-semibold text-red-800">Verification Action Required</h3>
-            <p class="text-sm text-red-700 mt-1">Your documents were not accepted. Please see the Verification section below for details and upload updated documents.</p>
+            <p class="text-sm text-red-700 mt-1 mb-3">Your documents were not accepted. Upload updated documents to resubmit for review.</p>
+            <a routerLink="/provider/verify" class="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+              Upload updated documents
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
           </div>
         </div>
       }

@@ -18,6 +18,7 @@ export const routes: Routes = [
   { path: 'reset-password', loadComponent: () => import('./components/reset-password/reset-password').then(m => m.ResetPassword), title: 'Reset Password — findtherapy.care' },
   { path: 'verify-email', loadComponent: () => import('./components/verify-email/verify-email').then(m => m.VerifyEmail), title: 'Verify Email — findtherapy.care' },
   // Provider routes
+  { path: 'provider/verify', loadComponent: () => import('./components/provider-verify/provider-verify').then(m => m.ProviderVerify), canActivate: [authGuard], title: 'Verify Your Profile — findtherapy.care' },
   { path: 'providers', loadComponent: () => import('./components/provider-list/provider-list').then(m => m.ProviderList), title: 'Find Providers — findtherapy.care' },
   { path: 'providers/:id', loadComponent: () => import('./components/provider-detail/provider-detail').then(m => m.ProviderDetail) },
   { path: 'provider/profile', loadComponent: () => import('./components/provider-profile/provider-profile').then(m => m.ProviderProfile), canActivate: [authGuard], title: 'My Profile — findtherapy.care' },
