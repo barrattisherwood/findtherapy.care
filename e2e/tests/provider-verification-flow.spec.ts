@@ -55,6 +55,15 @@ const pendingStatus = {
   ],
 };
 
+// Legacy state: vettingStatus was 'pending' by default before the verification
+// flow was introduced, so a provider can have pending status with no documents.
+const pendingStatusNoDocs = {
+  vettingStatus: 'pending',
+  vettingNotes: null,
+  vettedAt: null,
+  documents: [],
+};
+
 const uploadResponse = {
   id: 'doc-e2e-001',
   documentType: 'hpcsa_registration',
@@ -258,6 +267,37 @@ test.describe('Provider Verification Flow', () => {
 
     // Should be redirected away from /provider/verify since status is pending
     await expect(page).toHaveURL(/\/provider\/profile/, { timeout: 5000 });
+  });
+
+  test('legacy provider with pending status but no documents can access /provider/verify and sees upload form', async ({ page }) => {
+    // Regression test for accounts that got vettingStatus:'pending' as the old default
+    // without ever uploading a document. They must NOT be bounced back to the profile page —
+    // they need to be able to upload their first document.
+    await setupMocks(page, { hasProfile: true, verificationStatus: pendingStatusNoDocs, provider: pendingProvider });
+    await injectProviderSession(page);
+    await page.goto('/provider/verify');
+
+    // Must stay on /provider/verify — not redirected
+    await expect(page).toHaveURL(/\/provider\/verify/, { timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Verify your credentials' })).toBeVisible();
+
+    // Upload form must be present so they can submit their first document
+    await expect(page.locator('input[type="file"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Submit document' })).toBeVisible();
+  });
+
+  test('sidebar shows correct message when provider is pending but has no documents uploaded', async ({ page }) => {
+    // Regression test: the sidebar widget was showing "We have received your documents"
+    // even when documents array was empty — false for legacy pending accounts.
+    await setupMocks(page, { hasProfile: true, verificationStatus: pendingStatusNoDocs, provider: pendingProvider });
+    await injectProviderSession(page);
+    await page.goto('/provider/profile');
+
+    // The false "We have received your documents" message must not appear
+    await expect(page.locator('text=We have received your documents')).not.toBeVisible();
+
+    // The correct prompt to upload must appear instead
+    await expect(page.locator('text=Please upload your verification documents')).toBeVisible();
   });
 
 });

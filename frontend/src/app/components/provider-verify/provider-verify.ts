@@ -49,7 +49,12 @@ export class ProviderVerify implements OnInit {
   ngOnInit(): void {
     this.docService.loadStatus().subscribe({
       next: (s) => {
-        if (s.vettingStatus === 'approved' || s.vettingStatus === 'pending') {
+        // Only redirect away if docs were actually submitted (pending review) or already approved.
+        // pending + no documents means a legacy account in a bad state — let them upload.
+        const alreadySubmitted =
+          s.vettingStatus === 'approved' ||
+          (s.vettingStatus === 'pending' && s.documents.length > 0);
+        if (alreadySubmitted) {
           this.router.navigate(['/provider/profile']);
         }
       },
