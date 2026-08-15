@@ -108,7 +108,7 @@ export const getDocument = async (req: ProviderAuthRequest, res: Response): Prom
   res.end(buffer);
 };
 
-export const adminGetDocumentUrl = async (req: AuthRequest, res: Response): Promise<void> => {
+export const adminGetDocument = async (req: AuthRequest, res: Response): Promise<void> => {
   const doc = await ProviderDocument.findById(req.params.id);
   if (!doc) {
     res.status(404).json({ message: 'Document not found' });
@@ -120,8 +120,10 @@ export const adminGetDocumentUrl = async (req: AuthRequest, res: Response): Prom
     return;
   }
 
-  const url = getDocumentSignedUrl(doc.cloudinaryPublicId);
-  res.json({ url, fileName: doc.fileName });
+  const { buffer, contentType } = await downloadDocument(doc.cloudinaryPublicId);
+  res.set('Content-Type', contentType);
+  res.set('Content-Disposition', `inline; filename="${doc.fileName}"`);
+  res.end(buffer);
 };
 
 export const getVerificationStatus = async (req: ProviderAuthRequest, res: Response): Promise<void> => {

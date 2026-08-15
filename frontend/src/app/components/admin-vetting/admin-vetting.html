@@ -170,7 +170,7 @@
                           <span class="text-xs text-gray-400 italic">File deleted</span>
                         } @else {
                           <button
-                            (click)="viewDocument(doc.id)"
+                            (click)="viewDocument(doc)"
                             data-testid="view-document"
                             class="text-xs text-primary-600 hover:text-primary-700 font-medium underline"
                           >
@@ -246,5 +246,55 @@
     }
   </div>
 </div>
+
+<!-- Document viewer modal -->
+@if (viewerSafeUrl()) {
+  <div
+    class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+    (click)="closeViewer()"
+  >
+    <div
+      class="bg-white rounded-xl w-full max-w-4xl flex flex-col shadow-2xl"
+      style="height: 85vh"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 flex-shrink-0">
+        <span class="text-sm font-medium text-gray-700 truncate">{{ viewerFileName() }}</span>
+        <button
+          (click)="closeViewer()"
+          data-testid="close-viewer"
+          class="text-gray-400 hover:text-gray-600 transition-colors ml-4 flex-shrink-0"
+          aria-label="Close viewer"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 overflow-hidden rounded-b-xl">
+        @if (viewerFileType() === 'pdf') {
+          <iframe
+            [src]="viewerSafeUrl()"
+            data-testid="document-viewer-iframe"
+            class="w-full h-full border-0"
+            title="{{ viewerFileName() }}"
+          ></iframe>
+        } @else {
+          <div class="w-full h-full flex items-center justify-center bg-gray-50 p-4">
+            <img
+              [src]="viewerSafeUrl()"
+              data-testid="document-viewer-image"
+              class="max-w-full max-h-full object-contain rounded"
+              alt="{{ viewerFileName() }}"
+            />
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
 
 <app-footer />

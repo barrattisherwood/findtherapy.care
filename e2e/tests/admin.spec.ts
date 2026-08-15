@@ -109,8 +109,13 @@ async function setupAdminMocks(page: Page) {
   await page.route('**/api/admin/providers/pending-count', route =>
     route.fulfill({ json: { count: 2 } })
   );
+  // Document endpoint now streams the file — return minimal PDF bytes with correct content-type
   await page.route('**/api/admin/provider/documents/**', route =>
-    route.fulfill({ json: { url: 'https://res.cloudinary.com/mock/signed/hpcsa-cert.pdf', fileName: 'hpcsa-cert.pdf' } })
+    route.fulfill({
+      status: 200,
+      contentType: 'application/pdf',
+      body: Buffer.from('%PDF-1.4 1 0 obj << /Type /Catalog >> endobj'),
+    })
   );
 
   // Specific blog routes (override the blog catch-all above)
@@ -248,7 +253,7 @@ test.describe('Admin — Vetting', () => {
     await page.screenshot({ path: `${SCREENSHOT_DIR}/11-vetting-approved-filter.png`, fullPage: true });
   });
 
-  test('View button appears when document is available and opens a new tab', async ({ page }) => {
+  test('View button opens inline modal when document is available', async ({ page }) => {
     await page.goto('/admin/vetting');
     await expect(page.getByText('Dr. Amara Nkosi')).toBeVisible({ timeout: 10_000 });
 
@@ -260,12 +265,17 @@ test.describe('Admin — Vetting', () => {
     const viewBtn = page.getByTestId('view-document').first();
     await expect(viewBtn).toBeVisible();
 
-    // Clicking View should call the API and open the signed URL in a new tab
-    const [newTab] = await Promise.all([
-      page.context().waitForEvent('page'),
-      viewBtn.click(),
-    ]);
-    expect(newTab.url()).toContain('cloudinary.com/mock/signed');
+    // Clicking View should open the inline modal, not a new tab
+    await viewBtn.click();
+    await expect(page.getByTestId('document-viewer-iframe')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByTestId('close-viewer')).toBeVisible();
+
+    // Modal header shows the filename
+    await expect(page.locator('[data-testid="close-viewer"]').locator('..').locator('span')).toContainText('hpcsa-cert.pdf');
+
+    // Closing the modal removes it
+    await page.getByTestId('close-viewer').click();
+    await expect(page.getByTestId('document-viewer-iframe')).not.toBeAttached();
   });
 
   test('View button is absent when document file has been deleted', async ({ page }) => {

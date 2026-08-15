@@ -129,8 +129,8 @@ export class AdminService {
     );
   }
 
-  getDocumentUrl(documentId: string): Observable<{ url: string; fileName: string }> {
-    return this.http.get<{ url: string; fileName: string }>(`${this.apiUrl}/provider/documents/${documentId}`);
+  getDocumentBlob(documentId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/provider/documents/${documentId}`, { responseType: 'blob' });
   }
 
   // Vetting-specific list (pending/approved/rejected)
