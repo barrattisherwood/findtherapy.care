@@ -13,6 +13,9 @@ import { createTestUser } from '../fixtures/users';
 import { createTestProvider } from '../fixtures/providers';
 
 jest.mock('../../services/cloudinaryService');
+jest.mock('../../services/emailService', () => ({
+  sendProviderResubmittedEmail: jest.fn().mockResolvedValue(undefined),
+}));
 
 const mockUploadDocument = cloudinaryService.uploadDocument as jest.Mock;
 const mockDownloadDocument = cloudinaryService.downloadDocument as jest.Mock;
@@ -184,6 +187,63 @@ describe('uploadDocument endpoint', () => {
     );
     const updated = await Provider.findById(provider._id);
     expect(updated!.vettingStatus).toBe('pending');
+  });
+
+  it('sends re-submitted email when provider was unverified', async () => {
+    const { sendProviderResubmittedEmail } = await import('../../services/emailService');
+    const mockSend = sendProviderResubmittedEmail as jest.Mock;
+    mockSend.mockClear();
+
+    const user = await createTestUser();
+    const provider = await createTestProvider({ userId: user._id.toString(), vettingStatus: 'unverified' } as any);
+    const { res } = mockRes();
+    await uploadDocument(
+      makeReq(provider, {
+        body: { documentType: 'hpcsa_registration' },
+        file: { buffer: Buffer.from('pdf'), mimetype: 'application/pdf', originalname: 'hpcsa.pdf', size: 1000 },
+      } as any),
+      res
+    );
+    await new Promise(r => setTimeout(r, 50));
+    expect(mockSend).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'documents_uploaded');
+  });
+
+  it('sends re-submitted email when provider was rejected', async () => {
+    const { sendProviderResubmittedEmail } = await import('../../services/emailService');
+    const mockSend = sendProviderResubmittedEmail as jest.Mock;
+    mockSend.mockClear();
+
+    const user = await createTestUser();
+    const provider = await createTestProvider({ userId: user._id.toString(), vettingStatus: 'rejected' } as any);
+    const { res } = mockRes();
+    await uploadDocument(
+      makeReq(provider, {
+        body: { documentType: 'qualification' },
+        file: { buffer: Buffer.from('pdf'), mimetype: 'application/pdf', originalname: 'qual.pdf', size: 1000 },
+      } as any),
+      res
+    );
+    await new Promise(r => setTimeout(r, 50));
+    expect(mockSend).toHaveBeenCalledWith(expect.any(String), expect.any(String), 'documents_uploaded');
+  });
+
+  it('does not send re-submitted email when provider is already approved', async () => {
+    const { sendProviderResubmittedEmail } = await import('../../services/emailService');
+    const mockSend = sendProviderResubmittedEmail as jest.Mock;
+    mockSend.mockClear();
+
+    const user = await createTestUser();
+    const provider = await createTestProvider({ userId: user._id.toString() });
+    const { res } = mockRes();
+    await uploadDocument(
+      makeReq(provider, {
+        body: { documentType: 'hpcsa_registration' },
+        file: { buffer: Buffer.from('pdf'), mimetype: 'application/pdf', originalname: 'hpcsa.pdf', size: 1000 },
+      } as any),
+      res
+    );
+    await new Promise(r => setTimeout(r, 50));
+    expect(mockSend).not.toHaveBeenCalled();
   });
 
   it('does not change vettingStatus when provider is already approved', async () => {

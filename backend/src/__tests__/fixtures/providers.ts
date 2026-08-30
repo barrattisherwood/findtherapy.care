@@ -23,6 +23,7 @@ export interface TestProviderOptions {
   isFounder?: boolean;
   founderNumber?: number;
   founderSince?: Date;
+  professionalBodies?: { body: string; registrationNumber: string }[];
 }
 
 export const createTestProvider = async (options: TestProviderOptions = {}): Promise<any> => {
@@ -36,7 +37,7 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     displayName: options.displayName || 'Test Provider',
     bio: options.bio || 'A test provider bio that is at least 50 characters long for validation purposes.',
     degrees: ['PhD Psychology'],
-    professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0123456' }],
+    professionalBodies: options.professionalBodies ?? [{ body: 'HPCSA', registrationNumber: 'PS 0123456' }],
     certifications: [],
     specialties: ['Anxiety & Stress', 'Depression'],
     pricing: {

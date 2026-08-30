@@ -294,6 +294,12 @@ export const updateProvider = async (req: AuthRequest, res: Response) => {
         provider.vettingNotes = undefined;
         provider.vettedAt = undefined;
         provider.vettedBy = undefined;
+        const { sendProviderResubmittedEmail } = await import('../services/emailService');
+        sendProviderResubmittedEmail(
+          provider.displayName || 'Unknown',
+          provider.contactEmail || '',
+          'registration_changed'
+        ).catch(err => console.error('Failed to send re-submitted email:', err));
       }
     }
     if (data.certifications !== undefined) provider.certifications = data.certifications;

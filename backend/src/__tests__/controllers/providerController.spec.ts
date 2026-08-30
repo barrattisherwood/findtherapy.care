@@ -2,6 +2,13 @@ import { Response } from 'express';
 import mongoose from 'mongoose';
 import { AuthRequest } from '../../middleware/auth';
 import { Provider } from '../../models/Provider';
+
+jest.mock('../../services/emailService', () => ({
+  sendNewProviderPendingEmail: jest.fn().mockResolvedValue(undefined),
+  sendProviderResubmittedEmail: jest.fn().mockResolvedValue(undefined),
+  sendProviderApprovedEmail: jest.fn().mockResolvedValue(undefined),
+  sendProviderRejectedEmail: jest.fn().mockResolvedValue(undefined),
+}));
 import {
   createTestProvider,
   createProviderWithActiveTrial,
@@ -761,6 +768,80 @@ describe('Provider Controller - Subscription Logic', () => {
         await updateProvider(mockRequest, mockResponse as Response);
 
         expect(responseStatus).not.toHaveBeenCalledWith(400);
+      });
+
+      it('sends re-submitted email when registration number changes', async () => {
+        const { sendProviderResubmittedEmail } = await import('../../services/emailService');
+        const mockSend = sendProviderResubmittedEmail as jest.Mock;
+        mockSend.mockClear();
+
+        const user = await createTestUser();
+        const provider = await createTestProvider({
+          userId: user._id.toString(),
+          professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0001' }],
+        });
+        const mockRequest = {
+          userId: user._id.toString(),
+          params: { id: provider._id.toString() },
+          body: {
+            professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 9999' }],
+          },
+        } as unknown as AuthRequest;
+
+        await updateProvider(mockRequest, mockResponse as Response);
+
+        await new Promise(r => setTimeout(r, 50)); // let fire-and-forget settle
+        expect(mockSend).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.any(String),
+          'registration_changed'
+        );
+      });
+
+      it('does not send re-submitted email when registration number is unchanged', async () => {
+        const { sendProviderResubmittedEmail } = await import('../../services/emailService');
+        const mockSend = sendProviderResubmittedEmail as jest.Mock;
+        mockSend.mockClear();
+
+        const user = await createTestUser();
+        const provider = await createTestProvider({
+          userId: user._id.toString(),
+          professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0001' }],
+        });
+        const mockRequest = {
+          userId: user._id.toString(),
+          params: { id: provider._id.toString() },
+          body: {
+            professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0001' }],
+            bio: 'Updated bio that is at least 50 characters long for validation purposes.',
+          },
+        } as unknown as AuthRequest;
+
+        await updateProvider(mockRequest, mockResponse as Response);
+
+        await new Promise(r => setTimeout(r, 50));
+        expect(mockSend).not.toHaveBeenCalled();
+      });
+
+      it('re-queues provider for vetting when registration number changes', async () => {
+        const user = await createTestUser();
+        const provider = await createTestProvider({
+          userId: user._id.toString(),
+          vettingStatus: 'approved',
+          professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 0001' }],
+        } as any);
+        const mockRequest = {
+          userId: user._id.toString(),
+          params: { id: provider._id.toString() },
+          body: {
+            professionalBodies: [{ body: 'HPCSA', registrationNumber: 'PS 9999' }],
+          },
+        } as unknown as AuthRequest;
+
+        await updateProvider(mockRequest, mockResponse as Response);
+
+        const updated = await Provider.findById(provider._id);
+        expect(updated!.vettingStatus).toBe('pending');
       });
     });
   });

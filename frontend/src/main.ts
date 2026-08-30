@@ -33,6 +33,11 @@ Sentry.init({
     // which is only available inside a WebKit native bridge; harmless on the open web
     if (msg.includes('window.webkit.messageHandlers')) return null;
 
+    // Zone.js 0.16.x + Safari 18.5: Zone.js tries to add `throwOriginal` to a native
+    // ProgressEvent/ErrorEvent (non-extensible in Safari) when an XHR fails. The error
+    // fires inside Zone.js's XHR patch before any app error handler can intercept it.
+    if (msg.includes('throwOriginal')) return null;
+
     const frames = event.exception?.values?.[0]?.stacktrace?.frames ?? [];
     if (frames.some(f => f.filename?.includes('iabjs://'))) return null;
 

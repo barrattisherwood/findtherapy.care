@@ -69,6 +69,12 @@ export const uploadDocument = async (req: ProviderAuthRequest, res: Response): P
   const { vettingStatus } = req.provider;
   if (vettingStatus === 'unverified' || vettingStatus === 'rejected') {
     await Provider.findByIdAndUpdate(req.provider._id, { vettingStatus: 'pending' });
+    const { sendProviderResubmittedEmail } = await import('../services/emailService');
+    sendProviderResubmittedEmail(
+      req.provider.displayName || 'Unknown',
+      req.provider.contactEmail || '',
+      'documents_uploaded'
+    ).catch(err => console.error('Failed to send re-submitted email:', err));
   }
 
   res.status(201).json({

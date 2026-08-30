@@ -166,6 +166,66 @@ export const sendNewProviderPendingEmail = async (
 };
 
 /**
+ * Notify admin that an existing provider has re-entered the pending queue
+ * (registration numbers changed on profile update, or docs re-uploaded after rejection).
+ */
+export const sendProviderResubmittedEmail = async (
+  providerName: string,
+  providerEmail: string,
+  reason: 'registration_changed' | 'documents_uploaded'
+): Promise<void> => {
+  const vettingUrl = `${APP_URL}/admin/vetting`;
+  const reasonLabel = reason === 'registration_changed'
+    ? 'Their professional registration details were updated and require re-verification.'
+    : 'They have uploaded new verification documents for review.';
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== PROVIDER RE-SUBMITTED ==========');
+    console.log(`Provider: ${providerName} (${providerEmail})`);
+    console.log(`Reason: ${reason}`);
+    console.log(`Vetting URL: ${vettingUrl}`);
+    console.log('==========================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const html = emailShell(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C_TEXT};">
+      Provider Pending Re-review
+    </h2>
+    <p style="margin:0 0 24px;font-size:15px;color:${C_MUTED};line-height:1.6;">
+      An existing provider is back in the pending queue. ${reasonLabel}
+    </p>
+
+    ${infoBox('#f4f5f3', C_PRIMARY, `
+      <strong style="display:block;margin-bottom:6px;color:${C_TEXT};">Provider Details</strong>
+      <span style="color:${C_MUTED};">Name:</span> <strong>${providerName}</strong><br/>
+      <span style="color:${C_MUTED};">Email:</span> ${providerEmail}
+    `)}
+
+    ${ctaButton(vettingUrl, 'Review Provider')}
+
+    ${divider()}
+    <p style="margin:0;font-size:13px;color:${C_MUTED};text-align:center;">
+      Visit <a href="${vettingUrl}" style="color:${C_PRIMARY};text-decoration:none;">${vettingUrl}</a> to manage provider applications.
+    </p>
+  `);
+
+  const result = await resend.emails.send({
+    from: `findtherapy.care <${FROM_EMAIL}>`,
+    to: ADMIN_EMAIL,
+    subject: `Provider Pending Re-review — ${providerName}`,
+    html,
+    text: `Provider Pending Re-review\n\n${providerName} (${providerEmail}) is back in the pending queue.\n\n${reasonLabel}\n\nReview at: ${vettingUrl}`,
+  });
+
+  console.log('✅ Provider re-submitted email sent to admin:', result);
+};
+
+/**
  * Notify provider that their profile has been approved.
  */
 export const sendVettingApprovedEmail = async (
