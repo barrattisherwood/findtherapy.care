@@ -88,15 +88,28 @@
               <h2 class="text-lg font-semibold text-gray-900 mb-4">Contact</h2>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @if (supportGroup()!.contactEmail) {
-                  <a
-                    href="mailto:{{ supportGroup()!.contactEmail }}"
-                    class="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <svg class="w-6 h-6 text-primary-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <span class="text-gray-700">{{ supportGroup()!.contactEmail }}</span>
-                  </a>
+                  <div class="flex items-center p-4 border rounded-lg bg-white gap-3">
+                    <a
+                      href="mailto:{{ supportGroup()!.contactEmail }}"
+                      class="flex items-center gap-3 flex-1 hover:text-primary-600 transition-colors min-w-0"
+                    >
+                      <svg class="w-6 h-6 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span class="text-gray-700 truncate">{{ supportGroup()!.contactEmail }}</span>
+                    </a>
+                    <button
+                      (click)="copyEmail()"
+                      class="flex-shrink-0 text-xs text-gray-400 hover:text-primary-600 transition-colors px-2 py-1 rounded hover:bg-gray-100"
+                      [title]="emailCopied() ? 'Copied!' : 'Copy email'"
+                    >
+                      @if (emailCopied()) {
+                        Copied!
+                      } @else {
+                        Copy
+                      }
+                    </button>
+                  </div>
                 }
 
                 @if (supportGroup()!.contactPhone) {

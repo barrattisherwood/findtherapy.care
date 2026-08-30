@@ -23,6 +23,7 @@ export class SupportGroupDetail implements OnInit {
   supportGroup = signal<SupportGroup | null>(null);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
+  emailCopied = signal(false);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -66,6 +67,15 @@ export class SupportGroupDetail implements OnInit {
       default:
         return '';
     }
+  }
+
+  copyEmail(): void {
+    const email = this.supportGroup()?.contactEmail;
+    if (!email) return;
+    navigator.clipboard.writeText(email).then(() => {
+      this.emailCopied.set(true);
+      setTimeout(() => this.emailCopied.set(false), 2000);
+    });
   }
 
   get locationDisplay(): string {
