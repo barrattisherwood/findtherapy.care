@@ -463,6 +463,124 @@ export const sendPasswordResetEmail = async (
 };
 
 // ---------------------------------------------------------------------------
+// Subscription / Trial Emails  (sent to the provider)
+// ---------------------------------------------------------------------------
+
+/**
+ * Warn a provider their trial ends in 7 days.
+ */
+export const sendTrialExpiringEmail = async (
+  providerName: string,
+  providerEmail: string,
+  trialEndsAt: Date,
+  isFounder: boolean
+): Promise<void> => {
+  const subscribeUrl = `${APP_URL}/provider/subscription`;
+  const price = isFounder ? 'R99/month (your locked-in Founder rate)' : 'R150/month';
+  const expiryDate = trialEndsAt.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== TRIAL EXPIRING SOON ==========');
+    console.log(`Provider: ${providerName} (${providerEmail})`);
+    console.log(`Trial ends: ${expiryDate}`);
+    console.log('==========================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const html = emailShell(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C_TEXT};">
+      Your free trial ends in 7 days
+    </h2>
+    <p style="margin:0 0 24px;font-size:15px;color:${C_MUTED};line-height:1.6;">
+      Hi ${providerName}, your findtherapy.care listing is live and visible to anyone searching for a
+      counsellor in your area. Your free trial period ends on <strong>${expiryDate}</strong>.
+    </p>
+
+    ${infoBox(C_BG, C_PRIMARY, `
+      After your trial ends, your listing will be hidden from search results until you activate
+      a subscription (<strong>${price}</strong>). It only takes a minute to set up.
+    `)}
+
+    ${ctaButton(subscribeUrl, 'Activate My Subscription')}
+
+    ${divider()}
+    <p style="margin:0;font-size:13px;color:${C_MUTED};text-align:center;">
+      Questions? Reply to this email — Barratt reads every one.
+    </p>
+  `);
+
+  await resend.emails.send({
+    from: `Barratt at findtherapy.care <${FROM_EMAIL}>`,
+    to: providerEmail,
+    subject: `Your findtherapy.care trial ends on ${expiryDate}`,
+    html,
+    text: `Hi ${providerName},\n\nYour findtherapy.care free trial ends on ${expiryDate}.\n\nAfter that date your listing will be hidden from search results until you activate a subscription (${price}).\n\nActivate here: ${subscribeUrl}\n\nQuestions? Just reply to this email.\n\n— Barratt`,
+  });
+
+  console.log(`✅ Trial-expiring email sent to ${providerEmail}`);
+};
+
+/**
+ * Notify a provider their trial has expired and their listing is now hidden.
+ */
+export const sendTrialExpiredEmail = async (
+  providerName: string,
+  providerEmail: string,
+  isFounder: boolean
+): Promise<void> => {
+  const subscribeUrl = `${APP_URL}/provider/subscription`;
+  const price = isFounder ? 'R99/month (your locked-in Founder rate)' : 'R150/month';
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== TRIAL EXPIRED ==========');
+    console.log(`Provider: ${providerName} (${providerEmail})`);
+    console.log('====================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const html = emailShell(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C_TEXT};">
+      Your listing is currently hidden
+    </h2>
+    <p style="margin:0 0 24px;font-size:15px;color:${C_MUTED};line-height:1.6;">
+      Hi ${providerName}, your free trial on findtherapy.care has ended and your listing is no longer
+      visible in search results. Anyone searching for a counsellor in your area can't find you right now.
+    </p>
+
+    ${infoBox(C_BG, C_PRIMARY, `
+      Reactivate your listing for <strong>${price}</strong>. Your profile, bio, and all your details
+      are still saved — it goes live again the moment your subscription is active.
+    `)}
+
+    ${ctaButton(subscribeUrl, 'Reactivate My Listing')}
+
+    ${divider()}
+    <p style="margin:0;font-size:13px;color:${C_MUTED};text-align:center;">
+      Not interested in continuing? No problem — just reply and I'll remove your profile.
+      Questions? Reply to this email — Barratt reads every one.
+    </p>
+  `);
+
+  await resend.emails.send({
+    from: `Barratt at findtherapy.care <${FROM_EMAIL}>`,
+    to: providerEmail,
+    subject: 'Your findtherapy.care listing is currently hidden',
+    html,
+    text: `Hi ${providerName},\n\nYour free trial on findtherapy.care has ended and your listing is no longer visible in search results.\n\nReactivate for ${price}: ${subscribeUrl}\n\nYour profile is still saved — it goes live the moment your subscription is active.\n\nNot interested? Just reply and I'll remove your profile cleanly.\n\n— Barratt`,
+  });
+
+  console.log(`✅ Trial-expired email sent to ${providerEmail}`);
+};
+
+// ---------------------------------------------------------------------------
 // Blog Post Emails
 // ---------------------------------------------------------------------------
 
@@ -530,7 +648,7 @@ export const sendTrialEndingReminderEmail = async (
   trialEndsAt: Date
 ): Promise<void> => {
   const daysRemaining = Math.ceil((trialEndsAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  const subscribeUrl = `${APP_URL}/provider/profile`;
+  const subscribeUrl = `${APP_URL}/provider/subscription`;
   const trialEndFormatted = trialEndsAt.toLocaleDateString('en-ZA', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });

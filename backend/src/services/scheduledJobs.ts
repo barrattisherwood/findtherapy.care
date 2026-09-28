@@ -6,36 +6,32 @@ import { sendTrialEndingReminderEmail } from './emailService';
 import { deleteDocument } from './cloudinaryService';
 
 /**
- * Check for providers whose trial is ending in 5 days and send reminder emails
- * Runs daily at 9:00 AM
+ * Check for providers whose trial ends within 7 days and send reminder emails.
+ * Using a 7-day look-ahead (rather than an exact 5-6 day window) means a missed
+ * cron run is automatically caught on the next execution — no provider falls through
+ * because the server was down during one specific night.
+ * Runs daily at 9:00 AM.
  */
 export const checkTrialEndingReminders = async (): Promise<void> => {
   try {
     console.log('[Cron] Running trial ending reminder check...');
 
-    // Calculate the date range for trials ending in 5 days
-    const fiveDaysFromNow = new Date();
-    fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5);
-    fiveDaysFromNow.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
 
-    const sixDaysFromNow = new Date();
-    sixDaysFromNow.setDate(sixDaysFromNow.getDate() + 6);
-    sixDaysFromNow.setHours(0, 0, 0, 0);
-
-    // Find providers with trials ending in 5 days who:
-    // 1. Have not subscribed (subscriptionStatus is 'none')
-    // 2. Haven't received the reminder email yet
-    // 3. Trial ends between 5 and 6 days from now
+    // Find providers whose trial ends within 7 days but hasn't ended yet,
+    // who haven't subscribed and haven't been sent the reminder yet.
     const providersEndingSoon = await Provider.find({
       trialEndsAt: {
-        $gte: fiveDaysFromNow,
-        $lt: sixDaysFromNow,
+        $gt: now,
+        $lte: sevenDaysFromNow,
       },
       subscriptionStatus: 'none',
       trialEndingReminderSent: { $ne: true },
     });
 
-    console.log(`[Cron] Found ${providersEndingSoon.length} providers with trials ending in 5 days`);
+    console.log(`[Cron] Found ${providersEndingSoon.length} providers with trials ending within 7 days`);
 
     let sentCount = 0;
     let errorCount = 0;

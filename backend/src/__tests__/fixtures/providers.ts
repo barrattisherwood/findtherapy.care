@@ -24,6 +24,7 @@ export interface TestProviderOptions {
   founderNumber?: number;
   founderSince?: Date;
   professionalBodies?: { body: string; registrationNumber: string }[];
+  trialEndingReminderSent?: boolean;
 }
 
 export const createTestProvider = async (options: TestProviderOptions = {}): Promise<any> => {
@@ -69,6 +70,7 @@ export const createTestProvider = async (options: TestProviderOptions = {}): Pro
     isFounder: options.isFounder ?? false,
     founderNumber: options.founderNumber,
     founderSince: options.founderSince,
+    trialEndingReminderSent: options.trialEndingReminderSent ?? false,
   };
 
   const provider = await Provider.create(providerData);
