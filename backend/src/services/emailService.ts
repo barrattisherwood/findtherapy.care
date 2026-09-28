@@ -581,6 +581,76 @@ export const sendTrialExpiredEmail = async (
 };
 
 // ---------------------------------------------------------------------------
+// Payment Failed Email
+// ---------------------------------------------------------------------------
+
+export const sendPaymentFailedEmail = async (
+  providerName: string,
+  providerEmail: string,
+  failureCount: number
+): Promise<void> => {
+  const subscribeUrl = `${APP_URL}/provider/subscription`;
+  const isUrgent = failureCount >= 3;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('\n========== PAYMENT FAILED ==========');
+    console.log(`Provider: ${providerName} (${providerEmail})`);
+    console.log(`Failure count: ${failureCount}`);
+    console.log('=====================================\n');
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.log('(Email send skipped - Resend API key not configured)');
+    return;
+  }
+
+  const subject = isUrgent
+    ? 'Action required: your findtherapy.care subscription payment failed'
+    : 'Payment issue with your findtherapy.care subscription';
+
+  const urgentWarning = isUrgent
+    ? infoBox('#fff3cd', '#856404', `
+        This is the ${failureCount === 3 ? 'third' : `${failureCount}th`} failed attempt.
+        If payment isn't resolved soon your listing may be suspended.
+      `)
+    : '';
+
+  const html = emailShell(`
+    <h2 style="margin:0 0 8px;font-size:22px;font-weight:700;color:${C_TEXT};">
+      There was a problem with your payment
+    </h2>
+    <p style="margin:0 0 24px;font-size:15px;color:${C_MUTED};line-height:1.6;">
+      Hi ${providerName}, PayFast was unable to process your monthly subscription payment for findtherapy.care.
+      This can happen when a card expires, has insufficient funds, or the bank declines the charge.
+    </p>
+
+    ${urgentWarning}
+
+    ${infoBox(C_BG, C_PRIMARY, `
+      Your listing is still visible for now. Check that your payment method is up to date
+      and PayFast will retry automatically.
+    `)}
+
+    ${ctaButton(subscribeUrl, 'Review My Subscription')}
+
+    ${divider()}
+    <p style="margin:0;font-size:13px;color:${C_MUTED};text-align:center;">
+      Questions about your payment? Just reply to this email — Barratt reads every one.
+    </p>
+  `);
+
+  await resend.emails.send({
+    from: `Barratt at findtherapy.care <${FROM_EMAIL}>`,
+    to: providerEmail,
+    subject,
+    html,
+    text: `Hi ${providerName},\n\nPayFast was unable to process your monthly subscription payment. This can happen when a card expires, has insufficient funds, or the bank declines the charge.\n\nYour listing is still visible for now. Check that your payment method is up to date and PayFast will retry automatically.\n\nReview your subscription: ${subscribeUrl}\n\nQuestions? Just reply to this email.\n\n— Barratt`,
+  });
+
+  console.log(`✅ Payment-failed email sent to ${providerEmail} (failure #${failureCount})`);
+};
+
+// ---------------------------------------------------------------------------
 // Blog Post Emails
 // ---------------------------------------------------------------------------
 

@@ -29,6 +29,10 @@ import {
   unpauseSubscription,
 } from '../../controllers/subscriptionController';
 
+jest.mock('../../services/emailService', () => ({
+  sendPaymentFailedEmail: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('Subscription Controller', () => {
   let mockRequest: Partial<AuthRequest>;
   let mockResponse: Partial<Response>;
@@ -326,6 +330,183 @@ describe('Subscription Controller', () => {
 
       const updatedProvider = await Provider.findById(provider._id);
       expect(updatedProvider?.subscriptionStatus).toBe('active');
+    });
+
+    it('sets subscriptionStatus to past_due on FAILED payment', async () => {
+      const user = await createTestUser();
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'active',
+      });
+
+      const paymentId = `${provider._id.toString()}_${Date.now()}`;
+      await Provider.findByIdAndUpdate(provider._id, { payfastPaymentId: paymentId });
+
+      const itnData: Record<string, string> = {
+        m_payment_id: paymentId,
+        pf_payment_id: '99991',
+        payment_status: 'FAILED',
+        amount_gross: '150.00',
+      };
+      itnData.signature = generateTestSignature(itnData);
+      mockRequest.body = itnData;
+
+      await handleITN(mockRequest as Request, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.subscriptionStatus).toBe('past_due');
+    });
+
+    it('increments paymentFailureCount on each FAILED ITN', async () => {
+      const user = await createTestUser();
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'active',
+      });
+
+      const paymentId = `${provider._id.toString()}_${Date.now()}`;
+      await Provider.findByIdAndUpdate(provider._id, { payfastPaymentId: paymentId });
+
+      for (let i = 1; i <= 3; i++) {
+        const itnData: Record<string, string> = {
+          m_payment_id: paymentId,
+          pf_payment_id: `9999${i}`,
+          payment_status: 'FAILED',
+          amount_gross: '150.00',
+        };
+        itnData.signature = generateTestSignature(itnData);
+        mockRequest.body = itnData;
+        await handleITN(mockRequest as Request, mockResponse as Response);
+      }
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.paymentFailureCount).toBe(3);
+    });
+
+    it('records firstPaymentFailedAt on first failure', async () => {
+      const user = await createTestUser();
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'active',
+      });
+
+      const paymentId = `${provider._id.toString()}_${Date.now()}`;
+      await Provider.findByIdAndUpdate(provider._id, { payfastPaymentId: paymentId });
+
+      const before = new Date();
+      const itnData: Record<string, string> = {
+        m_payment_id: paymentId,
+        pf_payment_id: '88881',
+        payment_status: 'FAILED',
+        amount_gross: '150.00',
+      };
+      itnData.signature = generateTestSignature(itnData);
+      mockRequest.body = itnData;
+
+      await handleITN(mockRequest as Request, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.firstPaymentFailedAt).toBeDefined();
+      expect(updated!.firstPaymentFailedAt!.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    });
+
+    it('does not overwrite firstPaymentFailedAt on subsequent failures', async () => {
+      const user = await createTestUser();
+      const firstFailedAt = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'past_due',
+      });
+      await Provider.findByIdAndUpdate(provider._id, {
+        paymentFailureCount: 2,
+        firstPaymentFailedAt: firstFailedAt,
+      });
+
+      const paymentId = `${provider._id.toString()}_${Date.now()}`;
+      await Provider.findByIdAndUpdate(provider._id, { payfastPaymentId: paymentId });
+
+      const itnData: Record<string, string> = {
+        m_payment_id: paymentId,
+        pf_payment_id: '77771',
+        payment_status: 'FAILED',
+        amount_gross: '150.00',
+      };
+      itnData.signature = generateTestSignature(itnData);
+      mockRequest.body = itnData;
+
+      await handleITN(mockRequest as Request, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      // $min means it keeps the earlier date
+      expect(updated!.firstPaymentFailedAt!.getTime()).toBe(firstFailedAt.getTime());
+    });
+
+    it('resets failure tracking and sets active on successful COMPLETE after failures', async () => {
+      const user = await createTestUser();
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'past_due',
+      });
+      await Provider.findByIdAndUpdate(provider._id, {
+        paymentFailureCount: 2,
+        firstPaymentFailedAt: new Date(),
+      });
+
+      const paymentId = `${provider._id.toString()}_${Date.now()}`;
+      await Provider.findByIdAndUpdate(provider._id, { payfastPaymentId: paymentId });
+
+      const itnData: Record<string, string> = {
+        m_payment_id: paymentId,
+        pf_payment_id: '66661',
+        payment_status: 'COMPLETE',
+        amount_gross: '150.00',
+        token: 'recovered_token',
+      };
+      itnData.signature = generateTestSignature(itnData);
+      mockRequest.body = itnData;
+
+      await handleITN(mockRequest as Request, mockResponse as Response);
+
+      const updated = await Provider.findById(provider._id);
+      expect(updated?.subscriptionStatus).toBe('active');
+      expect(updated?.paymentFailureCount).toBe(0);
+      expect(updated?.firstPaymentFailedAt).toBeUndefined();
+    });
+
+    it('sends payment failed email on FAILED ITN', async () => {
+      const emailService = await import('../../services/emailService');
+      const mockSendFailedEmail = emailService.sendPaymentFailedEmail as jest.Mock;
+      mockSendFailedEmail.mockClear();
+
+      const user = await createTestUser();
+      const provider = await createTestProvider({
+        userId: user._id.toString(),
+        subscriptionStatus: 'active',
+        contactEmail: 'provider@test.com',
+      });
+
+      const paymentId = `${provider._id.toString()}_${Date.now()}`;
+      await Provider.findByIdAndUpdate(provider._id, { payfastPaymentId: paymentId });
+
+      const itnData: Record<string, string> = {
+        m_payment_id: paymentId,
+        pf_payment_id: '55551',
+        payment_status: 'FAILED',
+        amount_gross: '150.00',
+      };
+      itnData.signature = generateTestSignature(itnData);
+      mockRequest.body = itnData;
+
+      await handleITN(mockRequest as Request, mockResponse as Response);
+
+      // Give the fire-and-forget promise time to resolve
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(mockSendFailedEmail).toHaveBeenCalledWith(
+        expect.any(String),
+        'provider@test.com',
+        1
+      );
     });
   });
 

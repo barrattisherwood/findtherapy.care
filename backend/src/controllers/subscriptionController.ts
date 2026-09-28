@@ -347,6 +347,34 @@ async function updateProviderSubscription(
     const endsAt = new Date();
     endsAt.setMonth(endsAt.getMonth() + 1);
     updateData.subscriptionEndsAt = endsAt;
+    // Clear failure tracking on successful payment
+    updateData.paymentFailureCount = 0;
+    updateData.$unset = { firstPaymentFailedAt: '' };
+  }
+
+  if (status === 'past_due') {
+    // Increment failure count and record first failure date
+    const provider = await Provider.findByIdAndUpdate(
+      providerId,
+      {
+        payfastPaymentId: paymentId,
+        subscriptionStatus: status,
+        $inc: { paymentFailureCount: 1 },
+        $min: { firstPaymentFailedAt: new Date() },
+      },
+      { new: true }
+    );
+
+    if (provider) {
+      // Send failure email to provider
+      const { sendPaymentFailedEmail } = await import('../services/emailService');
+      sendPaymentFailedEmail(
+        provider.displayName || 'there',
+        provider.contactEmail || '',
+        provider.paymentFailureCount ?? 1
+      ).catch(err => console.error('[ITN] Failed to send payment failed email:', err));
+    }
+    return;
   }
 
   await Provider.findByIdAndUpdate(providerId, updateData);

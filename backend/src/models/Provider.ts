@@ -4,6 +4,8 @@ import { Provider as SharedProvider, ProviderType, CounsellorType, SubscriptionS
 export interface IProvider extends Omit<SharedProvider, 'id'>, Document {
   _id: mongoose.Types.ObjectId;
   blogBetaEnabled: boolean;
+  paymentFailureCount: number;
+  firstPaymentFailedAt?: Date;
 }
 
 const providerSchema = new Schema<IProvider>(
@@ -203,6 +205,13 @@ const providerSchema = new Schema<IProvider>(
     },
     payfastSubscriptionToken: {
       type: String,
+    },
+    paymentFailureCount: {
+      type: Number,
+      default: 0,
+    },
+    firstPaymentFailedAt: {
+      type: Date,
     },
     subscriptionStatus: {
       type: String,

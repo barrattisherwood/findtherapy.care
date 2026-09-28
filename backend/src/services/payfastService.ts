@@ -309,12 +309,14 @@ export const unpausePayFastSubscription = (subscriptionToken: string): Promise<b
   callPayFastSubscriptionApi(subscriptionToken, 'unpause');
 
 // Map PayFast payment status to our subscription status
-export const mapPaymentStatus = (status: string): 'active' | 'canceled' | 'none' => {
+export const mapPaymentStatus = (status: string): 'active' | 'canceled' | 'past_due' | 'none' => {
   switch (status) {
     case 'COMPLETE':
       return 'active';
     case 'CANCELLED':
       return 'canceled';
+    case 'FAILED':
+      return 'past_due';
     default:
       return 'none';
   }

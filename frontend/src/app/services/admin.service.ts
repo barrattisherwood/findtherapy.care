@@ -56,6 +56,9 @@ export interface AdminProvider {
   profileImage?: string;
   createdAt: Date;
   isAdmin: boolean;
+  paymentFailureCount: number;
+  firstPaymentFailedAt?: Date;
+  isSuspendEligible: boolean;
 }
 
 export interface AdminProviderListResponse {

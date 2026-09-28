@@ -78,7 +78,7 @@ export const getAllProviders = async (req: AuthRequest, res: Response): Promise<
         .sort(sort)
         .skip(skip)
         .limit(limit)
-        .select('displayName type contactEmail vettingStatus isPublished isSuspended subscriptionStatus trialEndsAt viewCount isFounder founderNumber createdAt profileImage userId'),
+        .select('displayName type contactEmail vettingStatus isPublished isSuspended subscriptionStatus trialEndsAt viewCount isFounder founderNumber createdAt profileImage userId paymentFailureCount firstPaymentFailedAt'),
       Provider.countDocuments(filter),
     ]);
 
@@ -105,6 +105,14 @@ export const getAllProviders = async (req: AuthRequest, res: Response): Promise<
         profileImage: p.profileImage,
         createdAt: p.createdAt,
         isAdmin: adminUserIdSet.has(p.userId),
+        paymentFailureCount: p.paymentFailureCount ?? 0,
+        firstPaymentFailedAt: p.firstPaymentFailedAt,
+        isSuspendEligible: (() => {
+          if (!p.firstPaymentFailedAt || !p.paymentFailureCount || p.paymentFailureCount < 3) return false;
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          return p.firstPaymentFailedAt < sevenDaysAgo;
+        })(),
       })),
       total,
       page,
