@@ -372,15 +372,12 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
     const limit = Math.min(50, Math.max(1, params.limit || 20));
     const skip = (page - 1) * limit;
 
-    // Build query - show providers with active trial OR active subscription, AND approved vetting
-    const now = new Date();
+    // Build query - show all approved published providers (growth mode: no subscription gate)
     const query: any = {
       isPublished: true,
       vettingStatus: 'approved',
       isSuspended: { $ne: true },
-      $and: [
-        { $or: [{ subscriptionStatus: 'active' }, { trialEndsAt: { $gt: now } }] },
-      ],
+      $and: [],
     };
 
     if (params.type) {
@@ -434,7 +431,6 @@ export const searchProviders = async (req: AuthRequest, res: Response) => {
 export const getProviderById = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const now = new Date();
 
     // Increment view count and return the updated provider
     const provider = await Provider.findOneAndUpdate(
@@ -443,10 +439,6 @@ export const getProviderById = async (req: AuthRequest, res: Response) => {
         isPublished: true,
         vettingStatus: 'approved',
         isSuspended: { $ne: true },
-        $or: [
-          { subscriptionStatus: 'active' },
-          { trialEndsAt: { $gt: now } },
-        ],
       },
       { $inc: { viewCount: 1 } },
       { new: true }
