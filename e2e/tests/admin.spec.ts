@@ -369,6 +369,28 @@ test.describe('Admin — Provider Management', () => {
     await expect(page.getByText('Dr. Sarah Mitchell')).toBeVisible({ timeout: 10_000 });
     await page.screenshot({ path: `${SCREENSHOT_DIR}/18-providers-founder-badge.png`, fullPage: true });
   });
+
+  test('shows suspend-eligible warning for provider with 3+ failures over 7+ days', async ({ page }) => {
+    await page.goto('/admin/providers');
+    await expect(page.getByText('Juanique Pretorius')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/suspend eligible/i).first()).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/19-providers-suspend-eligible.png`, fullPage: true });
+  });
+
+  test('shows failure count badge for provider with fewer than 3 failures', async ({ page }) => {
+    await page.goto('/admin/providers');
+    await expect(page.getByText('Constance Dlamini')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/1✕ failed/i)).toBeVisible();
+    await page.screenshot({ path: `${SCREENSHOT_DIR}/20-providers-payment-failed-badge.png`, fullPage: true });
+  });
+
+  test('shows no failure badge for providers with no payment failures', async ({ page }) => {
+    await page.goto('/admin/providers');
+    await expect(page.getByText('James van der Berg')).toBeVisible({ timeout: 10_000 });
+    // Active provider should not have a failure badge
+    const jamesRow = page.getByRole('row').filter({ hasText: 'James van der Berg' });
+    await expect(jamesRow.getByText(/failed/i)).not.toBeVisible();
+  });
 });
 
 test.describe('Admin — Messages', () => {

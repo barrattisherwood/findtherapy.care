@@ -577,9 +577,12 @@ describe('PayFast Service', () => {
       expect(payfastService.mapPaymentStatus('CANCELLED')).toBe('canceled');
     });
 
+    it('maps FAILED to past_due', () => {
+      expect(payfastService.mapPaymentStatus('FAILED')).toBe('past_due');
+    });
+
     it('maps unknown status to none', () => {
       expect(payfastService.mapPaymentStatus('PENDING')).toBe('none');
-      expect(payfastService.mapPaymentStatus('FAILED')).toBe('none');
       expect(payfastService.mapPaymentStatus('UNKNOWN')).toBe('none');
     });
 
